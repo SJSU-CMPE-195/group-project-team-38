@@ -1,6 +1,6 @@
-# Project Title
+# MediTag
 
-> One-line description of what your project does
+> AI-assisted patient verification system using QR/NFC scanning and local-first architecture.
 
 ## Team
 
@@ -52,10 +52,11 @@
 
 | Category | Technology |
 |----------|------------|
-| Frontend | |
-| Backend | |
-| Database | |
-| Deployment | |
+| Frontend | React Native, React|
+| Backend | Node.js, Express, TypeScript|
+| Database | PostgreSQL (Docker), Prisma ORM|
+| Deployment | Local Docker environment (LAN-based)|
+| Package Manager | pnpm (workspace monorepo)|
 
 ---
 
@@ -63,8 +64,15 @@
 
 ### Prerequisites
 
-- [Prerequisite 1] v.X.X+
-- [Prerequisite 2] v.X.X+
+- Node.js v20 or later
+- pnpm (npm install -g pnpm)
+- Docker Desktop
+Verify installation:
+```bash
+node -v
+pnpm -v
+docker --version
+```
 
 ### Installation
 
@@ -74,14 +82,29 @@ git clone https://github.com/[org]/[repo].git
 cd [repo]
 
 # Install dependencies
-[install command]
+pnpm install
+
+# Start PostgreSQL (Docker)
+pnpm db:up
+
+# Run Database Migration
+pnpm db:migrate
+
+# Seed Initial Data
+pnpm db:seed
+
+# Start Backend Server
+pnpm api:dev
+
+Test the API:
+http://localhost:3001/health
 
 # Set up environment variables
 cp .env.example .env
 # Edit .env with your values
 
 # Run database migrations (if applicable)
-[migration command]
+pnpm db:migrate
 ```
 
 ### Running Locally
@@ -122,10 +145,19 @@ cp .env.example .env
 
 ```
 .
-├── [folder]/           # Description
-├── src/                # Source code files
-├── tests/              # Test files
-├── docs/               # Documentation files
+├── src/
+│   ├── apps/
+│   │   ├── api/        # Backend (Node.js + Express + Prisma)
+│   │   ├── mobile/     # React Native application
+│   │   └── admin/      # Admin web application
+│   │
+│   └── packages/       # Shared utilities
+│
+├── infra/
+│   └── docker/         # Docker configuration (PostgreSQL)
+│
+├── pnpm-workspace.yaml # pnpm monorepo configuration
+├── package.json        # Root project scripts
 └── README.md
 ```
 
