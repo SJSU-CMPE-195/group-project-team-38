@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Nurse {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  role      String   @default("nurse")
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  role         String   @default("nurse") // "nurse" or "admin"
+  passwordHash String
+  createdAt    DateTime @default(now())
 }
 
 model Patient {
