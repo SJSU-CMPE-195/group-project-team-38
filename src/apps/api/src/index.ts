@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import { requireAuth, AuthedRequest } from "./middleware/requireAuth";
+import { requireRole } from "./middleware/requireRole";
 
 dotenv.config();
 
@@ -21,6 +22,10 @@ app.use("/auth", authRoutes);
 app.get("/me", requireAuth, (req: AuthedRequest, res) => {
   res.json({ user: req.user });
 });
+
+app.get("/admin/ping", requireAuth, requireRole("admin"), (_req, res) => {
+  res.json({ ok: true, admin: true});
+})
 
 
 const port = process.env.PORT || 3001;
