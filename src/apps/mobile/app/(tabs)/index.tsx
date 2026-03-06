@@ -25,7 +25,7 @@ export default function App() {
 
   return (
     <View style={{ flex: 1, padding: 20, justifyContent: "center", gap: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: "700" }}>Logged in ✅</Text>
+      <Text style={{ fontSize: 18, fontWeight: "700" }}>Logged in</Text>
       <Text>Email: {user?.email}</Text>
       <Text>Role: {user?.role}</Text>
 

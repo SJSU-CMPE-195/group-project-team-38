@@ -7,12 +7,7 @@
     "src/packages/*"
   ],
   "scripts": {
-    "api:dev": "pnpm --filter api dev",
-    "db:up": "docker compose -f src/infra/docker/docker-compose.yml up -d",
-    "db:down": "docker compose -f src/infra/docker/docker-compose.yml down",
-    "db:reset": "docker compose -f src/infra/docker/docker-compose.yml down -v && docker compose -f infra/docker/docker-compose.yml up -d",
-    "db:migrate": "pnpm --filter api exec prisma migrate dev",
-    "db:seed": "pnpm --filter api exec prisma db seed",
+    "convex:dev": "pnpm --filter api dev",
     "mobile:dev": "pnpm --filter mobile start",
     "admin:dev": "pnpm --filter admin dev"
   }
