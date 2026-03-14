@@ -1,163 +1,47 @@
-# ===========================
-# Environment & Secrets
-# ===========================
-.env
-.env.local
-.env.*.local
-*.pem
-*.key
-secrets/
-credentials.json
-
-# ===========================
 # Dependencies
-# ===========================
+node_modules
+.pnp
+.pnp.js
 
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# Build outputs
+dist
+build
+*.tsbuildinfo
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-.venv/
-env/
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
-*.egg-info/
-.eggs/
-dist/
-build/
+# Environment variables
+.env
+.env*.local
 
-# Go
-vendor/
-
-# Rust
-target/
-
-# Java
-*.class
-*.jar
-*.war
-.gradle/
-build/
-
-# ===========================
-# Build Outputs
-# ===========================
-dist/
-build/
-out/
-*.min.js
-*.min.css
-.next/
-.nuxt/
-.output/
-
-# ===========================
-# IDE & Editors
-# ===========================
-
-# VS Code
-.vscode/
-*.code-workspace
-
-# JetBrains (IntelliJ, PyCharm, WebStorm)
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# Vim
+# IDEs and editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
 *.swp
 *.swo
 *~
-
-# Emacs
-*~
-\#*\#
-.#*
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# ===========================
-# OS Generated
-# ===========================
-
-# macOS
 .DS_Store
-.AppleDouble
-.LSOverride
-._*
-.Spotlight-V100
-.Trashes
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.lnk
-
-# Linux
-*~
-
-# ===========================
-# Testing & Coverage
-# ===========================
-coverage/
-.coverage
-htmlcov/
-.nyc_output/
-*.lcov
-.pytest_cache/
-.tox/
-nosetests.xml
-coverage.xml
-
-# ===========================
-# Logs & Temp Files
-# ===========================
-logs/
+# Logs
+logs
 *.log
-tmp/
-temp/
-*.tmp
-*.temp
-*.cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# ===========================
-# Database
-# ===========================
-*.sqlite
-*.sqlite3
-*.db
-*.sql.gz
+# Turbo
+.turbo
 
-# ===========================
-# Docker (local volumes)
-# ===========================
-docker-data/
-.docker/
+# Testing
+coverage
+.nyc_output
 
-# ===========================
 # Misc
-# ===========================
-.vercel
-.netlify
-.serverless/
-*.bak
-*.backup
-
-# ===========================
-# Project Specific
-# ===========================
-# Add project-specific ignores below
+*.tgz
+.cache
+tmp
+temp
