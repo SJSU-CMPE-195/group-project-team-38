@@ -12,7 +12,7 @@ async function ensurePatient(
     dob: string;
     allergyCodes: string[];
     allergyLabels: string[];
-  }
+  },
 ): Promise<Id<"patients">> {
   const existingPatient = await ctx.db
     .query("patients")
@@ -71,7 +71,7 @@ export const seedDemoData = internalMutation({
         .collect();
 
       const matchingMedication = existingMedication.find(
-        (item) => item.patientId === input.patientId && item.isActive
+        (item) => item.patientId === input.patientId && item.isActive,
       );
       if (matchingMedication) {
         return matchingMedication._id;

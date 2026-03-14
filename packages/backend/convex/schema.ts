@@ -63,15 +63,15 @@ export default defineSchema({
         v.literal("identity_mismatch"),
         v.literal("allergy_conflict"),
         v.literal("wristband_not_found"),
-        v.literal("medication_not_found")
-      )
+        v.literal("medication_not_found"),
+      ),
     ),
     deterministicDecisionVersion: v.string(),
     explanationStatus: v.union(
       v.literal("none"),
       v.literal("requested"),
       v.literal("generated"),
-      v.literal("failed")
+      v.literal("failed"),
     ),
     explanationText: v.optional(v.string()),
     explanationModel: v.optional(v.string()),

@@ -66,4 +66,3 @@ For senior project feasibility, V1 now targets a demonstrable, reliable prototyp
 - Local model hosting
 - Offline sync and conflict resolution
 - Compliance and certification workstreams
-

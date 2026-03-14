@@ -4,8 +4,8 @@
 
 ## Team
 
-| Name | GitHub | Email |
-|------|--------|-------|
+| Name   | GitHub                                   | Email         |
+| ------ | ---------------------------------------- | ------------- |
 | Name 1 | [@username](https://github.com/username) | name@sjsu.edu |
 | Name 2 | [@username](https://github.com/username) | name@sjsu.edu |
 | Name 3 | [@username](https://github.com/username) | name@sjsu.edu |
@@ -41,8 +41,8 @@
 
 ## Screenshots
 
-| Feature | Screenshot |
-|---------|------------|
+| Feature     | Screenshot                                   |
+| ----------- | -------------------------------------------- |
 | [Feature 1] | ![Screenshot](docs/screenshots/feature1.png) |
 | [Feature 2] | ![Screenshot](docs/screenshots/feature2.png) |
 
@@ -50,12 +50,12 @@
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Frontend | |
-| Backend | |
-| Database | |
-| Deployment | |
+| Category   | Technology |
+| ---------- | ---------- |
+| Frontend   |            |
+| Backend    |            |
+| Database   |            |
+| Deployment |            |
 
 ---
 
@@ -106,13 +106,13 @@ cp .env.example .env
 <details>
 <summary>Click to expand API endpoints</summary>
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/resource` | Get all resources |
-| GET | `/api/resource/:id` | Get resource by ID |
-| POST | `/api/resource` | Create new resource |
-| PUT | `/api/resource/:id` | Update resource |
-| DELETE | `/api/resource/:id` | Delete resource |
+| Method | Endpoint            | Description         |
+| ------ | ------------------- | ------------------- |
+| GET    | `/api/resource`     | Get all resources   |
+| GET    | `/api/resource/:id` | Get resource by ID  |
+| POST   | `/api/resource`     | Create new resource |
+| PUT    | `/api/resource/:id` | Update resource     |
+| DELETE | `/api/resource/:id` | Delete resource     |
 
 </details>
 
@@ -148,6 +148,7 @@ cp .env.example .env
 ### Commit Messages
 
 Use clear, descriptive commit messages:
+
 - `Add user authentication endpoint`
 - `Fix database connection timeout issue`
 - `Update README with setup instructions`
@@ -167,4 +168,4 @@ This project is licensed under the <FILL IN> License - see the [LICENSE](LICENSE
 
 ---
 
-*CMPE 195A/B - Senior Design Project | San Jose State University | Spring 2026*
+_CMPE 195A/B - Senior Design Project | San Jose State University | Spring 2026_

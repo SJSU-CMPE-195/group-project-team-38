@@ -10,43 +10,43 @@
 
 ## Advisor Meetings
 
-| Date | Duration | Format | Attendees | Summary | Action Items |
-|------|----------|--------|-----------|---------|--------------|
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
+| Date | Duration | Format             | Attendees | Summary | Action Items |
+| ---- | -------- | ------------------ | --------- | ------- | ------------ |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
 
 ---
 
 ## Team Meetings
 
-| Date | Duration | Format | Attendees | Summary | Action Items |
-|------|----------|--------|-----------|---------|--------------|
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
-| | | In-person / Remote | | | |
+| Date | Duration | Format             | Attendees | Summary | Action Items |
+| ---- | -------- | ------------------ | --------- | ------- | ------------ |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
+|      |          | In-person / Remote |           |         |              |
 
 ---
 
@@ -56,13 +56,12 @@
 
 **Attendees:**
 
-**Discussion:**
--
+## **Discussion:**
 
-**Decisions:**
--
+## **Decisions:**
 
 **Action Items:**
+
 - [ ] [Task] - [Owner] - [Due]
 - [ ] [Task] - [Owner] - [Due]
 
@@ -72,13 +71,12 @@
 
 **Attendees:**
 
-**Discussion:**
--
+## **Discussion:**
 
-**Decisions:**
--
+## **Decisions:**
 
 **Action Items:**
+
 - [ ] [Task] - [Owner] - [Due]
 - [ ] [Task] - [Owner] - [Due]
 
@@ -88,13 +86,12 @@
 
 **Attendees:**
 
-**Discussion:**
--
+## **Discussion:**
 
-**Decisions:**
--
+## **Decisions:**
 
 **Action Items:**
+
 - [ ] [Task] - [Owner] - [Due]
 - [ ] [Task] - [Owner] - [Due]
 
@@ -104,13 +101,12 @@
 
 **Attendees:**
 
-**Discussion:**
--
+## **Discussion:**
 
-**Decisions:**
--
+## **Decisions:**
 
 **Action Items:**
+
 - [ ] [Task] - [Owner] - [Due]
 - [ ] [Task] - [Owner] - [Due]
 
@@ -120,13 +116,12 @@
 
 **Attendees:**
 
-**Discussion:**
--
+## **Discussion:**
 
-**Decisions:**
--
+## **Decisions:**
 
 **Action Items:**
+
 - [ ] [Task] - [Owner] - [Due]
 - [ ] [Task] - [Owner] - [Due]
 
@@ -136,13 +131,12 @@
 
 **Attendees:**
 
-**Discussion:**
--
+## **Discussion:**
 
-**Decisions:**
--
+## **Decisions:**
 
 **Action Items:**
+
 - [ ] [Task] - [Owner] - [Due]
 - [ ] [Task] - [Owner] - [Due]
 

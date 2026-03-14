@@ -102,13 +102,13 @@ In conclusion, the state of the art in MediTag's domain is defined by modular in
 
 ### References
 
-1. Elhaddad, M., & Hamam, S. (2024). AI-Driven Clinical Decision Support Systems: An Ongoing Pursuit of Potential. *Cureus*, 16(4), e57728. https://doi.org/10.7759/cureus.57728
+1. Elhaddad, M., & Hamam, S. (2024). AI-Driven Clinical Decision Support Systems: An Ongoing Pursuit of Potential. _Cureus_, 16(4), e57728. https://doi.org/10.7759/cureus.57728
 
 2. Jung, D., Butler, A., Park, J., & Saperstein, Y. (2024). Evaluating the impact of a specialized large language model on physician experience in clinical decision support: A comparison of Ask Avo and ChatGPT-4. arXiv preprint arXiv:2409.15326. https://doi.org/10.48550/arXiv.2409.15326
 
-3. Morgan, K. L., Kukhareva, P. V., Warner, P. B., Wilko, J., Snyder, M., Horton, D., Madsen, T., Habboushe, J., & Kawamoto, K. (2022). Using CDS Hooks to increase SMART on FHIR app utilization: A cluster-randomized trial. *Journal of the American Medical Informatics Association*, 29(9), 1461-1470. https://doi.org/10.1093/jamia/ocac085
+3. Morgan, K. L., Kukhareva, P. V., Warner, P. B., Wilko, J., Snyder, M., Horton, D., Madsen, T., Habboushe, J., & Kawamoto, K. (2022). Using CDS Hooks to increase SMART on FHIR app utilization: A cluster-randomized trial. _Journal of the American Medical Informatics Association_, 29(9), 1461-1470. https://doi.org/10.1093/jamia/ocac085
 
-4. Vrdoljak, J., Boban, Z., Vilovic, M., Kumric, M., & Bozic, J. (2025). A review of large language models in medical education, clinical decision support, and healthcare administration. *Healthcare*, 13(6), 603. https://doi.org/10.3390/healthcare13060603
+4. Vrdoljak, J., Boban, Z., Vilovic, M., Kumric, M., & Bozic, J. (2025). A review of large language models in medical education, clinical decision support, and healthcare administration. _Healthcare_, 13(6), 603. https://doi.org/10.3390/healthcare13060603
 
 5. Wang, S., Tang, Z., Gong, Q., Gu, T., Ma, H., Wang, Y., Niu, Z., Wang, P., Liu, L., Zhang, H., Shen, H., Zhao, Q., & Wu, J. (2025). A novel evaluation benchmark for medical LLMs: Illuminating safety and effectiveness in clinical domains. arXiv preprint arXiv:2507.23486. https://doi.org/10.48550/arXiv.2507.23486
 
@@ -126,16 +126,16 @@ An embedded AI assistant powered by a local model (with optional external LLM su
 
 ### Non-Functional Requirements
 
-| Category | Specification |
-|---|---|
-| Performance | Patient verification completes in ≤ 2 seconds on typical hardware. |
-| Reliability | ≥ 99% scan success rate on valid wristbands under normal lighting. |
-| Availability | Local server uptime ≥ 99.5% within LAN deployment. |
-| Security | AES-256 encryption for data at rest; TLS 1.3 for LAN communication. |
-| Privacy | Only de-identified or simulated data used in academic environments; PHI excluded. |
-| Usability | First-time nurse users complete a scan within 5 minutes of introduction. |
-| Maintainability | Modular architecture separating UI, API, and database layers for ease of update. |
-| Scalability | Supports ≥ 100 concurrent scan events per minute in a typical hospital ward. |
+| Category        | Specification                                                                     |
+| --------------- | --------------------------------------------------------------------------------- |
+| Performance     | Patient verification completes in ≤ 2 seconds on typical hardware.                |
+| Reliability     | ≥ 99% scan success rate on valid wristbands under normal lighting.                |
+| Availability    | Local server uptime ≥ 99.5% within LAN deployment.                                |
+| Security        | AES-256 encryption for data at rest; TLS 1.3 for LAN communication.               |
+| Privacy         | Only de-identified or simulated data used in academic environments; PHI excluded. |
+| Usability       | First-time nurse users complete a scan within 5 minutes of introduction.          |
+| Maintainability | Modular architecture separating UI, API, and database layers for ease of update.  |
+| Scalability     | Supports ≥ 100 concurrent scan events per minute in a typical hospital ward.      |
 
 ### Use Case View
 
@@ -249,25 +249,25 @@ MediTag is designed as a local-first patient safety verification system that use
 
 ### UML Class Diagram
 
-*Figure 6.1: UML Class Diagram representing the core system entities and logic.*
+_Figure 6.1: UML Class Diagram representing the core system entities and logic._
 
 As illustrated in Figure 6.1, our systems logic is divided into different entities to separate concerns. The Nurse class handles authentication and role verification. The core functionality revolves around the ScanSession which captures the interaction between a Nurse, a Patient, and a specific Room. The SafetyEngine interfaces with the Patient record to check for activeMeds and allergies, and if a complex medical scenario comes up the AIGateway is called to provide explanation through runLocalModel or runLLMFallback.
 
 ### UML Sequence Diagram
 
-*Figure 6.2: Sequence Diagram illustrating the "Patient Verification" workflow*
+_Figure 6.2: Sequence Diagram illustrating the "Patient Verification" workflow_
 
 Figure 6.2 shows the data flow during a standard scan, starting with the Nurse initiating the scan via MobileApp. To start, the app submits the scan payload (via QR or NFC data) to the API. Then, the API queries our PostgreSQL database to fetch the patient's identity and active medication profile. Then the SafetyEngine processes this data against rule-based logic and if a risk is detected the system requests an explanation from the AIGateway. This results in the final verification alert being returned to the MobileApp to display it.
 
 ### Database Entity Diagram
 
-*Figure 6.3: Entity Relationship Diagram (ERD) showing the relational schema.*
+_Figure 6.3: Entity Relationship Diagram (ERD) showing the relational schema._
 
 The database schema shown in Figure 6.3 uses UUIDs for all primary keys so theres unique identification across all systems. The main entity is the PATIENT table which holds the demographic data and dynamic fields like allergies. Relationships are forced strictly, where for example the SCAN_LOG table references the NURSE, PATIENT, and WRISTBAND tables. This allows us to trace back every scan to a specific actor and patient which satisfies our audibility requirement. The MEDICATION table has a one-to-many relationship with the patient which allows the safety engine to query current prescriptions against potential allergens.
 
 ### Hardware Block Diagram
 
-*Figure 6.4: Hardware Block Diagram detailing physical components and network interfaces.*
+_Figure 6.4: Hardware Block Diagram detailing physical components and network interfaces._
 
 Figure 6.4 shows our physical architecture, where MobileDevice is our primary input node and utilizes the built-in QR Camera Scanner and NFC Reader to capture data from the ClinicalEnvironment (Patient wristbands and room qr codes). This device communicates via HTTPS TLS over the local LAN. The LocalServer acts as the central hub and hosts the nodejs API, the database, and the AI gateway. This physical separation allows our heavy processing to occur on the server which preserves the battery life and performance of the mobile units.
 
@@ -279,30 +279,30 @@ This figure shows our mobile interface is designed to reduce cognitive load duri
 
 #### Desktop
 
-*(See original PDF for desktop mockup screenshots)*
+_(See original PDF for desktop mockup screenshots)_
 
 ### Tools Required
 
-| Tool | Purpose |
-|---|---|
-| React Native | Mobile app development for QR/NFC scanning |
-| Expo/CLI + Native Modules | Access to camera, NFC hardware |
-| Node.js + Express | Backend API layer |
-| PostgreSQL | Encrypted data storage on-prem |
-| Docker Compose | Deploy DB + API locally |
-| NFC Tools + Wristband Printer | Hardware testing |
-| MermaidJS | Diagramming for UML, ERD, block diagrams |
-| Figma | UI mockups and screen flow design |
-| Jest + Postman | Testing APIs and verification logic |
+| Tool                          | Purpose                                    |
+| ----------------------------- | ------------------------------------------ |
+| React Native                  | Mobile app development for QR/NFC scanning |
+| Expo/CLI + Native Modules     | Access to camera, NFC hardware             |
+| Node.js + Express             | Backend API layer                          |
+| PostgreSQL                    | Encrypted data storage on-prem             |
+| Docker Compose                | Deploy DB + API locally                    |
+| NFC Tools + Wristband Printer | Hardware testing                           |
+| MermaidJS                     | Diagramming for UML, ERD, block diagrams   |
+| Figma                         | UI mockups and screen flow design          |
+| Jest + Postman                | Testing APIs and verification logic        |
 
 ### Tools to Learn
 
-| Tool | Gaps | Learning Plan |
-|---|---|---|
-| NFC React Native APIs | Team has no prior NFC experience | Use react-native-nfc-manager docs and build a test app to interface with NFC tags |
-| Docker for deployment | Some familiarity but not production ready | Complete official Docker tutorial plus run local Postgres in containers |
-| Local LLM hosting | Limited experience | Start with smaller models (Mistral, Llama) and run on CPU and study Ollama/OpenLLM basics |
-| Figma | Not all team members have experience with | Assign one member to create primary screens and teach others basic frame editing |
+| Tool                  | Gaps                                      | Learning Plan                                                                             |
+| --------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- |
+| NFC React Native APIs | Team has no prior NFC experience          | Use react-native-nfc-manager docs and build a test app to interface with NFC tags         |
+| Docker for deployment | Some familiarity but not production ready | Complete official Docker tutorial plus run local Postgres in containers                   |
+| Local LLM hosting     | Limited experience                        | Start with smaller models (Mistral, Llama) and run on CPU and study Ollama/OpenLLM basics |
+| Figma                 | Not all team members have experience with | Assign one member to create primary screens and teach others basic frame editing          |
 
 ### Alternative Design Choice
 

@@ -18,7 +18,7 @@ export const getById = query({
       createdAt: v.number(),
       updatedAt: v.number(),
     }),
-    v.null()
+    v.null(),
   ),
   handler: async (ctx, args) => {
     await requireRole(ctx, ["nurse", "admin"]);
@@ -40,7 +40,7 @@ export const list = query({
       isActive: v.boolean(),
       createdAt: v.number(),
       updatedAt: v.number(),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
     await requireRole(ctx, ["admin"]);
