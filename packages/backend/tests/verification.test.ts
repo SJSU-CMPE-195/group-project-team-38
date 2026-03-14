@@ -19,13 +19,11 @@ for (const [path, loader] of Object.entries(allModules)) {
     modules[path] = loader;
   }
 }
-const betterAuthModules = import.meta.glob<ModuleLoader>(
-  "../convex/betterAuth/**/*.*s"
-);
+const betterAuthModules = import.meta.glob<ModuleLoader>("../convex/betterAuth/**/*.*s");
 
 async function setupIdentity(
   t: TestInstance,
-  role: "nurse" | "admin"
+  role: "nurse" | "admin",
 ): Promise<IdentityTestInstance> {
   const now = Date.now();
   const roleLabel = role.toUpperCase();
@@ -146,7 +144,7 @@ describe("verification flows", () => {
       t.mutation(api.verification.verifyMedicationScan, {
         scannedToken: "WRISTBAND-SAFE-QR-001",
         selectedMedicationCode: "161",
-      })
+      }),
     ).rejects.toThrow("not authorized");
   });
 
@@ -233,7 +231,7 @@ describe("role enforcement", () => {
         dob: "1999-01-01",
         allergyCodes: [],
         allergyLabels: [],
-      })
+      }),
     ).rejects.toThrow("not authorized");
   });
 

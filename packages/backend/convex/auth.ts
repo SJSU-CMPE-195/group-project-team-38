@@ -34,15 +34,11 @@ const createTrustedOrigins = (environment: AuthEnvironment): string[] => {
   if (!environment.isDevelopment) {
     return [environment.siteUrl, environment.nativeAppUrl];
   }
-  return [
-    environment.siteUrl,
-    environment.nativeAppUrl,
-    ...expoDevelopmentOrigins,
-  ];
+  return [environment.siteUrl, environment.nativeAppUrl, ...expoDevelopmentOrigins];
 };
 
 const createBaseAuthOptions = (
-  environment: AuthEnvironment
+  environment: AuthEnvironment,
 ): Omit<BetterAuthOptions, "database"> => {
   return {
     baseURL: environment.siteUrl,
@@ -62,14 +58,11 @@ const createBaseAuthOptions = (
   };
 };
 
-export const authComponent = createClient<DataModel, typeof authSchema>(
-  components.betterAuth,
-  {
-    local: {
-      schema: authSchema,
-    },
-  }
-);
+export const authComponent = createClient<DataModel, typeof authSchema>(components.betterAuth, {
+  local: {
+    schema: authSchema,
+  },
+});
 
 export const createAuthOptions = (ctx: GenericCtx<DataModel>): BetterAuthOptions => {
   const environment = getAuthEnvironment();

@@ -33,10 +33,7 @@ function readStringField(value: unknown, field: string): string | null {
   return candidate;
 }
 
-function findActiveMembershipRole(
-  page: unknown,
-  activeOrganizationId: string
-): string | null {
+function findActiveMembershipRole(page: unknown, activeOrganizationId: string): string | null {
   if (!Array.isArray(page)) {
     return null;
   }
@@ -63,11 +60,7 @@ export async function requireAuthUser(ctx: AuthenticatedContext): Promise<AuthUs
 
 export async function getCurrentRole(ctx: AuthenticatedContext): Promise<AppRole | null> {
   const identity = await ctx.auth.getUserIdentity();
-  if (
-    !identity ||
-    typeof identity.sessionId !== "string" ||
-    typeof identity.subject !== "string"
-  ) {
+  if (!identity || typeof identity.sessionId !== "string" || typeof identity.subject !== "string") {
     return null;
   }
 
@@ -99,10 +92,7 @@ export async function getCurrentRole(ctx: AuthenticatedContext): Promise<AppRole
     ],
   });
 
-  const membershipRole = findActiveMembershipRole(
-    memberships?.page,
-    session.activeOrganizationId
-  );
+  const membershipRole = findActiveMembershipRole(memberships?.page, session.activeOrganizationId);
   if (!membershipRole) {
     return null;
   }
@@ -111,7 +101,7 @@ export async function getCurrentRole(ctx: AuthenticatedContext): Promise<AppRole
 
 export async function requireRole(
   ctx: AuthenticatedContext,
-  allowedRoles: AppRole[]
+  allowedRoles: AppRole[],
 ): Promise<AppRole> {
   const role = await getCurrentRole(ctx);
   if (!role || !allowedRoles.includes(role)) {

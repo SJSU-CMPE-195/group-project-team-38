@@ -7,7 +7,7 @@ const failureReasonValidator = v.union(
   v.literal("identity_mismatch"),
   v.literal("allergy_conflict"),
   v.literal("wristband_not_found"),
-  v.literal("medication_not_found")
+  v.literal("medication_not_found"),
 );
 
 function hasOverlap(first: string[], second: string[]): boolean {
@@ -34,7 +34,7 @@ export const verifyMedicationScan = mutation({
       v.literal("none"),
       v.literal("requested"),
       v.literal("generated"),
-      v.literal("failed")
+      v.literal("failed"),
     ),
   }),
   handler: async (ctx, args) => {
@@ -62,9 +62,7 @@ export const verifyMedicationScan = mutation({
       });
     }
 
-    let medication = args.selectedMedicationId
-      ? await ctx.db.get(args.selectedMedicationId)
-      : null;
+    let medication = args.selectedMedicationId ? await ctx.db.get(args.selectedMedicationId) : null;
 
     const selectedMedicationCode = args.selectedMedicationCode;
     if (!medication && selectedMedicationCode !== undefined) {
@@ -144,7 +142,7 @@ export const getRecentScanLogs = query({
         v.literal("none"),
         v.literal("requested"),
         v.literal("generated"),
-        v.literal("failed")
+        v.literal("failed"),
       ),
       explanationText: v.optional(v.string()),
       explanationModel: v.optional(v.string()),
@@ -153,7 +151,7 @@ export const getRecentScanLogs = query({
         deviceId: v.optional(v.string()),
       }),
       createdAt: v.number(),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
     const role = await requireRole(ctx, ["nurse", "admin"]);

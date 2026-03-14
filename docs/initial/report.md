@@ -237,13 +237,13 @@ The system also logs every verification event for auditing and safety review. To
 
 ## References
 
-1. E. G. Poon, C. A. Keohane, E. M. Featherstone, J. B. Hays, D. A. Dervan, R. L. Fraley, T. Karson, R. A. Shulman, and D. W. Bates, "Effect of bar code technology on the safety of medication administration," *New England Journal of Medicine*, vol. 362, no. 18, pp. 1698-1707, May 2010, doi: 10.1056/NEJMsa0907115.
+1. E. G. Poon, C. A. Keohane, E. M. Featherstone, J. B. Hays, D. A. Dervan, R. L. Fraley, T. Karson, R. A. Shulman, and D. W. Bates, "Effect of bar code technology on the safety of medication administration," _New England Journal of Medicine_, vol. 362, no. 18, pp. 1698-1707, May 2010, doi: 10.1056/NEJMsa0907115.
 
-2. A. Mulac, L. Mathiesen, K. Taxis, and A. G. Granas, "Barcode medication administration technology use in hospital practice: A mixed methods observational study of policy deviations," *BMJ Quality and Safety*, vol. 30, no. 12, pp. 1021-1030, Dec. 2021, doi: 10.1136/bmjqs-2021-013223.
+2. A. Mulac, L. Mathiesen, K. Taxis, and A. G. Granas, "Barcode medication administration technology use in hospital practice: A mixed methods observational study of policy deviations," _BMJ Quality and Safety_, vol. 30, no. 12, pp. 1021-1030, Dec. 2021, doi: 10.1136/bmjqs-2021-013223.
 
-3. K. Grailey, R. Hussain, E. Wylleman, A. Ezzat, S. Huf, and B. D. Franklin, "Understanding the facilitators and barriers to barcode medication administration by nursing staff using behavioural science frameworks: A mixed methods study," *BMC Nursing*, vol. 22, article 378, 2023, doi: 10.1186/s12912-023-01382-x.
+3. K. Grailey, R. Hussain, E. Wylleman, A. Ezzat, S. Huf, and B. D. Franklin, "Understanding the facilitators and barriers to barcode medication administration by nursing staff using behavioural science frameworks: A mixed methods study," _BMC Nursing_, vol. 22, article 378, 2023, doi: 10.1186/s12912-023-01382-x.
 
-4. K. L. Morgan, B. L. Lenert, B. S. Dixon, A. W. Wright, and D. F. Lobach, "Using CDS Hooks to increase SMART on FHIR app utilization: A cluster randomized trial," *Journal of the American Medical Informatics Association*, vol. 29, no. 9, pp. 1461-1470, Sept. 2022, doi: 10.1093/jamia/ocac085.
+4. K. L. Morgan, B. L. Lenert, B. S. Dixon, A. W. Wright, and D. F. Lobach, "Using CDS Hooks to increase SMART on FHIR app utilization: A cluster randomized trial," _Journal of the American Medical Informatics Association_, vol. 29, no. 9, pp. 1461-1470, Sept. 2022, doi: 10.1093/jamia/ocac085.
 
 5. SMART Health IT, "SMART on FHIR," Boston, MA, USA. Accessed Nov. 29, 2025.
 
@@ -251,10 +251,10 @@ The system also logs every verification event for auditing and safety review. To
 
 7. U. S. National Library of Medicine, "SNOMED CT," Bethesda, MD, USA. Accessed Nov. 29, 2025.
 
-8. Q. Xu, J. Wu, and G. Gao, "Interpretability of clinical decision support systems based on artificial intelligence from technological and medical perspective: A systematic review," *Journal of Healthcare Engineering*, vol. 2023, article 9919269, Feb. 2023, doi: 10.1155/2023/9919269.
+8. Q. Xu, J. Wu, and G. Gao, "Interpretability of clinical decision support systems based on artificial intelligence from technological and medical perspective: A systematic review," _Journal of Healthcare Engineering_, vol. 2023, article 9919269, Feb. 2023, doi: 10.1155/2023/9919269.
 
-9. S. Labkoff et al., "Toward a responsible future: Recommendations for AI enabled clinical decision support," *Journal of the American Medical Informatics Association*, vol. 31, no. 11, pp. 2730-2739, Nov. 2024, doi: 10.1093/jamia/ocae209.
+9. S. Labkoff et al., "Toward a responsible future: Recommendations for AI enabled clinical decision support," _Journal of the American Medical Informatics Association_, vol. 31, no. 11, pp. 2730-2739, Nov. 2024, doi: 10.1093/jamia/ocae209.
 
 10. S. Wang et al., "A novel evaluation benchmark for medical LLMs: Illuminating safety and effectiveness in clinical domains," arXiv:2507.23486, July 2025.
 
-11. M. Elhaddad and S. Hamam, "AI driven clinical decision support systems: An ongoing pursuit of potential," *Cureus*, vol. 16, no. 4, e57728, Apr. 2024, doi: 10.7759/cureus.57728.
+11. M. Elhaddad and S. Hamam, "AI driven clinical decision support systems: An ongoing pursuit of potential," _Cureus_, vol. 16, no. 4, e57728, Apr. 2024, doi: 10.7759/cureus.57728.

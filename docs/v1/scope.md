@@ -65,4 +65,3 @@ This is a prototype for demonstration and evaluation, not a clinical production 
 - V1 does not diagnose, prescribe, or replace clinician judgment
 - V1 does not claim deployment readiness for hospitals
 - V1 is for capstone demonstration with synthetic data and controlled scenarios
-

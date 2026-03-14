@@ -67,4 +67,3 @@ The following are intentionally deferred:
 - Local model hosting
 - Offline-first sync/conflict resolution
 - Compliance and certification workstreams
-

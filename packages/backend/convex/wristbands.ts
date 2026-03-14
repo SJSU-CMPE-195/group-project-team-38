@@ -16,7 +16,7 @@ export const getByToken = query({
       revokedAt: v.optional(v.number()),
       isActive: v.boolean(),
     }),
-    v.null()
+    v.null(),
   ),
   handler: async (ctx, args) => {
     await requireRole(ctx, ["nurse", "admin"]);

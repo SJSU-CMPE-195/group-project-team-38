@@ -23,7 +23,7 @@ export const listByPatient = query({
       isActive: v.boolean(),
       createdAt: v.number(),
       updatedAt: v.number(),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
     await requireRole(ctx, ["nurse", "admin"]);
@@ -36,7 +36,7 @@ export const listByPatient = query({
     return await ctx.db
       .query("medications")
       .withIndex("by_patient_id_and_active", (q) =>
-        q.eq("patientId", args.patientId).eq("isActive", true)
+        q.eq("patientId", args.patientId).eq("isActive", true),
       )
       .collect();
   },
