@@ -1,6 +1,6 @@
 import { api } from "@meditag/backend/convex/_generated/api";
 import { useConvexAuth, useQuery } from "convex/react";
-import { Button, Chip, Separator, Spinner, Surface, useThemeColor } from "heroui-native";
+import { Button, Surface } from "heroui-native";
 import { Text, View } from "react-native";
 
 import { Container } from "@/components/container";
@@ -12,11 +12,6 @@ export default function Home() {
   const healthCheck = useQuery(api.healthCheck.get);
   const { isAuthenticated } = useConvexAuth();
   const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
-  const successColor = useThemeColor("success");
-  const dangerColor = useThemeColor("danger");
-
-  const isConnected = healthCheck === "OK";
-  const isLoading = healthCheck === undefined;
 
   return (
     <Container className="px-4 pb-4">
