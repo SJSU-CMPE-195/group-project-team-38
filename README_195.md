@@ -1,6 +1,6 @@
-# Project Title
+# MediTag
 
-> One-line description of what your project does
+> AI-assisted patient verification system using QR/NFC scanning and local-first architecture.
 
 ## Team
 
@@ -50,12 +50,13 @@
 
 ## Tech Stack
 
-| Category   | Technology |
-| ---------- | ---------- |
-| Frontend   |            |
-| Backend    |            |
-| Database   |            |
-| Deployment |            |
+| Category        | Technology                                  |
+| --------------- | ------------------------------------------- |
+| Frontend        | Next.js, React Native, Tailwind CSS         |
+| Backend         | Convex, Better Auth, TypeScript             |
+| Database        | Convex                                      |
+| Deployment      | Convex cloud with local web/native dev apps |
+| Package Manager | Bun, Turborepo                              |
 
 ---
 
@@ -63,8 +64,16 @@
 
 ### Prerequisites
 
-- [Prerequisite 1] v.X.X+
-- [Prerequisite 2] v.X.X+
+- Bun v1.3+
+- Node.js v20 or later
+- A Convex account for backend setup
+
+Verify installation:
+
+```bash
+bun --version
+node -v
+```
 
 ### Installation
 
@@ -74,29 +83,35 @@ git clone https://github.com/[org]/[repo].git
 cd [repo]
 
 # Install dependencies
-[install command]
+bun install
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your values
-
-# Run database migrations (if applicable)
-[migration command]
+# Configure Convex for the backend package
+bun run dev:setup
 ```
+
+Copy environment variables from `packages/backend/.env.local` into the app
+`.env` files as needed.
 
 ### Running Locally
 
 ```bash
-# Development mode
-[dev command]
+# Run the full monorepo
+bun run dev
 
-# The app will be available at http://localhost:XXXX
+# Or run a single target
+bun run dev:web
+bun run dev:native
+bun run dev:server
 ```
+
+The web app runs at http://localhost:3001.
 
 ### Running Tests
 
 ```bash
-[test command]
+bun run check
+bun run check-types
+bun --filter @meditag/backend test
 ```
 
 ---
@@ -122,10 +137,15 @@ cp .env.example .env
 
 ```
 .
-├── [folder]/           # Description
-├── src/                # Source code files
-├── tests/              # Test files
-├── docs/               # Documentation files
+├── apps/
+│   ├── web/            # Next.js web app
+│   └── native/         # Expo / React Native app
+├── packages/
+│   ├── backend/        # Convex functions, schema, and tests
+│   ├── config/         # Shared TypeScript config
+│   └── env/            # Shared environment helpers
+├── scripts/            # Repo utility scripts
+├── package.json        # Root workspace scripts
 └── README.md
 ```
 
