@@ -39,7 +39,13 @@ function NurseWorkflowLayout() {
       <Stack.Screen
         name="scan-handoff"
         options={{
-          title: "Scan handoff",
+          title: "Medication selection",
+        }}
+      />
+      <Stack.Screen
+        name="verify"
+        options={{
+          title: "Verify medication",
         }}
       />
     </Stack>
