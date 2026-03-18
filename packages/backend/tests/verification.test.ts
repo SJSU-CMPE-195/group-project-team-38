@@ -211,6 +211,31 @@ describe("verification flows", () => {
     expect(result.result).toBe("fail");
     expect(result.failureReasons).toContain("wristband_not_found");
   });
+
+  test("re-running the demo seed keeps the canonical demo scenarios stable", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const firstSeed = await t.mutation(internal.seed.seedDemoData);
+    const secondSeed = await t.mutation(internal.seed.seedDemoData);
+
+    expect(secondSeed).toEqual(firstSeed);
+
+    const safeResult = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-SAFE-QR-001",
+      selectedMedicationId: secondSeed.safeMedicationId,
+      scanType: "qr",
+      deviceId: "device-safe-repeat-1",
+    });
+    const conflictResult = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: secondSeed.conflictMedicationId,
+      scanType: "qr",
+      deviceId: "device-conflict-repeat-1",
+    });
+
+    expect(safeResult.result).toBe("pass");
+    expect(conflictResult.result).toBe("fail");
+    expect(conflictResult.failureReasons).toContain("allergy_conflict");
+  });
 });
 
 describe("role enforcement", () => {

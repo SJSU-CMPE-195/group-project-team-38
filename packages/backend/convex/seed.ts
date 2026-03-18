@@ -4,31 +4,112 @@ import type { Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
 import { internalMutation } from "./_generated/server";
 
-async function ensurePatient(
-  ctx: MutationCtx,
-  input: {
-    mrn: string;
-    displayName: string;
-    dob: string;
-    allergyCodes: string[];
-    allergyLabels: string[];
-  },
-): Promise<Id<"patients">> {
+type PatientSeedInput = {
+  mrn: string;
+  displayName: string;
+  dob: string;
+  allergyCodes: string[];
+  allergyLabels: string[];
+};
+
+type MedicationSeedInput = {
+  patientId: Id<"patients">;
+  displayName: string;
+  rxNormCode: string;
+  ingredientCodes: string[];
+  contraindicationAllergyCodes: string[];
+};
+
+type WristbandSeedInput = {
+  patientId: Id<"patients">;
+  token: string;
+  tokenType: "qr" | "nfc";
+};
+
+async function ensurePatient(ctx: MutationCtx, input: PatientSeedInput): Promise<Id<"patients">> {
   const existingPatient = await ctx.db
     .query("patients")
     .withIndex("by_mrn", (q) => q.eq("mrn", input.mrn))
     .unique();
 
+  const now = Date.now();
   if (existingPatient) {
+    await ctx.db.patch(existingPatient._id, {
+      ...input,
+      isActive: true,
+      updatedAt: now,
+    });
     return existingPatient._id;
   }
 
-  const now = Date.now();
   return await ctx.db.insert("patients", {
     ...input,
     isActive: true,
     createdAt: now,
     updatedAt: now,
+  });
+}
+
+async function ensureMedication(
+  ctx: MutationCtx,
+  input: MedicationSeedInput,
+): Promise<Id<"medications">> {
+  const existingMedications = await ctx.db
+    .query("medications")
+    .withIndex("by_rxnorm_code", (q) => q.eq("rxNormCode", input.rxNormCode))
+    .collect();
+
+  const matchingMedication = existingMedications.find((item) => item.patientId === input.patientId);
+  const now = Date.now();
+
+  if (matchingMedication) {
+    await ctx.db.patch(matchingMedication._id, {
+      ...input,
+      route: "PO",
+      dose: "1 tablet",
+      frequency: "BID",
+      isActive: true,
+      updatedAt: now,
+    });
+    return matchingMedication._id;
+  }
+
+  return await ctx.db.insert("medications", {
+    ...input,
+    route: "PO",
+    dose: "1 tablet",
+    frequency: "BID",
+    isActive: true,
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+async function ensureWristband(
+  ctx: MutationCtx,
+  input: WristbandSeedInput,
+): Promise<Id<"wristbands">> {
+  const existingWristband = await ctx.db
+    .query("wristbands")
+    .withIndex("by_token", (q) => q.eq("token", input.token))
+    .unique();
+
+  const issuedAt = Date.now();
+  if (existingWristband) {
+    await ctx.db.patch(existingWristband._id, {
+      patientId: input.patientId,
+      tokenType: input.tokenType,
+      issuedAt,
+      revokedAt: undefined,
+      isActive: true,
+    });
+    return existingWristband._id;
+  }
+
+  return await ctx.db.insert("wristbands", {
+    ...input,
+    issuedAt,
+    isActive: true,
   });
 }
 
@@ -58,45 +139,14 @@ export const seedDemoData = internalMutation({
       allergyLabels: ["Penicillin allergy"],
     });
 
-    const ensureMedication = async (input: {
-      patientId: typeof safePatientId;
-      displayName: string;
-      rxNormCode: string;
-      ingredientCodes: string[];
-      contraindicationAllergyCodes: string[];
-    }) => {
-      const existingMedication = await ctx.db
-        .query("medications")
-        .withIndex("by_rxnorm_code", (q) => q.eq("rxNormCode", input.rxNormCode))
-        .collect();
-
-      const matchingMedication = existingMedication.find(
-        (item) => item.patientId === input.patientId && item.isActive,
-      );
-      if (matchingMedication) {
-        return matchingMedication._id;
-      }
-
-      const now = Date.now();
-      return await ctx.db.insert("medications", {
-        ...input,
-        route: "PO",
-        dose: "1 tablet",
-        frequency: "BID",
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      });
-    };
-
-    const safeMedicationId = await ensureMedication({
+    const safeMedicationId = await ensureMedication(ctx, {
       patientId: safePatientId,
       displayName: "Acetaminophen 500mg",
       rxNormCode: "161",
       ingredientCodes: ["RXNORM:161"],
       contraindicationAllergyCodes: ["SNOMED:300913006"],
     });
-    const conflictMedicationId = await ensureMedication({
+    const conflictMedicationId = await ensureMedication(ctx, {
       patientId: conflictPatientId,
       displayName: "Amoxicillin 500mg",
       rxNormCode: "723",
@@ -104,40 +154,12 @@ export const seedDemoData = internalMutation({
       contraindicationAllergyCodes: ["SNOMED:294954006"],
     });
 
-    const ensureWristband = async (input: {
-      patientId: typeof safePatientId;
-      token: string;
-      tokenType: "qr" | "nfc";
-    }) => {
-      const existingWristband = await ctx.db
-        .query("wristbands")
-        .withIndex("by_token", (q) => q.eq("token", input.token))
-        .unique();
-      if (existingWristband) {
-        if (!existingWristband.isActive) {
-          await ctx.db.patch(existingWristband._id, {
-            patientId: input.patientId,
-            tokenType: input.tokenType,
-            issuedAt: Date.now(),
-            revokedAt: undefined,
-            isActive: true,
-          });
-        }
-        return existingWristband._id;
-      }
-      return await ctx.db.insert("wristbands", {
-        ...input,
-        issuedAt: Date.now(),
-        isActive: true,
-      });
-    };
-
-    const safeWristbandId = await ensureWristband({
+    const safeWristbandId = await ensureWristband(ctx, {
       patientId: safePatientId,
       token: "WRISTBAND-SAFE-QR-001",
       tokenType: "qr",
     });
-    const conflictWristbandId = await ensureWristband({
+    const conflictWristbandId = await ensureWristband(ctx, {
       patientId: conflictPatientId,
       token: "WRISTBAND-CONFLICT-QR-001",
       tokenType: "qr",
