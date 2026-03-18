@@ -221,6 +221,91 @@ describe("admin scan log review queries", () => {
     expect(boundedLogs).toEqual([allLogs[0]]);
   });
 
+  test("applies createdAtEnd filters and clamps over-large admin review limits", async () => {
+    const admin = await setupIdentity(t, "admin");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    for (let index = 0; index < 105; index += 1) {
+      await admin.mutation(api.verification.verifyMedicationScan, {
+        scannedToken: index % 2 === 0 ? "WRISTBAND-SAFE-QR-001" : "WRISTBAND-CONFLICT-QR-001",
+        selectedMedicationId: index % 2 === 0 ? seed.safeMedicationId : seed.conflictMedicationId,
+        scanType: "qr",
+        requestExplanation: false,
+        deviceId: `admin-limit-device-${index}`,
+      });
+      vi.advanceTimersByTime(100);
+    }
+
+    const allLogs = await admin.query(api.scanLogs.listForAdminReview, {
+      limit: 999,
+    });
+
+    expect(allLogs).toHaveLength(100);
+
+    const createdAtEnd = allLogs[99]!.createdAt;
+    const boundedLogs = await admin.query(api.scanLogs.listForAdminReview, {
+      limit: 999,
+      createdAtEnd,
+    });
+
+    expect(boundedLogs).toHaveLength(6);
+    expect(boundedLogs[0]?.createdAt).toBe(createdAtEnd);
+    expect(boundedLogs.at(-1)?.createdAt).toBeLessThanOrEqual(createdAtEnd);
+  });
+
+  test("returns null joined review context when related records are missing", async () => {
+    const admin = await setupIdentity(t, "admin");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const verification = await admin.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "admin-device-null-joins",
+    });
+
+    await t.run(async (ctx) => {
+      await ctx.db.delete(seed.conflictPatientId);
+      await ctx.db.delete(seed.conflictMedicationId);
+      await ctx.db.delete(seed.conflictWristbandId);
+    });
+
+    const [reviewRow] = await admin.query(api.scanLogs.listForAdminReview, {
+      limit: 10,
+    });
+
+    expect(reviewRow).toMatchObject({
+      scanLogId: verification.scanLogId,
+      scanner: {
+        authUserId: expect.any(String),
+      },
+      patient: null,
+      medication: null,
+      wristband: null,
+    });
+    expect(reviewRow?.scanner.displayName).toBeUndefined();
+    expect(reviewRow?.scanner.email).toBeUndefined();
+
+    const detail = await admin.query(api.scanLogs.getAdminScanLogDetail, {
+      scanLogId: verification.scanLogId,
+    });
+
+    expect(detail).toMatchObject({
+      scanLog: {
+        _id: verification.scanLogId,
+      },
+      scanner: {
+        authUserId: expect.any(String),
+      },
+      patient: null,
+      medication: null,
+      wristband: null,
+    });
+    expect(detail?.scanner.displayName).toBeUndefined();
+    expect(detail?.scanner.email).toBeUndefined();
+  });
+
   test("blocks nurses from admin review queries", async () => {
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
