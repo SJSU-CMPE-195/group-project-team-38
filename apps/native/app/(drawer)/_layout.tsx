@@ -1,20 +1,17 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import { Drawer } from "expo-router/drawer";
+import { Stack } from "expo-router";
 import { useThemeColor } from "heroui-native";
-import React, { useCallback } from "react";
-import { Pressable, Text } from "react-native";
+import { useCallback } from "react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 
-function DrawerLayout() {
+function NurseWorkflowLayout() {
   const themeColorForeground = useThemeColor("foreground");
   const themeColorBackground = useThemeColor("background");
 
   const renderThemeToggle = useCallback(() => <ThemeToggle />, []);
 
   return (
-    <Drawer
+    <Stack
       screenOptions={{
         headerTintColor: themeColorForeground,
         headerStyle: { backgroundColor: themeColorBackground },
@@ -23,50 +20,24 @@ function DrawerLayout() {
           color: themeColorForeground,
         },
         headerRight: renderThemeToggle,
-        drawerStyle: { backgroundColor: themeColorBackground },
+        contentStyle: { backgroundColor: themeColorBackground },
       }}
     >
-      <Drawer.Screen
+      <Stack.Screen
         name="index"
         options={{
-          headerTitle: "Home",
-          drawerLabel: ({ color, focused }) => (
-            <Text style={{ color: focused ? color : themeColorForeground }}>Home</Text>
-          ),
-          drawerIcon: ({ size, color, focused }) => (
-            <Ionicons
-              name="home-outline"
-              size={size}
-              color={focused ? color : themeColorForeground}
-            />
-          ),
+          title: "Nurse workflow",
+          headerBackVisible: false,
         }}
       />
-      <Drawer.Screen
-        name="(tabs)"
+      <Stack.Screen
+        name="scan"
         options={{
-          headerTitle: "Tabs",
-          drawerLabel: ({ color, focused }) => (
-            <Text style={{ color: focused ? color : themeColorForeground }}>Tabs</Text>
-          ),
-          drawerIcon: ({ size, color, focused }) => (
-            <MaterialIcons
-              name="border-bottom"
-              size={size}
-              color={focused ? color : themeColorForeground}
-            />
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable className="mr-4">
-                <Ionicons name="add-outline" size={24} color={themeColorForeground} />
-              </Pressable>
-            </Link>
-          ),
+          title: "Scan wristband",
         }}
       />
-    </Drawer>
+    </Stack>
   );
 }
 
-export default DrawerLayout;
+export default NurseWorkflowLayout;
