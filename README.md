@@ -31,7 +31,8 @@ bun run dev:setup
 
 Follow the prompts to create a new Convex project and connect it to your application.
 
-Copy environment variables from `packages/backend/.env.local` to `apps/*/.env`.
+Copy the public Convex variables from `packages/backend/.env.local` to `apps/*/.env`.
+Keep `AI_PROVIDER`, `AI_MODEL`, `OPENAI_API_KEY`, and `ANTHROPIC_API_KEY` in `packages/backend/.env.local` only — those backend-only values should not be copied into the native or web apps.
 
 Then, run the development server:
 
@@ -46,6 +47,22 @@ bun run seed:demo
 ```
 
 That command re-applies the same safe and conflict demo records, so it is the supported way to reseed local demo and testing data without piling up duplicate core records.
+
+For backend AI explanation work, configure these backend-only variables in `packages/backend/.env.local`:
+
+```bash
+AI_PROVIDER=openai
+AI_MODEL=gpt-4o-mini
+OPENAI_API_KEY=...
+```
+
+Or:
+
+```bash
+AI_PROVIDER=anthropic
+AI_MODEL=claude-sonnet-4-5
+ANTHROPIC_API_KEY=...
+```
 
 Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 Use the Expo Go app to run the mobile application.

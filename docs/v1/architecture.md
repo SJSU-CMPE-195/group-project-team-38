@@ -17,7 +17,7 @@ MediTag V1 is a cloud-backed prototype with three core surfaces:
 - Web app (Next.js) for admin log review
 - Convex backend for data, rules, auth session handling, and audit events
 
-An external cloud LLM API is used only to generate short explanation text for already-detected conflicts.
+An external cloud LLM API is used only to generate short explanation text for already-detected conflicts. Provider selection is backend-only and driven by `AI_PROVIDER` plus `AI_MODEL`, with either `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` supplied for the selected provider.
 
 ## Data Model (V1)
 
@@ -49,6 +49,7 @@ All IDs and relationships live in Convex.
 - AI is never used to determine pass/fail.
 - AI input is bounded to structured conflict context from Convex checks.
 - AI output is treated as explanatory text only.
+- Provider and model selection stay in backend Convex config only; clients never receive AI provider settings or API keys.
 - If LLM call fails, verification result still returns without explanation.
 
 ## Security and Privacy Posture for Prototype
