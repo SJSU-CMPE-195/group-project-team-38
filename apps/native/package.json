@@ -9,7 +9,10 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "prebuild": "expo prebuild",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "e2e": "maestro test .maestro",
+    "e2e:smoke": "maestro test .maestro/smoke.yaml",
+    "e2e:doctor": "maestro doctor"
   },
   "dependencies": {
     "@better-auth/expo": "catalog:",

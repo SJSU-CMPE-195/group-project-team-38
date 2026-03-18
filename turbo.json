@@ -20,6 +20,11 @@
     "dev:setup": {
       "cache": false,
       "persistent": true
+    },
+    "e2e": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["playwright-report/**", "test-results/**"]
     }
   }
 }

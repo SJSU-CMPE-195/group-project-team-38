@@ -9,6 +9,9 @@
     "name": "meditag",
     "slug": "meditag",
     "plugins": ["expo-font"],
+    "ios": {
+      "bundleIdentifier": "com.meditag.native"
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
