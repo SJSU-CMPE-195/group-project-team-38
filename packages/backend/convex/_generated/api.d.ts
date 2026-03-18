@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as ai from "../ai.js";
 import type * as auth from "../auth.js";
 import type * as authz from "../authz.js";
 import type * as healthCheck from "../healthCheck.js";
@@ -15,6 +16,8 @@ import type * as http from "../http.js";
 import type * as medications from "../medications.js";
 import type * as patients from "../patients.js";
 import type * as privateData from "../privateData.js";
+import type * as scanLogExplanationGeneration from "../scanLogExplanationGeneration.js";
+import type * as scanLogExplanations from "../scanLogExplanations.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 import type * as verification from "../verification.js";
@@ -23,6 +26,7 @@ import type * as wristbands from "../wristbands.js";
 import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  ai: typeof ai;
   auth: typeof auth;
   authz: typeof authz;
   healthCheck: typeof healthCheck;
@@ -30,6 +34,8 @@ declare const fullApi: ApiFromModules<{
   medications: typeof medications;
   patients: typeof patients;
   privateData: typeof privateData;
+  scanLogExplanationGeneration: typeof scanLogExplanationGeneration;
+  scanLogExplanations: typeof scanLogExplanations;
   seed: typeof seed;
   users: typeof users;
   verification: typeof verification;

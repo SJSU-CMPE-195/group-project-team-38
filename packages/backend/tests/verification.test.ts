@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import { convexTest } from "convex-test";
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { api, components, internal } from "../convex/_generated/api";
 import authSchema from "../convex/betterAuth/schema";
@@ -133,8 +133,13 @@ describe("verification flows", () => {
   let t: ReturnType<typeof convexTest>;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     t = convexTest(schema, modules);
     t.registerComponent("betterAuth", authSchema, betterAuthModules);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test("rejects unauthenticated verification", async () => {
@@ -237,6 +242,8 @@ describe("verification flows", () => {
     expect(first.failureReasons).toContain("allergy_conflict");
     expect(first.explanationStatus).toBe("requested");
 
+    await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+
     const second = await nurse.mutation(api.verification.verifyMedicationScan, {
       scannedToken: "WRISTBAND-CONFLICT-QR-001",
       selectedMedicationId: seed.conflictMedicationId,
@@ -326,8 +333,13 @@ describe("role enforcement", () => {
   let t: ReturnType<typeof convexTest>;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     t = convexTest(schema, modules);
     t.registerComponent("betterAuth", authSchema, betterAuthModules);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test("blocks nurse from admin-only patient creation", async () => {

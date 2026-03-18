@@ -35,17 +35,17 @@ export type AiConfig = {
 };
 
 type AiEnvironment = {
-  AI_PROVIDER: string | undefined;
-  AI_MODEL: string | undefined;
-  OPENAI_API_KEY: string | undefined;
-  ANTHROPIC_API_KEY: string | undefined;
+  AI_PROVIDER?: string | undefined;
+  AI_MODEL?: string | undefined;
+  OPENAI_API_KEY?: string | undefined;
+  ANTHROPIC_API_KEY?: string | undefined;
 };
 
-function parseAiEnvironment(environment: AiEnvironment = process.env) {
-  return aiEnvironmentSchema.parse(environment);
+function parseAiEnvironment(environment?: AiEnvironment) {
+  return aiEnvironmentSchema.parse(environment ?? (process.env as AiEnvironment));
 }
 
-export function getAiConfig(environment: AiEnvironment = process.env): AiConfig {
+export function getAiConfig(environment?: AiEnvironment): AiConfig {
   const parsed = parseAiEnvironment(environment);
 
   return {
@@ -54,7 +54,7 @@ export function getAiConfig(environment: AiEnvironment = process.env): AiConfig 
   };
 }
 
-export function getAiTextModel(environment: AiEnvironment = process.env) {
+export function getAiTextModel(environment?: AiEnvironment) {
   const parsed = parseAiEnvironment(environment);
   const config = {
     provider: parsed.AI_PROVIDER,
