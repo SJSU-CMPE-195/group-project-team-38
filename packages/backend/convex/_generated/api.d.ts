@@ -18,6 +18,7 @@ import type * as patients from "../patients.js";
 import type * as privateData from "../privateData.js";
 import type * as scanLogExplanationGeneration from "../scanLogExplanationGeneration.js";
 import type * as scanLogExplanations from "../scanLogExplanations.js";
+import type * as scanLogs from "../scanLogs.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 import type * as verification from "../verification.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   privateData: typeof privateData;
   scanLogExplanationGeneration: typeof scanLogExplanationGeneration;
   scanLogExplanations: typeof scanLogExplanations;
+  scanLogs: typeof scanLogs;
   seed: typeof seed;
   users: typeof users;
   verification: typeof verification;
