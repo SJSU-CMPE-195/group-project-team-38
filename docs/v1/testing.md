@@ -111,7 +111,8 @@ What `bun run e2e` does:
 
 1. boots a preferred iPhone simulator if needed
 2. builds and installs the native app as `com.meditag.native`
-3. runs the Maestro smoke flow
+3. terminates the app after install so Maestro can relaunch it from a clean state
+4. runs the Maestro smoke flow
 
 The smoke flow now attempts to dismiss common blocking startup alerts (`Not Now`, `Cancel`, `Continue`, `OK`) before asserting app content. If your simulator still lands on an Apple Account or onboarding modal, dismiss it once manually or erase/sign out that simulator before rerunning.
 

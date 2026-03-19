@@ -19,6 +19,7 @@
   },
   "type": "module",
   "scripts": {
+    "postinstall": "bun scripts/apply-react-native-turbomodule-patch.mjs",
     "dev": "turbo run dev",
     "docs:list": "bun scripts/docs-list.ts",
     "build": "turbo run build",

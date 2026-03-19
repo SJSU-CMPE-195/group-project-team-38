@@ -6,13 +6,24 @@ import { createAuthClient } from "better-auth/react";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
+const keychainService = Constants.expoConfig?.ios?.bundleIdentifier ?? "com.meditag.native";
+
+const secureStore = {
+  getItem(key: string) {
+    return SecureStore.getItem(key, { keychainService });
+  },
+  setItem(key: string, value: string) {
+    return SecureStore.setItem(key, value, { keychainService });
+  },
+};
+
 export const authClient = createAuthClient({
   baseURL: env.EXPO_PUBLIC_CONVEX_SITE_URL,
   plugins: [
     expoClient({
       scheme: Constants.expoConfig?.scheme as string,
       storagePrefix: Constants.expoConfig?.scheme as string,
-      storage: SecureStore,
+      storage: secureStore,
     }),
     convexClient(),
     organizationClient(),
