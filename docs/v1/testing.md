@@ -54,6 +54,28 @@ The initial smoke test checks that the admin review entry screen renders without
 
 The web smoke check still tolerates the auth backend being offline during local setup, so the admin entry shell can render while deeper app work is still in progress.
 
+## Web admin review flows (Playwright)
+
+The deeper browser coverage now lives in `apps/web/tests/e2e/admin-review.spec.ts` and runs as part of the same command:
+
+```sh
+bun run test:e2e:web
+```
+
+Those tests cover the MediTag-specific review behavior that matters for V1:
+
+- recent scan-event rendering
+- result/date/search filtering
+- detail drill-in
+- deterministic failure reason display
+- explanation status/text display
+
+To keep the suite reliable without needing a fully bootstrapped Convex auth/admin session, Playwright starts the Next.js dev server with `NEXT_PUBLIC_E2E_ADMIN_FIXTURE=1` and opens `/dashboard?fixture=admin-review` for the deeper portal assertions.
+
+That fixture mode is **only** for browser-test stability. It exercises the actual dashboard UI behavior, but it does not replace manual end-to-end checks against a live local backend.
+
+For a live local admin-review check, run Convex + seed data, sign in with an admin account in the browser, and use the normal `/dashboard` route.
+
 ## Native smoke check (Maestro)
 
 Run from the repo root:
@@ -157,3 +179,44 @@ export MAESTRO_NURSE_PASSWORD="replace-with-your-password"
    - `WRISTBAND-CONFLICT-QR-001` → `Amoxicillin 500mg` → deterministic fail + AI explanation request path
 
 If backend AI credentials are configured, the conflict flow can continue on to generated explanation text. If they are not configured, the flow still verifies that the explanation request was submitted and surfaced in the UI.
+
+## Practical local validation loop
+
+For repeated stabilization passes, this is the supported repo-level loop:
+
+1. Start the backend and reseed demo data when needed:
+
+```sh
+bun run dev:server
+# in another terminal
+bun run seed:demo
+```
+
+2. Run the app surfaces you are actively checking:
+
+```sh
+bun run dev:web
+bun run dev:native
+```
+
+3. Run the validation commands from the repo root:
+
+```sh
+bun run check
+bun run check-types
+cd packages/backend && bun run test
+bun run test:e2e:web
+bun run test:e2e:native
+```
+
+4. For the full native nurse journey instead of the shallow smoke flow:
+
+```sh
+bun run test:e2e:native:demo
+```
+
+Notes:
+
+- `bun run check-types` is the canonical repo command even though Turbo currently has no package-level `check-types` tasks wired yet.
+- `bun run test:e2e:web` is reliable without a live backend because it includes the unauthenticated smoke path and the fixture-backed admin review path.
+- Native Maestro flows still require local simulator tooling and, for the deeper nurse flows, a reusable nurse login plus seeded demo data.

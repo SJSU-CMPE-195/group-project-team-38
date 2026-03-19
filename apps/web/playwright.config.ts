@@ -11,7 +11,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "bun run dev",
+    command: "NEXT_PUBLIC_E2E_ADMIN_FIXTURE=1 bun run dev",
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",

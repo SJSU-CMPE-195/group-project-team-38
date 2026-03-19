@@ -3,6 +3,7 @@
 import { api } from "@meditag/backend/convex/_generated/api";
 import type { Id } from "@meditag/backend/convex/_generated/dataModel";
 import { Authenticated, AuthLoading, Unauthenticated, useQuery } from "convex/react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import SignInForm from "@/components/sign-in-form";
@@ -35,9 +36,15 @@ const resultFilterOptions = [
 
 type ResultFilter = (typeof resultFilterOptions)[number]["value"];
 
-type AdminReviewRow = NonNullable<
+type AdminReviewList = NonNullable<
   ReturnType<typeof useQuery<typeof api.scanLogs.listForAdminReview>>
->[number];
+>;
+type AdminReviewRow = AdminReviewList[number];
+type AdminReviewDetail = NonNullable<
+  Exclude<ReturnType<typeof useQuery<typeof api.scanLogs.getAdminScanLogDetail>>, undefined | null>
+>;
+
+const isPlaywrightReviewFixtureEnabled = process.env.NEXT_PUBLIC_E2E_ADMIN_FIXTURE === "1";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -150,7 +157,7 @@ function RoleLoadingState() {
   );
 }
 
-function AdminReviewContent() {
+function AdminReviewContent({ fixtureMode = false }: { fixtureMode?: boolean }) {
   const [resultFilter, setResultFilter] = useState<ResultFilter>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -164,7 +171,19 @@ function AdminReviewContent() {
     createdAtEnd: endDate ? toDayEndTimestamp(endDate) : undefined,
   };
 
-  const scanLogs = useQuery(api.scanLogs.listForAdminReview, queryArgs);
+  const liveScanLogs = useQuery(api.scanLogs.listForAdminReview, fixtureMode ? "skip" : queryArgs);
+  const scanLogs = useMemo(() => {
+    if (fixtureMode) {
+      return filterFixtureScanLogs(queryArgs);
+    }
+    return liveScanLogs;
+  }, [
+    fixtureMode,
+    liveScanLogs,
+    queryArgs.createdAtEnd,
+    queryArgs.createdAtStart,
+    queryArgs.result,
+  ]);
 
   const filteredScanLogs = useMemo(() => {
     if (!scanLogs) {
@@ -199,10 +218,15 @@ function AdminReviewContent() {
   const selectedScanLog = filteredScanLogs.find(
     (scanLog) => scanLog.scanLogId === selectedScanLogId,
   );
-  const selectedScanLogDetail = useQuery(
+  const liveSelectedScanLogDetail = useQuery(
     api.scanLogs.getAdminScanLogDetail,
-    selectedScanLogId ? { scanLogId: selectedScanLogId } : "skip",
+    fixtureMode || !selectedScanLogId ? "skip" : { scanLogId: selectedScanLogId },
   );
+  const selectedScanLogDetail = fixtureMode
+    ? selectedScanLogId
+      ? (fixtureScanLogDetails[selectedScanLogId] ?? null)
+      : null
+    : liveSelectedScanLogDetail;
 
   const totalCount = filteredScanLogs.length;
   const passCount = filteredScanLogs.filter((scanLog) => scanLog.result === "pass").length;
@@ -232,7 +256,7 @@ function AdminReviewContent() {
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.95fr)] xl:items-start">
           <div className="grid gap-6">
-            <Card>
+            <Card data-testid="scan-log-filters">
               <CardHeader>
                 <CardTitle>Review filters</CardTitle>
                 <CardDescription>
@@ -242,6 +266,7 @@ function AdminReviewContent() {
               <CardContent className="grid gap-3 md:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto] md:items-end">
                 <FilterField label="Search">
                   <Input
+                    data-testid="scan-log-search"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="Patient, medication, token, scanner"
@@ -249,6 +274,7 @@ function AdminReviewContent() {
                 </FilterField>
                 <FilterField label="Result">
                   <select
+                    data-testid="scan-log-result-filter"
                     value={resultFilter}
                     onChange={(event) => setResultFilter(event.target.value as ResultFilter)}
                     className="border-input bg-background h-8 w-full rounded-none border px-2.5 text-xs outline-none"
@@ -262,6 +288,7 @@ function AdminReviewContent() {
                 </FilterField>
                 <FilterField label="From">
                   <Input
+                    data-testid="scan-log-from-date"
                     type="date"
                     value={startDate}
                     max={endDate || undefined}
@@ -270,6 +297,7 @@ function AdminReviewContent() {
                 </FilterField>
                 <FilterField label="To">
                   <Input
+                    data-testid="scan-log-to-date"
                     type="date"
                     value={endDate}
                     min={startDate || undefined}
@@ -277,6 +305,7 @@ function AdminReviewContent() {
                   />
                 </FilterField>
                 <Button
+                  data-testid="scan-log-reset-filters"
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
@@ -313,7 +342,7 @@ function AdminReviewContent() {
                     No scan events match the current filters. Broaden the date range or search term.
                   </div>
                 ) : (
-                  <div className="grid gap-3">
+                  <div data-testid="scan-log-list" className="grid gap-3">
                     {filteredScanLogs.map((scanLog) => {
                       const failureSummary = getFailureSummary(scanLog.failureReasons);
                       const isSelected = scanLog.scanLogId === selectedScanLogId;
@@ -321,6 +350,7 @@ function AdminReviewContent() {
                       return (
                         <article
                           key={scanLog.scanLogId}
+                          data-testid={`scan-log-row-${scanLog.scanLogId}`}
                           className={cn(
                             "border-border/80 bg-background grid gap-4 border px-4 py-4",
                             isSelected && "border-sky-600 bg-sky-500/5",
@@ -339,6 +369,7 @@ function AdminReviewContent() {
                                 Verified {dateTimeFormatter.format(scanLog.createdAt)}
                               </p>
                               <Button
+                                data-testid={`scan-log-view-detail-${scanLog.scanLogId}`}
                                 size="sm"
                                 variant={isSelected ? "default" : "outline"}
                                 onClick={() => setSelectedScanLogId(scanLog.scanLogId)}
@@ -403,7 +434,7 @@ function AdminReviewContent() {
             </Card>
           </div>
 
-          <Card className="xl:sticky xl:top-6">
+          <Card data-testid="scan-log-detail" className="xl:sticky xl:top-6">
             <CardHeader>
               <CardTitle>Log detail</CardTitle>
               <CardDescription>
@@ -695,7 +726,262 @@ function matchesSearch(scanLog: AdminReviewRow, normalizedSearch: string) {
   return searchHaystack.includes(normalizedSearch);
 }
 
+function useAdminReviewFixtureMode() {
+  const searchParams = useSearchParams();
+  return isPlaywrightReviewFixtureEnabled && searchParams.get("fixture") === "admin-review";
+}
+
+function filterFixtureScanLogs(args: {
+  result?: "pass" | "fail";
+  createdAtStart?: number;
+  createdAtEnd?: number;
+}) {
+  return fixtureScanLogs.filter((scanLog) => {
+    if (args.result && scanLog.result !== args.result) {
+      return false;
+    }
+    if (args.createdAtStart !== undefined && scanLog.createdAt < args.createdAtStart) {
+      return false;
+    }
+    if (args.createdAtEnd !== undefined && scanLog.createdAt > args.createdAtEnd) {
+      return false;
+    }
+    return true;
+  });
+}
+
+const fixtureConflictScanLogId = "fixture-scan-log-conflict" as Id<"scanLogs">;
+const fixtureSafeScanLogId = "fixture-scan-log-safe" as Id<"scanLogs">;
+const fixtureConflictPatientId = "fixture-patient-conflict" as Id<"patients">;
+const fixtureSafePatientId = "fixture-patient-safe" as Id<"patients">;
+const fixtureConflictMedicationId = "fixture-medication-conflict" as Id<"medications">;
+const fixtureSafeMedicationId = "fixture-medication-safe" as Id<"medications">;
+const fixtureConflictWristbandId = "fixture-wristband-conflict" as Id<"wristbands">;
+const fixtureSafeWristbandId = "fixture-wristband-safe" as Id<"wristbands">;
+
+const fixtureScanLogs: AdminReviewList = [
+  {
+    scanLogId: fixtureConflictScanLogId,
+    createdAt: Date.UTC(2026, 2, 19, 15, 30),
+    result: "fail",
+    failureReasons: ["allergy_conflict"],
+    explanationStatus: "generated",
+    explanationText:
+      "The stored allergy list already flags penicillin, so the deterministic check blocked amoxicillin before administration.",
+    explanationModel: "openai:gpt-4.1-mini",
+    scannedToken: "WRISTBAND-CONFLICT-QR-001",
+    metadata: {
+      scanType: "qr",
+      deviceId: "ios-sim-admin-review",
+    },
+    scanner: {
+      authUserId: "fixture-nurse-conflict",
+      displayName: "Nurse Maya Chen",
+      email: "maya.chen@example.com",
+    },
+    patient: {
+      _id: fixtureConflictPatientId,
+      mrn: "MRN-CONFLICT-001",
+      displayName: "Demo Conflict Patient",
+      dob: "1985-06-15",
+      allergyLabels: ["Penicillin allergy"],
+    },
+    medication: {
+      _id: fixtureConflictMedicationId,
+      displayName: "Amoxicillin 500mg",
+      rxNormCode: "723",
+      route: "PO",
+      dose: "1 capsule",
+      frequency: "BID",
+    },
+    wristband: {
+      _id: fixtureConflictWristbandId,
+      token: "WRISTBAND-CONFLICT-QR-001",
+      tokenType: "qr",
+      isActive: true,
+    },
+  },
+  {
+    scanLogId: fixtureSafeScanLogId,
+    createdAt: Date.UTC(2026, 2, 18, 9, 15),
+    result: "pass",
+    failureReasons: [],
+    explanationStatus: "none",
+    explanationText: undefined,
+    explanationModel: undefined,
+    scannedToken: "WRISTBAND-SAFE-QR-001",
+    metadata: {
+      scanType: "qr",
+      deviceId: "ios-sim-admin-review",
+    },
+    scanner: {
+      authUserId: "fixture-nurse-safe",
+      displayName: "Nurse Sam Patel",
+      email: "sam.patel@example.com",
+    },
+    patient: {
+      _id: fixtureSafePatientId,
+      mrn: "MRN-SAFE-001",
+      displayName: "Demo Safe Patient",
+      dob: "1990-01-01",
+      allergyLabels: ["Latex allergy"],
+    },
+    medication: {
+      _id: fixtureSafeMedicationId,
+      displayName: "Acetaminophen 500mg",
+      rxNormCode: "161",
+      route: "PO",
+      dose: "1 tablet",
+      frequency: "BID",
+    },
+    wristband: {
+      _id: fixtureSafeWristbandId,
+      token: "WRISTBAND-SAFE-QR-001",
+      tokenType: "qr",
+      isActive: true,
+    },
+  },
+];
+
+const fixtureScanLogDetails: Record<string, AdminReviewDetail> = {
+  [fixtureConflictScanLogId]: {
+    scanLog: {
+      _id: fixtureConflictScanLogId,
+      _creationTime: Date.UTC(2026, 2, 19, 15, 30),
+      authUserId: "fixture-nurse-conflict",
+      patientId: fixtureConflictPatientId,
+      wristbandId: fixtureConflictWristbandId,
+      medicationId: fixtureConflictMedicationId,
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      result: "fail",
+      failureReasons: ["allergy_conflict"],
+      deterministicDecisionVersion: "v1",
+      explanationStatus: "generated",
+      explanationText:
+        "The stored allergy list already flags penicillin, so the deterministic check blocked amoxicillin before administration.",
+      explanationModel: "openai:gpt-4.1-mini",
+      metadata: {
+        scanType: "qr",
+        deviceId: "ios-sim-admin-review",
+      },
+      createdAt: Date.UTC(2026, 2, 19, 15, 30),
+    },
+    scanner: {
+      authUserId: "fixture-nurse-conflict",
+      displayName: "Nurse Maya Chen",
+      email: "maya.chen@example.com",
+    },
+    patient: {
+      _id: fixtureConflictPatientId,
+      _creationTime: Date.UTC(2026, 2, 18, 8, 0),
+      mrn: "MRN-CONFLICT-001",
+      displayName: "Demo Conflict Patient",
+      dob: "1985-06-15",
+      allergyCodes: ["SNOMED:294954006"],
+      allergyLabels: ["Penicillin allergy"],
+      isActive: true,
+      createdAt: Date.UTC(2026, 2, 18, 8, 0),
+      updatedAt: Date.UTC(2026, 2, 19, 15, 30),
+    },
+    medication: {
+      _id: fixtureConflictMedicationId,
+      _creationTime: Date.UTC(2026, 2, 18, 8, 5),
+      patientId: fixtureConflictPatientId,
+      displayName: "Amoxicillin 500mg",
+      rxNormCode: "723",
+      route: "PO",
+      dose: "1 capsule",
+      frequency: "BID",
+      ingredientCodes: ["RXNORM:723"],
+      contraindicationAllergyCodes: ["SNOMED:294954006"],
+      isActive: true,
+      createdAt: Date.UTC(2026, 2, 18, 8, 5),
+      updatedAt: Date.UTC(2026, 2, 19, 15, 30),
+    },
+    wristband: {
+      _id: fixtureConflictWristbandId,
+      _creationTime: Date.UTC(2026, 2, 18, 8, 10),
+      patientId: fixtureConflictPatientId,
+      token: "WRISTBAND-CONFLICT-QR-001",
+      tokenType: "qr",
+      issuedAt: Date.UTC(2026, 2, 18, 8, 10),
+      revokedAt: undefined,
+      isActive: true,
+    },
+  },
+  [fixtureSafeScanLogId]: {
+    scanLog: {
+      _id: fixtureSafeScanLogId,
+      _creationTime: Date.UTC(2026, 2, 18, 9, 15),
+      authUserId: "fixture-nurse-safe",
+      patientId: fixtureSafePatientId,
+      wristbandId: fixtureSafeWristbandId,
+      medicationId: fixtureSafeMedicationId,
+      scannedToken: "WRISTBAND-SAFE-QR-001",
+      result: "pass",
+      failureReasons: [],
+      deterministicDecisionVersion: "v1",
+      explanationStatus: "none",
+      explanationText: undefined,
+      explanationModel: undefined,
+      metadata: {
+        scanType: "qr",
+        deviceId: "ios-sim-admin-review",
+      },
+      createdAt: Date.UTC(2026, 2, 18, 9, 15),
+    },
+    scanner: {
+      authUserId: "fixture-nurse-safe",
+      displayName: "Nurse Sam Patel",
+      email: "sam.patel@example.com",
+    },
+    patient: {
+      _id: fixtureSafePatientId,
+      _creationTime: Date.UTC(2026, 2, 17, 11, 0),
+      mrn: "MRN-SAFE-001",
+      displayName: "Demo Safe Patient",
+      dob: "1990-01-01",
+      allergyCodes: ["SNOMED:91936005"],
+      allergyLabels: ["Latex allergy"],
+      isActive: true,
+      createdAt: Date.UTC(2026, 2, 17, 11, 0),
+      updatedAt: Date.UTC(2026, 2, 18, 9, 15),
+    },
+    medication: {
+      _id: fixtureSafeMedicationId,
+      _creationTime: Date.UTC(2026, 2, 17, 11, 5),
+      patientId: fixtureSafePatientId,
+      displayName: "Acetaminophen 500mg",
+      rxNormCode: "161",
+      route: "PO",
+      dose: "1 tablet",
+      frequency: "BID",
+      ingredientCodes: ["RXNORM:161"],
+      contraindicationAllergyCodes: ["SNOMED:300913006"],
+      isActive: true,
+      createdAt: Date.UTC(2026, 2, 17, 11, 5),
+      updatedAt: Date.UTC(2026, 2, 18, 9, 15),
+    },
+    wristband: {
+      _id: fixtureSafeWristbandId,
+      _creationTime: Date.UTC(2026, 2, 17, 11, 10),
+      patientId: fixtureSafePatientId,
+      token: "WRISTBAND-SAFE-QR-001",
+      tokenType: "qr",
+      issuedAt: Date.UTC(2026, 2, 17, 11, 10),
+      revokedAt: undefined,
+      isActive: true,
+    },
+  },
+};
+
 export default function DashboardPage() {
+  const fixtureMode = useAdminReviewFixtureMode();
+
+  if (fixtureMode) {
+    return <AdminReviewContent fixtureMode />;
+  }
+
   return (
     <>
       <Authenticated>
