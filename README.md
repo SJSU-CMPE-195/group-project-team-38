@@ -92,6 +92,62 @@ Those simulator fixtures map to the stable demo path:
 - `WRISTBAND-SAFE-QR-001` → `Acetaminophen 500mg` → pass
 - `WRISTBAND-CONFLICT-QR-001` → `Amoxicillin 500mg` → fail + AI explanation request
 
+## Web Playwright admin review flows
+
+`bun run test:e2e:web` now covers both:
+
+- the unauthenticated MediTag admin entry shell
+- a fixture-backed admin review flow with log filtering and detail drill-in
+
+The deeper browser tests intentionally run against `/dashboard?fixture=admin-review` under a Playwright-only env flag so they stay reliable without needing a fully automated local admin-auth bootstrap.
+
+For a manual live portal check instead of fixture mode:
+
+1. keep Convex running
+2. reseed with `bun run seed:demo`
+3. sign in with an admin account in the browser
+4. open `/dashboard`
+
+## Repeatable local demo workflow
+
+Use this loop when iterating on the prototype:
+
+1. Configure Convex once:
+
+```bash
+bun run dev:setup
+```
+
+2. Start the backend and reseed demo data as needed:
+
+```bash
+bun run dev:server
+bun run seed:demo
+```
+
+3. Run the surfaces you are checking:
+
+```bash
+bun run dev:web
+bun run dev:native
+```
+
+4. Run the validation loop from the repo root:
+
+```bash
+bun run check
+bun run check-types
+cd packages/backend && bun run test
+bun run test:e2e:web
+bun run test:e2e:native
+```
+
+5. For the full native demo path instead of the shallow smoke flow:
+
+```bash
+bun run test:e2e:native:demo
+```
+
 ## Git Hooks and Formatting
 
 - Format and lint fix: `bun run check`
