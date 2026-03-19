@@ -261,7 +261,9 @@ export default function ScanHandoffScreen() {
                   return (
                     <Pressable
                       key={medication._id}
+                      testID={`medication-option-${medication.rxNormCode}`}
                       accessibilityRole="button"
+                      accessibilityLabel={`Select medication ${medication.displayName}`}
                       onPress={() => {
                         setSelectedMedicationId(medication._id);
                       }}
@@ -317,6 +319,8 @@ export default function ScanHandoffScreen() {
         </Surface>
 
         <Button
+          testID="continue-to-verification-button"
+          accessibilityLabel="Continue to verification"
           onPress={() => {
             if (!selectedMedication) {
               return;

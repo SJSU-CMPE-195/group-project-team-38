@@ -68,6 +68,30 @@ Open [http://localhost:3001](http://localhost:3001) in your browser to see the w
 Use the Expo Go app to run the mobile application.
 Your app will connect to the Convex cloud backend automatically.
 
+## Native iOS Maestro demo flows
+
+The native Maestro flows live in `apps/native/.maestro/`.
+
+- `bun run test:e2e:native` runs the lightweight smoke flow
+- `bun run test:e2e:native:demo` runs the nurse safe + conflict simulator flows
+
+The nurse demo flows assume:
+
+1. Convex is running and the canonical demo data has been re-seeded with `bun run seed:demo`
+2. You have created a reusable nurse account in the native app once and exported its credentials for Maestro:
+
+```bash
+export MAESTRO_NURSE_EMAIL="nurse-demo@meditag.test"
+export MAESTRO_NURSE_PASSWORD="replace-with-your-password"
+```
+
+3. You are running on the iOS Simulator, where the scan screen exposes seeded **Simulator demo wristbands** instead of relying on live QR camera automation
+
+Those simulator fixtures map to the stable demo path:
+
+- `WRISTBAND-SAFE-QR-001` → `Acetaminophen 500mg` → pass
+- `WRISTBAND-CONFLICT-QR-001` → `Amoxicillin 500mg` → fail + AI explanation request
+
 ## Git Hooks and Formatting
 
 - Format and lint fix: `bun run check`

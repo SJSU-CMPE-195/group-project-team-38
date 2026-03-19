@@ -218,6 +218,8 @@ export default function VerifyScreen() {
         ) : null}
 
         <Button
+          testID="run-deterministic-verification-button"
+          accessibilityLabel="Run deterministic verification"
           onPress={() => void runVerification(false)}
           isDisabled={!canVerify || isSubmittingVerification || isRequestingExplanation}
         >
@@ -313,6 +315,8 @@ export default function VerifyScreen() {
 
               {!explanationScanLogId ? (
                 <Button
+                  testID="request-ai-explanation-button"
+                  accessibilityLabel="Request AI explanation"
                   onPress={() => void runVerification(true)}
                   isDisabled={isSubmittingVerification || isRequestingExplanation}
                 >
@@ -327,8 +331,16 @@ export default function VerifyScreen() {
               {explanationScanLogId ? (
                 <View className="gap-3 rounded-xl bg-background px-4 py-4">
                   <Text className="text-sm font-semibold text-foreground">
-                    Explanation request status: {effectiveExplanationStatus ?? "Loading…"}
+                    AI explanation requested
                   </Text>
+                  <View className="gap-1">
+                    <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      Explanation request status
+                    </Text>
+                    <Text className="text-sm text-foreground">
+                      {effectiveExplanationStatus ?? "Loading…"}
+                    </Text>
+                  </View>
 
                   {effectiveExplanationStatus === "requested" || !effectiveExplanationStatus ? (
                     <View className="flex-row items-center gap-3">

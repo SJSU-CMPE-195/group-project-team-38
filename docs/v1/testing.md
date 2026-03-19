@@ -66,22 +66,40 @@ Maestro lives in `apps/native/.maestro/`.
 
 ### Required local prerequisites
 
-The current native smoke flow assumes all of the following are true:
+The native smoke command now prepares the simulator and installs the app for you. The only required local prerequisites are:
 
 1. Maestro CLI is installed and available on `PATH`
-2. Xcode is installed
-3. An iOS simulator is booted
-4. The Expo native app is installed on the simulator with bundle id `com.meditag.native`
+2. Xcode is installed with at least one iPhone simulator available
 
-Typical local sequence:
+Supported one-command flow:
 
 ```sh
 cd apps/native
-bun run prebuild
-bun run ios
+bun run e2e
+```
+
+Or from the repo root:
+
+```sh
+bun run test:e2e:native
+```
+
+What `bun run e2e` does:
+
+1. boots a preferred iPhone simulator if needed
+2. builds and installs the native app as `com.meditag.native`
+3. runs the Maestro smoke flow
+
+For troubleshooting or faster reruns, the lower-level commands are still available:
+
+```sh
+cd apps/native
+bun run e2e:prepare
 bun run e2e:doctor
 bun run e2e:smoke
 ```
+
+`bun run e2e:doctor` now syntax-checks every Maestro flow in `apps/native/.maestro/` without needing to boot the app.
 
 ### Current smoke target
 
@@ -90,4 +108,52 @@ The initial smoke flow only checks that the app launches and the current home sc
 - `Meditag`
 - `API Status`
 
-If the simulator app is not installed yet, Maestro will fail at launch time. That failure is expected until the native build prerequisite is satisfied.
+The first run can take a while because Expo may prebuild native files and compile a Release simulator build before Maestro starts. After `e2e:prepare` succeeds, `e2e:smoke` is the faster rerun path.
+
+## Native nurse demo flows (Maestro)
+
+The real nurse-path Maestro flows live alongside the smoke harness in `apps/native/.maestro/`:
+
+- `nurse-safe-path.yaml` — sign in, inject the seeded safe wristband fixture, select `Acetaminophen 500mg`, and assert the deterministic pass state
+- `nurse-conflict-ai.yaml` — sign in, inject the seeded conflict wristband fixture, select `Amoxicillin 500mg`, assert the deterministic fail state, and request AI explanation text
+- `nurse-demo.yaml` — runs both nurse flows sequentially
+
+Run them from the repo root with:
+
+```sh
+bun run test:e2e:native:demo
+```
+
+Or from `apps/native` with:
+
+```sh
+bun run e2e:demo
+bun run e2e:demo:safe
+bun run e2e:demo:conflict
+```
+
+### Additional local assumptions for demo flows
+
+These flows are written for the iOS Simulator and intentionally do **not** rely on live camera automation.
+
+1. Keep Convex running and reseed the canonical demo fixtures first:
+
+```sh
+bun run dev:server
+# in another terminal
+bun run seed:demo
+```
+
+2. Create a reusable nurse account manually once in the native app, then reuse those credentials for Maestro sign-in.
+3. Provide those sign-in credentials to Maestro as environment variables before running the demo flows:
+
+```sh
+export MAESTRO_NURSE_EMAIL="nurse-demo@meditag.test"
+export MAESTRO_NURSE_PASSWORD="replace-with-your-password"
+```
+
+4. The scan screen exposes **Simulator demo wristbands** only on iOS Simulator. Those buttons inject the seeded tokens below without bypassing any downstream patient lookup or verification logic:
+   - `WRISTBAND-SAFE-QR-001` → `Acetaminophen 500mg` → deterministic pass
+   - `WRISTBAND-CONFLICT-QR-001` → `Amoxicillin 500mg` → deterministic fail + AI explanation request path
+
+If backend AI credentials are configured, the conflict flow can continue on to generated explanation text. If they are not configured, the flow still verifies that the explanation request was submitted and surfaced in the UI.

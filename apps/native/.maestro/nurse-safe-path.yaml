@@ -1,0 +1,35 @@
+appId: com.meditag.native
+env:
+  MAESTRO_NURSE_EMAIL: ""
+  MAESTRO_NURSE_PASSWORD: ""
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: subflows/sign-in.yaml
+- tapOn:
+    id: start-wristband-scan-button
+- assertVisible: "Scan patient wristband"
+- assertVisible: "Simulator demo wristbands"
+- tapOn:
+    id: demo-wristband-WRISTBAND-SAFE-QR-001
+- assertVisible: "Wristband token captured"
+- tapOn:
+    id: continue-with-wristband-button
+- extendedWaitUntil:
+    visible: "Patient context ready"
+    timeout: 20000
+- assertVisible: "Patient name: Demo Safe Patient"
+- tapOn:
+    id: medication-option-161
+- tapOn:
+    id: continue-to-verification-button
+- extendedWaitUntil:
+    visible: "Deterministic medication verification"
+    timeout: 20000
+- tapOn:
+    id: run-deterministic-verification-button
+- extendedWaitUntil:
+    visible: "PASS — Safe to proceed"
+    timeout: 20000
+- assertVisible: "The selected medication matches the scanned patient context and no deterministic allergy conflict was found."
