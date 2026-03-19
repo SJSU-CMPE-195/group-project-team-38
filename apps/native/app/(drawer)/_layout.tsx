@@ -36,6 +36,12 @@ function NurseWorkflowLayout() {
           title: "Scan wristband",
         }}
       />
+      <Stack.Screen
+        name="scan-handoff"
+        options={{
+          title: "Scan handoff",
+        }}
+      />
     </Stack>
   );
 }

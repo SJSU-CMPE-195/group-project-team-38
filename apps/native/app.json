@@ -8,9 +8,20 @@
     },
     "name": "meditag",
     "slug": "meditag",
-    "plugins": ["expo-font"],
+    "plugins": [
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Meditag to scan patient QR wristbands during the nurse verification flow."
+        }
+      ]
+    ],
     "ios": {
-      "bundleIdentifier": "com.meditag.native"
+      "bundleIdentifier": "com.meditag.native",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow Meditag to scan patient QR wristbands during the nurse verification flow."
+      }
     },
     "experiments": {
       "typedRoutes": true,
