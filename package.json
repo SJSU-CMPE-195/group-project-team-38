@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@meditag/config": "workspace:*",
+    "convex": "^1.33.1",
     "oxfmt": "^0.26.0",
     "oxlint": "^1.41.0",
     "turbo": "^2.6.3",

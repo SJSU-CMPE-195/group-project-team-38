@@ -14,7 +14,7 @@
     "@better-auth/expo": "catalog:",
     "@convex-dev/better-auth": "catalog:",
     "better-auth": "catalog:",
-    "convex": "catalog:",
+    "convex": "^1.33.1",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
