@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values";
 
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 import { requireAuthUser, requireRole } from "./authz";
 
@@ -256,6 +257,12 @@ export const verifyMedicationScan = mutation({
       },
       createdAt: Date.now(),
     });
+
+    if (explanationStatus === "requested") {
+      await ctx.scheduler.runAfter(0, internal.scanLogExplanationGeneration.generateForScanLog, {
+        scanLogId,
+      });
+    }
 
     return {
       result,
