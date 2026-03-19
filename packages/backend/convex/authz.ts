@@ -2,7 +2,6 @@ import { ConvexError } from "convex/values";
 
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { authComponent } from "./auth";
-import { components } from "./_generated/api";
 
 export type AppRole = "nurse" | "admin";
 type AuthenticatedContext = QueryCtx | MutationCtx;
@@ -59,44 +58,60 @@ export async function requireAuthUser(ctx: AuthenticatedContext): Promise<AuthUs
 }
 
 export async function getCurrentRole(ctx: AuthenticatedContext): Promise<AppRole | null> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity || typeof identity.sessionId !== "string" || typeof identity.subject !== "string") {
+  const authUser = await authComponent.safeGetAuthUser(ctx);
+  if (!authUser) {
     return null;
   }
 
-  const session = await ctx.runQuery(components.betterAuth.adapter.findOne, {
-    model: "session",
-    where: [
-      {
-        field: "_id",
-        value: identity.sessionId,
-      },
-    ],
-  });
+  const profile = await ctx.db
+    .query("users")
+    .withIndex("by_auth_user_id", (q) => q.eq("authUserId", authUser._id))
+    .unique();
 
-  if (!session || typeof session.activeOrganizationId !== "string") {
+  if (!profile || !profile.role) {
     return null;
   }
 
-  const memberships = await ctx.runQuery(components.betterAuth.adapter.findMany, {
-    model: "member",
-    paginationOpts: {
-      cursor: null,
-      numItems: 20,
-    },
-    where: [
-      {
-        field: "userId",
-        value: identity.subject,
-      },
-    ],
-  });
+  return profile.role;
 
-  const membershipRole = findActiveMembershipRole(memberships?.page, session.activeOrganizationId);
-  if (!membershipRole) {
-    return null;
-  }
-  return mapRole(membershipRole);
+  // const identity = await ctx.auth.getUserIdentity();
+  // if (!identity || typeof identity.sessionId !== "string" || typeof identity.subject !== "string") {
+  //   return null;
+  // }
+
+  // const session = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+  //   model: "session",
+  //   where: [
+  //     {
+  //       field: "_id",
+  //       value: identity.sessionId,
+  //     },
+  //   ],
+  // });
+
+  // if (!session || typeof session.activeOrganizationId !== "string") {
+  //   return null;
+  // }
+
+  // const memberships = await ctx.runQuery(components.betterAuth.adapter.findMany, {
+  //   model: "member",
+  //   paginationOpts: {
+  //     cursor: null,
+  //     numItems: 20,
+  //   },
+  //   where: [
+  //     {
+  //       field: "userId",
+  //       value: identity.subject,
+  //     },
+  //   ],
+  // });
+
+  // const membershipRole = findActiveMembershipRole(memberships?.page, session.activeOrganizationId);
+  // if (!membershipRole) {
+  //   return null;
+  // }
+  // return mapRole(membershipRole);
 }
 
 export async function requireRole(

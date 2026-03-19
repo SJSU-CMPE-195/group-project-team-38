@@ -6,6 +6,7 @@ export default defineSchema({
     authUserId: v.string(),
     displayName: v.string(),
     email: v.string(),
+    role: v.optional(v.union(v.literal("nurse"), v.literal("admin"))),
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
