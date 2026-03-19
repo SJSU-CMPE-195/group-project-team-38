@@ -86,6 +86,7 @@ export MAESTRO_NURSE_PASSWORD="replace-with-your-password"
 ```
 
 3. You are running on the iOS Simulator, where the scan screen exposes seeded **Simulator demo wristbands** instead of relying on live QR camera automation
+4. The simulator is not blocked by first-run setup dialogs. The Maestro smoke flow will try to dismiss common alerts (`Not Now`, `Cancel`, `Continue`, `OK`), but if Apple Account or onboarding modals still appear, clear them once manually or erase/sign out that simulator before rerunning.
 
 Those simulator fixtures map to the stable demo path:
 

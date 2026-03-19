@@ -88,10 +88,11 @@ Maestro lives in `apps/native/.maestro/`.
 
 ### Required local prerequisites
 
-The native smoke command now prepares the simulator and installs the app for you. The only required local prerequisites are:
+The native smoke command now prepares the simulator and installs the app for you. The required local prerequisites are:
 
 1. Maestro CLI is installed and available on `PATH`
 2. Xcode is installed with at least one iPhone simulator available
+3. The simulator is in a clean enough state that system setup alerts are not blocking the app launch flow
 
 Supported one-command flow:
 
@@ -111,6 +112,8 @@ What `bun run e2e` does:
 1. boots a preferred iPhone simulator if needed
 2. builds and installs the native app as `com.meditag.native`
 3. runs the Maestro smoke flow
+
+The smoke flow now attempts to dismiss common blocking startup alerts (`Not Now`, `Cancel`, `Continue`, `OK`) before asserting app content. If your simulator still lands on an Apple Account or onboarding modal, dismiss it once manually or erase/sign out that simulator before rerunning.
 
 For troubleshooting or faster reruns, the lower-level commands are still available:
 

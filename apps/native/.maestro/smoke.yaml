@@ -1,5 +1,18 @@
 appId: com.meditag.native
 ---
-- launchApp
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Not Now"
+    optional: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "OK"
+    optional: true
 - assertVisible: "Meditag"
 - assertVisible: "API Status"
