@@ -1,0 +1,3 @@
+{
+  "extends": "@meditag/config/tsconfig.base.json"
+}
