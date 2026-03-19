@@ -14,5 +14,5 @@ appId: com.meditag.native
 - tapOn:
     text: "OK"
     optional: true
-- assertVisible: "Meditag"
+- assertVisible: "Sign in to begin the nurse demo"
 - assertVisible: "API Status"
