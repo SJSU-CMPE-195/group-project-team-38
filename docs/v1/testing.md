@@ -23,6 +23,8 @@ bun run seed:demo
 
 `bun run seed:demo` is the supported reseed command for local demo and test loops. It rewrites the canonical safe/conflict patients, medications, and wristbands in place so repeated runs keep the same scenarios available without creating duplicate core demo records.
 
+If you are working on backend AI explanations, set `AI_PROVIDER`, `AI_MODEL`, and the matching provider API key in `packages/backend/.env.local` only. Do not mirror those variables into `apps/native` or `apps/web`.
+
 ## Web smoke check (Playwright)
 
 Run from the repo root:
