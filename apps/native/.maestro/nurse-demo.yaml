@@ -1,0 +1,9 @@
+appId: com.meditag.native
+env:
+  MAESTRO_NURSE_EMAIL: ""
+  MAESTRO_NURSE_PASSWORD: ""
+---
+- runFlow:
+    file: nurse-safe-path.yaml
+- runFlow:
+    file: nurse-conflict-ai.yaml

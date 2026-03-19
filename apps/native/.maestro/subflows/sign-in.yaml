@@ -1,0 +1,17 @@
+appId: com.meditag.native
+env:
+  MAESTRO_NURSE_EMAIL: ""
+  MAESTRO_NURSE_PASSWORD: ""
+---
+- assertVisible: "Sign in to begin the nurse demo"
+- tapOn:
+    id: sign-in-email-input
+- inputText: "${MAESTRO_NURSE_EMAIL}"
+- tapOn:
+    id: sign-in-password-input
+- inputText: "${MAESTRO_NURSE_PASSWORD}"
+- tapOn:
+    id: sign-in-submit-button
+- extendedWaitUntil:
+    visible: "Start patient safety check"
+    timeout: 20000

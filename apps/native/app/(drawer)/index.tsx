@@ -99,6 +99,8 @@ export default function Home() {
                 verification without starter-template navigation.
               </Text>
               <Button
+                testID="start-wristband-scan-button"
+                accessibilityLabel="Start wristband scan"
                 onPress={() => {
                   router.push("./scan");
                 }}

@@ -109,6 +109,8 @@ export function SignIn() {
                     <TextField>
                       <Label>Email</Label>
                       <Input
+                        testID="sign-in-email-input"
+                        accessibilityLabel="Sign in email"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChangeText={field.handleChange}
@@ -133,6 +135,8 @@ export function SignIn() {
                       <Label>Password</Label>
                       <Input
                         ref={passwordInputRef}
+                        testID="sign-in-password-input"
+                        accessibilityLabel="Sign in password"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChangeText={field.handleChange}
@@ -147,7 +151,13 @@ export function SignIn() {
                   )}
                 </form.Field>
 
-                <Button onPress={form.handleSubmit} isDisabled={isSubmitting} className="mt-1">
+                <Button
+                  testID="sign-in-submit-button"
+                  accessibilityLabel="Submit sign in"
+                  onPress={form.handleSubmit}
+                  isDisabled={isSubmitting}
+                  className="mt-1"
+                >
                   {isSubmitting ? (
                     <Spinner size="sm" color="default" />
                   ) : (

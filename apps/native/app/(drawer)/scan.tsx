@@ -5,10 +5,11 @@ import {
   type CameraMountError,
   useCameraPermissions,
 } from "expo-camera";
+import Constants from "expo-constants";
 import { router } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 
@@ -18,12 +19,34 @@ const scannerChecklist = [
   "Stop the preview as soon as a token is captured.",
 ] as const;
 
+const simulatorDemoWristbands = [
+  {
+    label: "Use safe demo wristband",
+    description: "Loads Demo Safe Patient with Acetaminophen 500mg for the pass path.",
+    token: "WRISTBAND-SAFE-QR-001",
+  },
+  {
+    label: "Use conflict demo wristband",
+    description: "Loads Demo Conflict Patient with Amoxicillin 500mg for the fail path.",
+    token: "WRISTBAND-CONFLICT-QR-001",
+  },
+] as const;
+
 export default function ScanEntryScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedToken, setScannedToken] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const isIosSimulator = Platform.OS === "ios" && !Constants.isDevice;
 
   const scanState = useMemo(() => {
+    if (scannedToken) {
+      return "captured";
+    }
+
+    if (isIosSimulator) {
+      return "simulator-demo";
+    }
+
     if (!permission) {
       return "loading-permission";
     }
@@ -32,16 +55,12 @@ export default function ScanEntryScreen() {
       return permission.canAskAgain ? "permission-required" : "permission-denied";
     }
 
-    if (scannedToken) {
-      return "captured";
-    }
-
     if (cameraError) {
       return "camera-error";
     }
 
     return "scanning";
-  }, [cameraError, permission, scannedToken]);
+  }, [cameraError, isIosSimulator, permission, scannedToken]);
 
   const handleRequestPermission = async () => {
     const response = await requestPermission();
@@ -65,6 +84,11 @@ export default function ScanEntryScreen() {
 
   const handleScanAgain = () => {
     setScannedToken(null);
+    setCameraError(null);
+  };
+
+  const handleUseDemoWristband = (token: string) => {
+    setScannedToken(token);
     setCameraError(null);
   };
 
@@ -99,6 +123,47 @@ export default function ScanEntryScreen() {
             ))}
           </View>
         </Surface>
+
+        {scanState === "simulator-demo" ? (
+          <Surface variant="secondary" className="rounded-xl p-5">
+            <View className="gap-3">
+              <View className="gap-1">
+                <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
+                  Simulator demo wristbands
+                </Text>
+                <Text className="text-base font-semibold text-foreground">
+                  Use seeded QR fixtures on iOS Simulator
+                </Text>
+              </View>
+              <Text className="text-sm leading-6 text-muted">
+                The iOS Simulator cannot exercise a live bedside camera scan reliably. These seeded
+                QR fixtures inject the same wristband token that a real scan would capture so the
+                downstream nurse workflow stays unchanged.
+              </Text>
+              <View className="gap-3">
+                {simulatorDemoWristbands.map((fixture) => (
+                  <Button
+                    key={fixture.token}
+                    testID={`demo-wristband-${fixture.token}`}
+                    accessibilityLabel={fixture.label}
+                    onPress={() => handleUseDemoWristband(fixture.token)}
+                  >
+                    <Button.Label>{fixture.label}</Button.Label>
+                  </Button>
+                ))}
+              </View>
+              <View className="gap-3 rounded-xl bg-background px-4 py-4">
+                {simulatorDemoWristbands.map((fixture) => (
+                  <View key={`${fixture.token}-description`} className="gap-1">
+                    <Text className="text-sm font-semibold text-foreground">{fixture.label}</Text>
+                    <Text className="text-sm leading-6 text-muted">{fixture.description}</Text>
+                    <Text className="text-xs text-muted">Token: {fixture.token}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </Surface>
+        ) : null}
 
         {scanState === "loading-permission" ? (
           <Surface variant="secondary" className="rounded-xl p-5">
@@ -194,6 +259,8 @@ export default function ScanEntryScreen() {
                 <Text className="mt-2 text-sm text-foreground">{scannedToken}</Text>
               </View>
               <Button
+                testID="continue-with-wristband-button"
+                accessibilityLabel="Continue with this wristband"
                 onPress={() => {
                   router.push({
                     pathname: "/(drawer)/scan-handoff",
