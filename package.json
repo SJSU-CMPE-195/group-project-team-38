@@ -27,6 +27,7 @@
     "dev:web": "turbo run dev --filter=web",
     "dev:server": "turbo run dev --filter=@meditag/backend",
     "dev:setup": "turbo run dev:setup --filter=@meditag/backend",
+    "seed:demo": "cd packages/backend && bun run seed:demo",
     "test:e2e": "turbo run e2e",
     "test:e2e:web": "turbo run e2e --filter=web",
     "test:e2e:native": "turbo run e2e --filter=native",

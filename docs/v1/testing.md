@@ -11,6 +11,18 @@ title: "MediTag V1 Testing Bootstrap"
 
 This prototype starts with runnable E2E harnesses so later feature work has stable entrypoints.
 
+## Demo reseed workflow
+
+Before running the prototype or its E2E checks against Convex demo data, start the backend and re-apply the canonical seed from the repo root:
+
+```sh
+bun run dev:server
+# in another terminal
+bun run seed:demo
+```
+
+`bun run seed:demo` is the supported reseed command for local demo and test loops. It rewrites the canonical safe/conflict patients, medications, and wristbands in place so repeated runs keep the same scenarios available without creating duplicate core demo records.
+
 ## Web smoke check (Playwright)
 
 Run from the repo root:

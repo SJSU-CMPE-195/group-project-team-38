@@ -39,6 +39,14 @@ Then, run the development server:
 bun run dev
 ```
 
+If you want the canonical MediTag demo data in Convex, keep the backend running and seed it from another terminal:
+
+```bash
+bun run seed:demo
+```
+
+That command re-applies the same safe and conflict demo records, so it is the supported way to reseed local demo and testing data without piling up duplicate core records.
+
 Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 Use the Expo Go app to run the mobile application.
 Your app will connect to the Convex cloud backend automatically.
@@ -64,6 +72,7 @@ meditag/
 - `bun run build`: Build all applications
 - `bun run dev:web`: Start only the web application
 - `bun run dev:setup`: Setup and configure your Convex project
+- `bun run seed:demo`: Re-apply the canonical local Convex demo seed data
 - `bun run check-types`: Check TypeScript types across all apps
 - `bun run dev:native`: Start the React Native/Expo development server
 - `bun run check`: Run Oxlint and Oxfmt
