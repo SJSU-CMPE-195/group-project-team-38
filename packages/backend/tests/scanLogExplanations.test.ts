@@ -175,6 +175,166 @@ describe("scan log explanation prompt helpers", () => {
   });
 });
 
+describe("scan log explanation context loading", () => {
+  let t: ReturnType<typeof convexTest>;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    generateTextMock.mockReset();
+    process.env = { ...originalEnv };
+    t = convexTest(schema, modules);
+    t.registerComponent("betterAuth", authSchema, betterAuthModules);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    process.env = { ...originalEnv };
+  });
+
+  test("loads bounded prompt input for a requested failed scan log", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const verification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "device-conflict-context-1",
+    });
+
+    const context = await t.query(internal.scanLogExplanations.loadScanLogExplanationContext, {
+      scanLogId: verification.scanLogId,
+    });
+
+    expect(context).toEqual({
+      status: "eligible",
+      promptInput: {
+        failureReasons: ["allergy_conflict"],
+        patientAllergyLabels: ["Penicillin allergy"],
+        medication: {
+          displayName: "Amoxicillin 500mg",
+          rxNormCode: "723",
+          route: "PO",
+          dose: "1 tablet",
+          frequency: "BID",
+        },
+      },
+    });
+  });
+
+  test("loads eligible context without medication details when the referenced medication is gone", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const verification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "device-conflict-context-missing-medication",
+    });
+
+    await t.run(async (ctx) => {
+      await ctx.db.delete(seed.conflictMedicationId);
+    });
+
+    const context = await t.query(internal.scanLogExplanations.loadScanLogExplanationContext, {
+      scanLogId: verification.scanLogId,
+    });
+
+    expect(context).toEqual({
+      status: "eligible",
+      promptInput: {
+        failureReasons: ["allergy_conflict"],
+        patientAllergyLabels: ["Penicillin allergy"],
+      },
+    });
+  });
+
+  test("returns deterministic skip reasons for non-eligible scan logs", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const passedVerification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-SAFE-QR-001",
+      selectedMedicationId: seed.safeMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "device-safe-context-skip",
+    });
+    const notRequestedVerification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: false,
+      deviceId: "device-conflict-context-not-requested",
+    });
+    const processedVerification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "device-conflict-context-processed",
+    });
+
+    await t.mutation(internal.scanLogExplanations.patchScanLogExplanation, {
+      scanLogId: processedVerification.scanLogId,
+      explanationStatus: "generated",
+      explanationText: "Already processed.",
+      explanationModel: "demo-model",
+    });
+
+    const deletedVerification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "device-conflict-context-missing-log",
+    });
+
+    await t.run(async (ctx) => {
+      await ctx.db.delete(deletedVerification.scanLogId);
+    });
+
+    await expect(
+      t.query(internal.scanLogExplanations.loadScanLogExplanationContext, {
+        scanLogId: passedVerification.scanLogId,
+      }),
+    ).resolves.toEqual({
+      status: "skipped",
+      reason: "scan_passed",
+    });
+
+    await expect(
+      t.query(internal.scanLogExplanations.loadScanLogExplanationContext, {
+        scanLogId: notRequestedVerification.scanLogId,
+      }),
+    ).resolves.toEqual({
+      status: "skipped",
+      reason: "not_requested",
+    });
+
+    await expect(
+      t.query(internal.scanLogExplanations.loadScanLogExplanationContext, {
+        scanLogId: processedVerification.scanLogId,
+      }),
+    ).resolves.toEqual({
+      status: "skipped",
+      reason: "already_processed",
+    });
+
+    await expect(
+      t.query(internal.scanLogExplanations.loadScanLogExplanationContext, {
+        scanLogId: deletedVerification.scanLogId,
+      }),
+    ).resolves.toEqual({
+      status: "skipped",
+      reason: "scan_log_missing",
+    });
+  });
+});
+
 describe("scan log explanation generation", () => {
   let t: ReturnType<typeof convexTest>;
 
@@ -224,6 +384,38 @@ describe("scan log explanation generation", () => {
     expect(logs[0]?.explanationText).toBe(
       "The selected medication conflicts with the patient's recorded penicillin allergy. The deterministic verification correctly flagged this risk.",
     );
+    expect(generateTextMock).toHaveBeenCalledTimes(1);
+  });
+
+  test("marks explanation generation as failed and preserves the configured model when generation throws", async () => {
+    process.env.AI_PROVIDER = "openai";
+    process.env.AI_MODEL = "gpt-4o-mini";
+    process.env.OPENAI_API_KEY = "test-openai-key";
+    delete process.env.ANTHROPIC_API_KEY;
+
+    generateTextMock.mockRejectedValue(new Error("provider unavailable"));
+
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const result = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "device-conflict-ai-runtime-failure",
+    });
+
+    expect(result.result).toBe("fail");
+    expect(result.explanationStatus).toBe("requested");
+
+    await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+
+    const logs = await nurse.query(api.verification.getRecentScanLogs, { limit: 10 });
+    expect(logs).toHaveLength(1);
+    expect(logs[0]?.explanationStatus).toBe("failed");
+    expect(logs[0]?.explanationText).toBeUndefined();
+    expect(logs[0]?.explanationModel).toBe("gpt-4o-mini");
     expect(generateTextMock).toHaveBeenCalledTimes(1);
   });
 

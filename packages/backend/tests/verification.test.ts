@@ -226,6 +226,83 @@ describe("verification flows", () => {
     expect(logs[0]?.result).toBe("pass");
   });
 
+  test("returns pass when selectedMedicationCode resolves the active patient medication", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const result = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-SAFE-QR-001",
+      selectedMedicationCode: "161",
+      scanType: "qr",
+      deviceId: "device-safe-code-1",
+    });
+
+    expect(result).toMatchObject({
+      result: "pass",
+      failureReasons: [],
+      patientId: seed.safePatientId,
+      medicationId: seed.safeMedicationId,
+      explanationStatus: "none",
+    });
+  });
+
+  test("returns identity_mismatch when selectedMedicationCode resolves a different patient's medication", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const admin = await setupIdentity(t, "admin");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    await admin.mutation(api.medications.create, {
+      patientId: seed.conflictPatientId,
+      displayName: "Shared Demo Code 161",
+      rxNormCode: "161",
+      route: "PO",
+      dose: "1 tablet",
+      frequency: "daily",
+      ingredientCodes: ["RXNORM:161"],
+      contraindicationAllergyCodes: [],
+    });
+
+    const result = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationCode: "161",
+      scanType: "qr",
+      deviceId: "device-safe-code-mismatch-1",
+    });
+
+    expect(result.result).toBe("fail");
+    expect(result.failureReasons).toContain("identity_mismatch");
+    expect(result.failureReasons).not.toContain("medication_not_found");
+    expect(result.patientId).toBe(seed.conflictPatientId);
+    expect(result.medicationId).toBe(seed.safeMedicationId);
+  });
+
+  test("loads resolved scan context even when the patient has no active medications", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const admin = await setupIdentity(t, "admin");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    await admin.mutation(api.medications.deactivate, {
+      medicationId: seed.safeMedicationId,
+    });
+
+    const result = await nurse.query(api.verification.getScanContext, {
+      scannedToken: "WRISTBAND-SAFE-QR-001",
+    });
+
+    expect(result).toEqual({
+      status: "resolved",
+      wristbandId: seed.safeWristbandId,
+      patient: {
+        _id: seed.safePatientId,
+        mrn: "MRN-SAFE-001",
+        displayName: "Demo Safe Patient",
+        dob: "1990-01-01",
+        allergyLabels: ["Latex allergy"],
+      },
+      medications: [],
+    });
+  });
+
   test("returns fail with allergy conflict and logs append-only entries", async () => {
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
