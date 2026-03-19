@@ -1,12 +1,41 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+
+import { config as loadDotEnv } from "dotenv";
 
 const APP_ID = "com.meditag.native";
 const PROJECT_ROOT = new URL("..", import.meta.url).pathname;
+const REQUIRED_ENV_VARS = ["EXPO_PUBLIC_CONVEX_URL", "EXPO_PUBLIC_CONVEX_SITE_URL"];
+
+function loadExpoEnv() {
+  for (const fileName of [".env", ".env.local"]) {
+    const path = join(PROJECT_ROOT, fileName);
+    if (existsSync(path)) {
+      loadDotEnv({ path, override: true });
+    }
+  }
+}
+
+function ensureRequiredEnv() {
+  const missing = REQUIRED_ENV_VARS.filter((name) => {
+    const value = process.env[name];
+    return typeof value !== "string" || value.length === 0;
+  });
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required native E2E env vars: ${missing.join(", ")}. ` +
+        "Set them in apps/native/.env or your shell before running the native E2E flow.",
+    );
+  }
+}
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: PROJECT_ROOT,
+    env: process.env,
     stdio: "inherit",
     ...options,
   });
@@ -55,6 +84,9 @@ function ensureSimulatorBooted(device) {
 function logStep(message) {
   console.log(`\n==> ${message}`);
 }
+
+loadExpoEnv();
+ensureRequiredEnv();
 
 const simulator = getPreferredSimulator();
 
