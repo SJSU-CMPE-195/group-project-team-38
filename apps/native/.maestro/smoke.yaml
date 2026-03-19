@@ -1,0 +1,5 @@
+appId: com.meditag.native
+---
+- launchApp
+- assertVisible: "Meditag"
+- assertVisible: "API Status"

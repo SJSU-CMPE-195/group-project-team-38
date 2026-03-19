@@ -22,12 +22,23 @@ export const metadata: Metadata = {
   description: "meditag",
 };
 
+async function getInitialToken() {
+  try {
+    return await getToken();
+  } catch (error) {
+    if (error instanceof TypeError && error.message === "fetch failed") {
+      return null;
+    }
+    throw error;
+  }
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const token = await getToken();
+  const token = await getInitialToken();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
