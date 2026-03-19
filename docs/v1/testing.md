@@ -46,13 +46,13 @@ bun run e2e:install
 
 ### Current smoke target
 
-The initial smoke test only checks that the existing `/` page renders and exposes the basic shell:
+The initial smoke test checks that the admin review entry screen renders without needing a live auth backend:
 
 - page title contains `meditag`
-- `API Status` is visible
-- the home page ASCII banner renders
+- `Meditag Admin Review` is visible
+- the unauthenticated sign-in entry renders
 
-The web smoke check now tolerates the auth backend being offline during local setup, so the page can still render a disconnected shell while deeper app work is still in progress.
+The web smoke check still tolerates the auth backend being offline during local setup, so the admin entry shell can render while deeper app work is still in progress.
 
 ## Native smoke check (Maestro)
 
