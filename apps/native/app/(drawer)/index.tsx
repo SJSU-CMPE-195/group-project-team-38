@@ -43,6 +43,22 @@ export default function Home() {
         </Text>
       </View>
 
+      <Surface variant="secondary" className="mb-4 rounded-xl p-4">
+        <Text className="mb-2 font-medium text-foreground">API Status</Text>
+        <View className="flex-row items-center gap-2">
+          <View
+            className={`h-2 w-2 rounded-full ${healthCheck === "OK" ? "bg-success" : "bg-danger"}`}
+          />
+          <Text className="text-xs text-muted">
+            {healthCheck === undefined
+              ? "Checking..."
+              : healthCheck === "OK"
+                ? "Connected to API"
+                : "API Disconnected"}
+          </Text>
+        </View>
+      </Surface>
+
       {isLoadingProfile ? (
         <Surface variant="secondary" className="mb-4 rounded-xl p-4">
           <View className="flex-row items-center gap-3">
@@ -121,22 +137,6 @@ export default function Home() {
           </View>
         </>
       )}
-
-      <Surface variant="secondary" className="rounded-xl p-4">
-        <Text className="mb-2 font-medium text-foreground">API Status</Text>
-        <View className="flex-row items-center gap-2">
-          <View
-            className={`h-2 w-2 rounded-full ${healthCheck === "OK" ? "bg-success" : "bg-danger"}`}
-          />
-          <Text className="text-xs text-muted">
-            {healthCheck === undefined
-              ? "Checking..."
-              : healthCheck === "OK"
-                ? "Connected to API"
-                : "API Disconnected"}
-          </Text>
-        </View>
-      </Surface>
     </Container>
   );
 }
