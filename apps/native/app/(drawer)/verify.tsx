@@ -71,6 +71,7 @@ export default function VerifyScreen() {
   }>();
   const { isAuthenticated } = useConvexAuth();
   const verifyMedicationScan = useMutation(api.verification.verifyMedicationScan);
+  const requestScanLogExplanation = useMutation(api.scanLogExplanations.requestScanLogExplanation);
 
   const wristbandToken = getRouteParam(params.wristbandToken);
   const patientId = getRouteParam(params.patientId);
@@ -100,45 +101,65 @@ export default function VerifyScreen() {
     return explanationLogs.find((log) => log._id === explanationScanLogId) ?? null;
   }, [explanationLogs, explanationScanLogId]);
 
-  const effectiveExplanationStatus = explanationLog?.explanationStatus ?? null;
+  const effectiveExplanationStatus =
+    explanationLog?.explanationStatus ?? verificationResult?.explanationStatus ?? null;
   const explanationText = explanationLog?.explanationText;
 
-  const runVerification = async (requestExplanation: boolean) => {
+  const runVerification = async () => {
     if (!wristbandToken || !selectedMedicationId) {
       return;
     }
 
     setActionError(null);
-
-    if (requestExplanation) {
-      setIsRequestingExplanation(true);
-    } else {
-      setIsSubmittingVerification(true);
-      setExplanationScanLogId(null);
-    }
+    setIsSubmittingVerification(true);
+    setExplanationScanLogId(null);
 
     try {
       const result = await verifyMedicationScan({
         scannedToken: wristbandToken,
         selectedMedicationId,
         scanType: "qr",
-        requestExplanation,
+        requestExplanation: false,
         deviceId: "native-app",
       });
 
       setVerificationResult(result);
-
-      if (requestExplanation) {
-        setExplanationScanLogId(result.scanLogId);
-      }
+      setExplanationScanLogId(result.result === "fail" ? result.scanLogId : null);
     } catch (error) {
       setActionError(getErrorMessage(error));
     } finally {
-      if (requestExplanation) {
-        setIsRequestingExplanation(false);
-      } else {
-        setIsSubmittingVerification(false);
-      }
+      setIsSubmittingVerification(false);
+    }
+  };
+
+  const requestExplanation = async () => {
+    if (!verificationResult || verificationResult.result !== "fail") {
+      return;
+    }
+
+    setActionError(null);
+    setIsRequestingExplanation(true);
+
+    try {
+      const result = await requestScanLogExplanation({
+        scanLogId: verificationResult.scanLogId,
+      });
+
+      setVerificationResult((current) => {
+        if (!current || current.scanLogId !== result.scanLogId) {
+          return current;
+        }
+
+        return {
+          ...current,
+          explanationStatus: result.explanationStatus,
+        };
+      });
+      setExplanationScanLogId(result.scanLogId);
+    } catch (error) {
+      setActionError(getErrorMessage(error));
+    } finally {
+      setIsRequestingExplanation(false);
     }
   };
 
@@ -220,7 +241,7 @@ export default function VerifyScreen() {
         <Button
           testID="run-deterministic-verification-button"
           accessibilityLabel="Run deterministic verification"
-          onPress={() => void runVerification(false)}
+          onPress={() => void runVerification()}
           isDisabled={!canVerify || isSubmittingVerification || isRequestingExplanation}
         >
           {isSubmittingVerification ? (
@@ -313,11 +334,11 @@ export default function VerifyScreen() {
                 explain the structured failure reasons already detected by the backend.
               </Text>
 
-              {!explanationScanLogId ? (
+              {effectiveExplanationStatus === "none" ? (
                 <Button
                   testID="request-ai-explanation-button"
                   accessibilityLabel="Request AI explanation"
-                  onPress={() => void runVerification(true)}
+                  onPress={() => void requestExplanation()}
                   isDisabled={isSubmittingVerification || isRequestingExplanation}
                 >
                   {isRequestingExplanation ? (
@@ -328,7 +349,7 @@ export default function VerifyScreen() {
                 </Button>
               ) : null}
 
-              {explanationScanLogId ? (
+              {explanationScanLogId && effectiveExplanationStatus !== "none" ? (
                 <View className="gap-3 rounded-xl bg-background px-4 py-4">
                   <Text className="text-sm font-semibold text-foreground">
                     AI explanation requested
