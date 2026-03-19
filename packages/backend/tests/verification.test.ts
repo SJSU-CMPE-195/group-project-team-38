@@ -148,6 +148,60 @@ describe("verification flows", () => {
     ).rejects.toThrow("not authorized");
   });
 
+  test("rejects unauthenticated scan context lookup", async () => {
+    await t.mutation(internal.seed.seedDemoData);
+
+    await expect(
+      t.query(api.verification.getScanContext, {
+        scannedToken: "WRISTBAND-SAFE-QR-001",
+      }),
+    ).rejects.toThrow("not authorized");
+  });
+
+  test("resolves patient context with active medications only", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const admin = await setupIdentity(t, "admin");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const inactiveMedicationId = await admin.mutation(api.medications.create, {
+      patientId: seed.safePatientId,
+      displayName: "Retired Medication 5mg",
+      rxNormCode: "999999",
+      route: "PO",
+      dose: "1 tablet",
+      frequency: "daily",
+      ingredientCodes: ["RXNORM:999999"],
+      contraindicationAllergyCodes: [],
+    });
+    await admin.mutation(api.medications.deactivate, { medicationId: inactiveMedicationId });
+
+    const result = await nurse.query(api.verification.getScanContext, {
+      scannedToken: "WRISTBAND-SAFE-QR-001",
+    });
+
+    expect(result).toEqual({
+      status: "resolved",
+      wristbandId: seed.safeWristbandId,
+      patient: {
+        _id: seed.safePatientId,
+        mrn: "MRN-SAFE-001",
+        displayName: "Demo Safe Patient",
+        dob: "1990-01-01",
+        allergyLabels: ["Latex allergy"],
+      },
+      medications: [
+        {
+          _id: seed.safeMedicationId,
+          displayName: "Acetaminophen 500mg",
+          rxNormCode: "161",
+          route: "PO",
+          dose: "1 tablet",
+          frequency: "BID",
+        },
+      ],
+    });
+  });
+
   test("returns pass for safe patient/medication pair", async () => {
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
@@ -210,6 +264,36 @@ describe("verification flows", () => {
 
     expect(result.result).toBe("fail");
     expect(result.failureReasons).toContain("wristband_not_found");
+  });
+
+  test("returns unknown_wristband scan context for an unknown token", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    await t.mutation(internal.seed.seedDemoData);
+
+    const result = await nurse.query(api.verification.getScanContext, {
+      scannedToken: "UNKNOWN-TOKEN",
+    });
+
+    expect(result).toEqual({ status: "unknown_wristband" });
+  });
+
+  test("returns inactive_wristband scan context for a deactivated wristband", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const admin = await setupIdentity(t, "admin");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    await admin.mutation(api.wristbands.deactivate, {
+      wristbandId: seed.safeWristbandId,
+    });
+
+    const result = await nurse.query(api.verification.getScanContext, {
+      scannedToken: "WRISTBAND-SAFE-QR-001",
+    });
+
+    expect(result).toEqual({
+      status: "inactive_wristband",
+      wristbandId: seed.safeWristbandId,
+    });
   });
 
   test("re-running the demo seed keeps the canonical demo scenarios stable", async () => {
