@@ -1,7 +1,9 @@
 import { ConvexError, v } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
-import { internalMutation, internalQuery } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { internalMutation, internalQuery, mutation } from "./_generated/server";
+import { requireAuthUser, requireRole } from "./authz";
 
 const failureReasonValidator = v.union(
   v.literal("identity_mismatch"),
@@ -151,6 +153,66 @@ export const loadScanLogExplanationContext = internalQuery({
         patientAllergyLabels: patient?.allergyLabels ?? [],
         medication: toBoundedMedication(medication),
       },
+    };
+  },
+});
+
+export const requestScanLogExplanation = mutation({
+  args: {
+    scanLogId: v.id("scanLogs"),
+  },
+  returns: v.object({
+    scanLogId: v.id("scanLogs"),
+    explanationStatus: v.union(
+      v.literal("none"),
+      v.literal("requested"),
+      v.literal("generated"),
+      v.literal("failed"),
+    ),
+  }),
+  handler: async (ctx, args) => {
+    const role = await requireRole(ctx, ["nurse", "admin"]);
+    const authUser = await requireAuthUser(ctx);
+    const scanLog = await ctx.db.get(args.scanLogId);
+
+    if (!scanLog) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: "Scan log not found.",
+      });
+    }
+
+    if (role !== "admin" && scanLog.authUserId !== authUser._id) {
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "You are not authorized for this scan log.",
+      });
+    }
+
+    if (scanLog.result !== "fail") {
+      throw new ConvexError({
+        code: "INVALID_STATE",
+        message: "Only failed scan logs can request an explanation.",
+      });
+    }
+
+    if (scanLog.explanationStatus === "none") {
+      await ctx.db.patch(args.scanLogId, {
+        explanationStatus: "requested",
+      });
+      await ctx.scheduler.runAfter(0, internal.scanLogExplanationGeneration.generateForScanLog, {
+        scanLogId: args.scanLogId,
+      });
+
+      return {
+        scanLogId: args.scanLogId,
+        explanationStatus: "requested" as const,
+      };
+    }
+
+    return {
+      scanLogId: args.scanLogId,
+      explanationStatus: scanLog.explanationStatus,
     };
   },
 });

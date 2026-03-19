@@ -335,6 +335,86 @@ describe("scan log explanation context loading", () => {
   });
 });
 
+describe("scan log explanation requests", () => {
+  let t: ReturnType<typeof convexTest>;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    generateTextMock.mockReset();
+    process.env = { ...originalEnv };
+    t = convexTest(schema, modules);
+    t.registerComponent("betterAuth", authSchema, betterAuthModules);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    process.env = { ...originalEnv };
+  });
+
+  test("reuses the existing failed scan log when requesting an explanation", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const verification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: false,
+      deviceId: "device-conflict-request-existing-log",
+    });
+
+    expect(verification.result).toBe("fail");
+    expect(verification.explanationStatus).toBe("none");
+
+    const explanationRequest = await nurse.mutation(
+      api.scanLogExplanations.requestScanLogExplanation,
+      {
+        scanLogId: verification.scanLogId,
+      },
+    );
+
+    expect(explanationRequest).toEqual({
+      scanLogId: verification.scanLogId,
+      explanationStatus: "requested",
+    });
+
+    const logs = await nurse.query(api.verification.getRecentScanLogs, { limit: 10 });
+    expect(logs).toHaveLength(1);
+    expect(logs[0]?._id).toBe(verification.scanLogId);
+    expect(logs[0]?.explanationStatus).toBe("requested");
+  });
+
+  test("treats repeated explanation requests for the same scan log as idempotent", async () => {
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const verification = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: false,
+      deviceId: "device-conflict-request-existing-log-repeat",
+    });
+
+    await nurse.mutation(api.scanLogExplanations.requestScanLogExplanation, {
+      scanLogId: verification.scanLogId,
+    });
+    const secondRequest = await nurse.mutation(api.scanLogExplanations.requestScanLogExplanation, {
+      scanLogId: verification.scanLogId,
+    });
+
+    expect(secondRequest).toEqual({
+      scanLogId: verification.scanLogId,
+      explanationStatus: "requested",
+    });
+
+    const logs = await nurse.query(api.verification.getRecentScanLogs, { limit: 10 });
+    expect(logs).toHaveLength(1);
+    expect(logs[0]?._id).toBe(verification.scanLogId);
+    expect(logs[0]?.explanationStatus).toBe("requested");
+  });
+});
+
 describe("scan log explanation generation", () => {
   let t: ReturnType<typeof convexTest>;
 
