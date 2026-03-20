@@ -6,8 +6,19 @@ import { createAuthClient } from "better-auth/react";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
-const keychainService = Constants.expoConfig?.ios?.bundleIdentifier ?? "com.meditag.native";
-const authScheme = Constants.expoConfig?.scheme ?? "meditag";
+function getSingleConfigValue(value: string | string[] | undefined, fallback: string) {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return value?.[0] ?? fallback;
+}
+
+const keychainService = getSingleConfigValue(
+  Constants.expoConfig?.ios?.bundleIdentifier,
+  "com.meditag.native",
+);
+const authScheme = getSingleConfigValue(Constants.expoConfig?.scheme, "meditag");
 
 const secureStore = {
   getItem(key: string) {
