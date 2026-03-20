@@ -7,6 +7,7 @@ export default defineSchema({
     displayName: v.string(),
     email: v.string(),
     isActive: v.boolean(),
+    role: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

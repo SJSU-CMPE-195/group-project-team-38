@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import UserMenu from "@/components/user-menu";
 import { cn } from "@/lib/utils";
+import { Suspense } from "react";
 
 const explanationStatusLabel = {
   none: "No explanation",
@@ -976,6 +977,14 @@ const fixtureScanLogDetails: Record<string, AdminReviewDetail> = {
 };
 
 export default function DashboardPage() {
+  return (
+    <Suspense>
+      <DashboardPageInner />
+    </Suspense>
+  );
+}
+
+function DashboardPageInner() {
   const fixtureMode = useAdminReviewFixtureMode();
 
   if (fixtureMode) {
