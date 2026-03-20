@@ -60,27 +60,24 @@ export function SignIn() {
       onSubmit: signInSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      await authClient.signIn.email(
-        {
-          email: value.email.trim(),
-          password: value.password,
-        },
-        {
-          onError(error) {
-            toast.show({
-              variant: "danger",
-              label: error.error?.message || "Failed to sign in",
-            });
-          },
-          onSuccess() {
-            formApi.reset();
-            toast.show({
-              variant: "success",
-              label: "Signed in successfully",
-            });
-          },
-        },
-      );
+      const result = await authClient.signIn.email({
+        email: value.email.trim(),
+        password: value.password,
+      });
+
+      if (result.error) {
+        toast.show({
+          variant: "danger",
+          label: result.error.message || "Failed to sign in",
+        });
+        return;
+      }
+
+      formApi.reset();
+      toast.show({
+        variant: "success",
+        label: "Signed in successfully",
+      });
     },
   });
 

@@ -3,7 +3,8 @@ env:
   MAESTRO_NURSE_EMAIL: ""
   MAESTRO_NURSE_PASSWORD: ""
 ---
-- assertVisible: "Sign in to begin the nurse demo"
+- assertVisible:
+    id: sign-in-submit-button
 - tapOn:
     id: sign-in-email-input
 - inputText: "${MAESTRO_NURSE_EMAIL}"
@@ -13,5 +14,5 @@ env:
 - tapOn:
     id: sign-in-submit-button
 - extendedWaitUntil:
-    visible: "Start patient safety check"
+    visible: "Start patient verification"
     timeout: 20000

@@ -1,0 +1,46 @@
+appId: com.meditag.native
+env:
+  MAESTRO_NURSE_EMAIL: ""
+  MAESTRO_NURSE_PASSWORD: ""
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Not Now"
+    optional: true
+- tapOn:
+    text: "Cancel"
+    optional: true
+- tapOn:
+    text: "Continue"
+    optional: true
+- tapOn:
+    text: "OK"
+    optional: true
+- assertVisible:
+    id: welcome-login-button
+- tapOn:
+    id: welcome-login-button
+- assertVisible:
+    id: sign-in-submit-button
+- tapOn:
+    id: sign-in-email-input
+- inputText: "${MAESTRO_NURSE_EMAIL}"
+- tapOn:
+    id: sign-in-password-input
+- inputText: "${MAESTRO_NURSE_PASSWORD}"
+- tapOn:
+    id: sign-in-submit-button
+- extendedWaitUntil:
+    visible: "Start patient verification"
+    timeout: 20000
+- assertVisible:
+    id: start-wristband-scan-button
+- assertVisible:
+    id: sign-out-button
+- tapOn:
+    id: sign-out-button
+- extendedWaitUntil:
+    visible:
+      id: welcome-login-button
+    timeout: 20000
