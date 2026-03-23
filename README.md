@@ -1,5 +1,7 @@
 # MediTag
 
+prototype demo video: https://drive.google.com/file/d/1YfGoS5vbexodfIoVxzfteH9brpYm94rh/view?usp=sharing
+
 MediTag is an AI-assisted patient safety verification system for medication workflows. The prototype combines a native nurse-facing app, a web admin review dashboard, and a shared Convex backend that handles authentication, patient context, verification logic, scan logging, and optional AI-generated explanation text.
 
 ## Team
