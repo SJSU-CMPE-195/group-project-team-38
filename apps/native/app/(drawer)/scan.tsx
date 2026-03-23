@@ -110,19 +110,21 @@ export default function ScanEntryScreen() {
           </View>
         </Surface>
 
-        <Surface variant="secondary" className="rounded-xl p-5">
-          <View className="gap-3">
-            <Text className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Scanner rules
-            </Text>
-            {scannerChecklist.map((item) => (
-              <View key={item} className="flex-row gap-3">
-                <Text className="text-sm font-semibold text-primary">•</Text>
-                <Text className="flex-1 text-sm leading-6 text-muted">{item}</Text>
-              </View>
-            ))}
-          </View>
-        </Surface>
+        {!isIosSimulator ? (
+          <Surface variant="secondary" className="rounded-xl p-5">
+            <View className="gap-3">
+              <Text className="text-sm font-semibold uppercase tracking-wide text-primary">
+                Scanner rules
+              </Text>
+              {scannerChecklist.map((item) => (
+                <View key={item} className="flex-row gap-3">
+                  <Text className="text-sm font-semibold text-primary">•</Text>
+                  <Text className="flex-1 text-sm leading-6 text-muted">{item}</Text>
+                </View>
+              ))}
+            </View>
+          </Surface>
+        ) : null}
 
         {scanState === "simulator-demo" ? (
           <Surface variant="secondary" className="rounded-xl p-5">
@@ -262,7 +264,7 @@ export default function ScanEntryScreen() {
                 testID="continue-with-wristband-button"
                 accessibilityLabel="Continue with this wristband"
                 onPress={() => {
-                  router.push({
+                  router.replace({
                     pathname: "/(drawer)/scan-handoff",
                     params: { wristbandToken: scannedToken },
                   });

@@ -2,12 +2,13 @@ import { api } from "@meditag/backend/convex/_generated/api";
 import { useConvexAuth, useQuery } from "convex/react";
 import { router } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
+import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
-import { authClient } from "@/lib/auth-client";
+import { authClient, ensureSingleOrganizationIsActive } from "@/lib/auth-client";
 
 const workflowSteps = [
   {
@@ -30,9 +31,41 @@ export default function Home() {
   const { isAuthenticated } = useConvexAuth();
   const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
   const role = useQuery(api.users.getCurrentUserRole, isAuthenticated ? {} : "skip");
+  const [isActivatingWorkspace, setIsActivatingWorkspace] = useState(false);
+  const hasLoadedUser = user !== undefined;
+  const hasLoadedRole = role !== undefined;
+  const hasWorkspaceUser = user !== undefined && user !== null;
+  const hasWorkspaceRole = role !== undefined && role !== null;
 
-  const isLoadingProfile = isAuthenticated && user === undefined;
-  const roleLabel = role === "admin" ? "Admin review access" : "Nurse demo access";
+  useEffect(() => {
+    let isCancelled = false;
+
+    if (!isAuthenticated || !hasWorkspaceUser || role !== null) {
+      setIsActivatingWorkspace(false);
+      return () => {
+        isCancelled = true;
+      };
+    }
+
+    setIsActivatingWorkspace(true);
+
+    void ensureSingleOrganizationIsActive().finally(() => {
+      if (!isCancelled) {
+        setIsActivatingWorkspace(false);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [hasWorkspaceUser, isAuthenticated, role]);
+
+  const isLoadingProfile =
+    isAuthenticated &&
+    (!hasLoadedUser ||
+      !hasLoadedRole ||
+      (hasWorkspaceUser && role === null && isActivatingWorkspace));
+  const hasWorkspaceAccess = hasWorkspaceUser && hasWorkspaceRole;
 
   return (
     <Container className="px-4 pb-4">
@@ -66,7 +99,7 @@ export default function Home() {
             <Text className="text-sm text-muted">Loading your demo workspace…</Text>
           </View>
         </Surface>
-      ) : user ? (
+      ) : hasWorkspaceAccess ? (
         <>
           <Surface variant="secondary" className="mb-4 rounded-xl p-4">
             <View className="flex-row items-start justify-between gap-4">
@@ -74,7 +107,7 @@ export default function Home() {
                 <Text className="text-base font-medium text-foreground">{user.name}</Text>
                 <Text className="text-xs text-muted">{user.email}</Text>
                 <Text className="text-xs font-medium uppercase tracking-wide text-primary">
-                  {roleLabel}
+                  {role === "admin" ? "Admin review access" : "Nurse demo access"}
                 </Text>
               </View>
               <Button
@@ -119,6 +152,34 @@ export default function Home() {
             ))}
           </View>
         </>
+      ) : hasWorkspaceUser ? (
+        <Surface variant="secondary" className="mb-4 rounded-xl p-4">
+          <View className="gap-3">
+            <Text className="text-base font-medium text-foreground">
+              Preparing your demo workspace
+            </Text>
+            <Text className="text-sm text-muted">
+              Your account is signed in, but the demo organization is still being activated for this
+              session.
+            </Text>
+            <View className="flex-row items-center gap-3">
+              {isActivatingWorkspace ? <Spinner size="sm" color="default" /> : null}
+              <Button
+                size="sm"
+                variant="secondary"
+                isDisabled={isActivatingWorkspace}
+                onPress={() => {
+                  setIsActivatingWorkspace(true);
+                  void ensureSingleOrganizationIsActive().finally(() => {
+                    setIsActivatingWorkspace(false);
+                  });
+                }}
+              >
+                <Button.Label>Retry workspace activation</Button.Label>
+              </Button>
+            </View>
+          </View>
+        </Surface>
       ) : (
         <>
           <Surface variant="secondary" className="mb-4 rounded-xl p-5">

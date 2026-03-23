@@ -11,7 +11,7 @@ import { query } from "./_generated/server";
 import authConfig from "./auth.config";
 import authSchema from "./betterAuth/schema";
 
-const defaultNativeAppUrl = "mybettertapp://";
+const defaultNativeAppUrl = "meditag://";
 const expoDevelopmentOrigins = ["exp://", "exp://**", "exp://192.168.*.*:*/**"];
 
 type AuthEnvironment = {

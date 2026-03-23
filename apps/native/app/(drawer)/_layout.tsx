@@ -1,14 +1,11 @@
 import { Stack } from "expo-router";
 import { useThemeColor } from "heroui-native";
-import { useCallback } from "react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 
 function NurseWorkflowLayout() {
   const themeColorForeground = useThemeColor("foreground");
   const themeColorBackground = useThemeColor("background");
-
-  const renderThemeToggle = useCallback(() => <ThemeToggle />, []);
 
   return (
     <Stack
@@ -19,7 +16,6 @@ function NurseWorkflowLayout() {
           fontWeight: "600",
           color: themeColorForeground,
         },
-        headerRight: renderThemeToggle,
         contentStyle: { backgroundColor: themeColorBackground },
       }}
     >
@@ -28,24 +24,31 @@ function NurseWorkflowLayout() {
         options={{
           title: "Nurse workflow",
           headerBackVisible: false,
+          headerRight: () => <ThemeToggle />,
         }}
       />
       <Stack.Screen
         name="scan"
         options={{
           title: "Scan wristband",
+          animation: "none",
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
         name="scan-handoff"
         options={{
           title: "Medication selection",
+          animation: "none",
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
         name="verify"
         options={{
           title: "Verify medication",
+          animation: "none",
+          gestureEnabled: false,
         }}
       />
     </Stack>
