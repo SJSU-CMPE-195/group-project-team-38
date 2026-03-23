@@ -40,7 +40,9 @@ The project uses separate environment files for the backend, web app, and native
 Backend: `packages/backend/.env.local`
 
 ```dotenv
+BETTER_AUTH_SECRET=meditag-local-dev-auth-secret-32-chars
 SITE_URL=http://localhost:3001
+NATIVE_APP_URL=meditag://
 AI_PROVIDER=
 AI_MODEL=
 OPENAI_API_KEY=
@@ -52,14 +54,14 @@ Web: `apps/web/.env`
 
 ```dotenv
 NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:3210
-NEXT_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3210
+NEXT_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211
 ```
 
 Native: `apps/native/.env`
 
 ```dotenv
 EXPO_PUBLIC_CONVEX_URL=http://127.0.0.1:3210
-EXPO_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3210
+EXPO_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211
 ```
 
 Notes:
@@ -68,6 +70,7 @@ Notes:
 - Set `AI_MODEL` to the model name that matches your chosen provider.
 - Provide only the API key required for the provider you selected.
 - Keep the Convex URLs aligned across backend, web, and native when using a non-default deployment.
+- Keep `NATIVE_APP_URL` aligned with the Expo scheme in `apps/native/app.json` so native Better Auth sign-in is accepted.
 
 ## Running the Application
 
