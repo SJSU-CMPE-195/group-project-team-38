@@ -13,9 +13,9 @@
     "e2e": "bun run e2e:prepare && bun run e2e:smoke",
     "e2e:prepare": "bun ./scripts/e2e-prepare-ios.mjs",
     "e2e:smoke": "maestro test .maestro/smoke.yaml",
-    "e2e:demo": "maestro test .maestro/nurse-demo.yaml",
-    "e2e:demo:safe": "maestro test .maestro/nurse-safe-path.yaml",
-    "e2e:demo:conflict": "maestro test .maestro/nurse-conflict-ai.yaml",
+    "e2e:demo": "bun run e2e:prepare && maestro test .maestro/nurse-demo.yaml",
+    "e2e:demo:safe": "bun run e2e:prepare && maestro test .maestro/nurse-safe-path.yaml",
+    "e2e:demo:conflict": "bun run e2e:prepare && maestro test .maestro/nurse-conflict-ai.yaml",
     "e2e:doctor": "sh -c 'for f in .maestro/*.yaml .maestro/subflows/*.yaml; do maestro check-syntax \"$f\"; done'"
   },
   "dependencies": {

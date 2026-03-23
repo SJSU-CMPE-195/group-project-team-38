@@ -45,6 +45,16 @@ function run(command, args, options = {}) {
   }
 }
 
+function isAppInstalled(deviceUdid, appId) {
+  const result = spawnSync("xcrun", ["simctl", "get_app_container", deviceUdid, appId], {
+    cwd: PROJECT_ROOT,
+    env: process.env,
+    stdio: "ignore",
+  });
+
+  return result.status === 0;
+}
+
 function capture(command, args) {
   return execFileSync(command, args, {
     cwd: PROJECT_ROOT,
@@ -94,15 +104,25 @@ logStep(`Preparing iOS simulator ${simulator.name} (${simulator.udid})`);
 ensureSimulatorBooted(simulator);
 
 logStep(`Building and installing ${APP_ID}`);
-run("bunx", [
-  "expo",
-  "run:ios",
-  "--device",
-  simulator.udid,
-  "--configuration",
-  "Release",
-  "--no-bundler",
-]);
+const installResult = spawnSync(
+  "bunx",
+  ["expo", "run:ios", "--device", simulator.udid, "--configuration", "Release", "--no-bundler"],
+  {
+    cwd: PROJECT_ROOT,
+    env: process.env,
+    stdio: "inherit",
+  },
+);
+
+if (installResult.status !== 0 && !isAppInstalled(simulator.udid, APP_ID)) {
+  process.exit(installResult.status ?? 1);
+}
+
+if (installResult.status !== 0) {
+  console.warn(
+    `\nExpo reported a non-zero exit while opening the dev client, but ${APP_ID} is installed. Continuing with Maestro preparation.`,
+  );
+}
 
 logStep(`Verifying ${APP_ID} is installed`);
 const appContainer = capture("xcrun", ["simctl", "get_app_container", simulator.udid, APP_ID]);
