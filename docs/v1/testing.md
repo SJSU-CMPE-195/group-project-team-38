@@ -25,6 +25,15 @@ bun run seed:demo
 
 If you are working on backend AI explanations, set `AI_PROVIDER`, `AI_MODEL`, and the matching provider API key in `packages/backend/.env.local` only. Do not mirror those variables into `apps/native` or `apps/web`.
 
+The backend test suite also includes a guarded live-provider integration test in `packages/backend/tests/ai.integration.test.ts`. It auto-skips unless `packages/backend/.env.local` contains a runnable Anthropic configuration. When enabled, it exercises the real explanation-generation backend path against the configured model instead of mocking the provider call.
+
+Run only that live AI integration spec with:
+
+```sh
+cd packages/backend
+bun run test tests/ai.integration.test.ts
+```
+
 ## Web smoke check (Playwright)
 
 Run from the repo root:
@@ -170,15 +179,16 @@ bun run dev:server
 bun run seed:demo
 ```
 
-2. Create a reusable nurse account manually once in the native app, then reuse those credentials for Maestro sign-in.
-3. Provide those sign-in credentials to Maestro as environment variables before running the demo flows:
+2. `bun run seed:demo` now provisions a reusable Better Auth nurse account for the native demo:
 
 ```sh
 export MAESTRO_NURSE_EMAIL="nurse-demo@meditag.test"
-export MAESTRO_NURSE_PASSWORD="replace-with-your-password"
+export MAESTRO_NURSE_PASSWORD="meditag-demo-123"
 ```
 
-4. The scan screen exposes **Simulator demo wristbands** only on iOS Simulator. Those buttons inject the seeded tokens below without bypassing any downstream patient lookup or verification logic:
+You no longer need to create that nurse account manually before running the Maestro journey.
+
+3. The scan screen exposes **Simulator demo wristbands** only on iOS Simulator. Those buttons inject the seeded tokens below without bypassing any downstream patient lookup or verification logic:
    - `WRISTBAND-SAFE-QR-001` → `Acetaminophen 500mg` → deterministic pass
    - `WRISTBAND-CONFLICT-QR-001` → `Amoxicillin 500mg` → deterministic fail + AI explanation request path
 
@@ -224,3 +234,5 @@ Notes:
 - `bun run check-types` is the canonical repo command even though Turbo currently has no package-level `check-types` tasks wired yet.
 - `bun run test:e2e:web` is reliable without a live backend because it includes the unauthenticated smoke path and the fixture-backed admin review path.
 - Native Maestro flows still require local simulator tooling and, for the deeper nurse flows, a reusable nurse login plus seeded demo data.
+- For local Convex auth, `*_CONVEX_URL` stays on `http://127.0.0.1:3210` while `*_CONVEX_SITE_URL` must point at the local site port `http://127.0.0.1:3211`.
+- Better Auth native sign-in also requires `NATIVE_APP_URL=meditag://` in Convex env so the iOS app origin matches the Expo scheme declared in `apps/native/app.json`.
