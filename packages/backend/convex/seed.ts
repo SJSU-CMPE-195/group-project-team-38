@@ -1,7 +1,9 @@
 import { v } from "convex/values";
+import { hashPassword } from "better-auth/crypto";
 
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
+import { components } from "./_generated/api";
 import { internalMutation } from "./_generated/server";
 
 type PatientSeedInput = {
@@ -24,6 +26,24 @@ type WristbandSeedInput = {
   patientId: Id<"patients">;
   token: string;
   tokenType: "qr" | "nfc";
+};
+
+type DemoAuthSeedInput = {
+  email: string;
+  name: string;
+  password: string;
+  role: "admin" | "nurse";
+  organizationName: string;
+  organizationSlug: string;
+};
+
+const demoNurseSeed: DemoAuthSeedInput = {
+  email: "nurse-demo@meditag.test",
+  name: "Demo Nurse",
+  password: "meditag-demo-123",
+  role: "nurse",
+  organizationName: "MediTag Demo Nurse Org",
+  organizationSlug: "meditag-demo-nurse-org",
 };
 
 async function ensurePatient(ctx: MutationCtx, input: PatientSeedInput): Promise<Id<"patients">> {
@@ -113,6 +133,216 @@ async function ensureWristband(
   });
 }
 
+async function ensureDemoAuthUser(ctx: MutationCtx, input: DemoAuthSeedInput): Promise<void> {
+  const now = Date.now();
+  const hashedPassword = await hashPassword(input.password);
+
+  const existingUser = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+    model: "user",
+    where: [
+      {
+        field: "email",
+        operator: "eq",
+        value: input.email,
+      },
+    ],
+  });
+
+  let authUserId: string;
+  if (existingUser && typeof existingUser._id === "string") {
+    authUserId = existingUser._id;
+    await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+      input: {
+        model: "user",
+        where: [
+          {
+            field: "_id",
+            operator: "eq",
+            value: authUserId,
+          },
+        ],
+        update: {
+          name: input.name,
+          email: input.email,
+          emailVerified: true,
+          updatedAt: now,
+        },
+      },
+    });
+  } else {
+    const createdUser = await ctx.runMutation(components.betterAuth.adapter.create, {
+      input: {
+        model: "user",
+        data: {
+          name: input.name,
+          email: input.email,
+          emailVerified: true,
+          createdAt: now,
+          updatedAt: now,
+        },
+      },
+    });
+
+    if (!createdUser || typeof createdUser !== "object" || typeof createdUser._id !== "string") {
+      throw new Error("Unable to create demo Better Auth user.");
+    }
+
+    authUserId = createdUser._id;
+  }
+
+  const existingOrganization = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+    model: "organization",
+    where: [
+      {
+        field: "slug",
+        operator: "eq",
+        value: input.organizationSlug,
+      },
+    ],
+  });
+
+  let organizationId: string;
+  if (existingOrganization && typeof existingOrganization._id === "string") {
+    organizationId = existingOrganization._id;
+    await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+      input: {
+        model: "organization",
+        where: [
+          {
+            field: "_id",
+            operator: "eq",
+            value: organizationId,
+          },
+        ],
+        update: {
+          name: input.organizationName,
+          slug: input.organizationSlug,
+        },
+      },
+    });
+  } else {
+    const createdOrganization = await ctx.runMutation(components.betterAuth.adapter.create, {
+      input: {
+        model: "organization",
+        data: {
+          name: input.organizationName,
+          slug: input.organizationSlug,
+          createdAt: now,
+        },
+      },
+    });
+
+    if (
+      !createdOrganization ||
+      typeof createdOrganization !== "object" ||
+      typeof createdOrganization._id !== "string"
+    ) {
+      throw new Error("Unable to create demo Better Auth organization.");
+    }
+
+    organizationId = createdOrganization._id;
+  }
+
+  const existingMember = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+    model: "member",
+    where: [
+      {
+        field: "organizationId",
+        operator: "eq",
+        value: organizationId,
+      },
+      {
+        connector: "AND",
+        field: "userId",
+        operator: "eq",
+        value: authUserId,
+      },
+    ],
+  });
+
+  if (existingMember && typeof existingMember._id === "string") {
+    await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+      input: {
+        model: "member",
+        where: [
+          {
+            field: "_id",
+            operator: "eq",
+            value: existingMember._id,
+          },
+        ],
+        update: {
+          role: input.role,
+        },
+      },
+    });
+  } else {
+    await ctx.runMutation(components.betterAuth.adapter.create, {
+      input: {
+        model: "member",
+        data: {
+          organizationId,
+          userId: authUserId,
+          role: input.role,
+          createdAt: now,
+        },
+      },
+    });
+  }
+
+  const existingCredentialAccount = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+    model: "account",
+    where: [
+      {
+        field: "userId",
+        operator: "eq",
+        value: authUserId,
+      },
+      {
+        connector: "AND",
+        field: "providerId",
+        operator: "eq",
+        value: "credential",
+      },
+    ],
+  });
+
+  if (existingCredentialAccount && typeof existingCredentialAccount._id === "string") {
+    await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+      input: {
+        model: "account",
+        where: [
+          {
+            field: "_id",
+            operator: "eq",
+            value: existingCredentialAccount._id,
+          },
+        ],
+        update: {
+          accountId: authUserId,
+          providerId: "credential",
+          password: hashedPassword,
+          updatedAt: now,
+        },
+      },
+    });
+  } else {
+    await ctx.runMutation(components.betterAuth.adapter.create, {
+      input: {
+        model: "account",
+        data: {
+          accountId: authUserId,
+          providerId: "credential",
+          userId: authUserId,
+          password: hashedPassword,
+          createdAt: now,
+          updatedAt: now,
+        },
+      },
+    });
+  }
+}
+
 export const seedDemoData = internalMutation({
   args: {},
   returns: v.object({
@@ -124,6 +354,8 @@ export const seedDemoData = internalMutation({
     conflictWristbandId: v.id("wristbands"),
   }),
   handler: async (ctx) => {
+    await ensureDemoAuthUser(ctx, demoNurseSeed);
+
     const safePatientId = await ensurePatient(ctx, {
       mrn: "MRN-SAFE-001",
       displayName: "Demo Safe Patient",

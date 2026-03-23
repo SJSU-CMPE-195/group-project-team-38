@@ -404,6 +404,87 @@ describe("verification flows", () => {
     expect(conflictResult.result).toBe("fail");
     expect(conflictResult.failureReasons).toContain("allergy_conflict");
   });
+
+  test("seed creates a stable demo nurse credential with nurse role membership", async () => {
+    await t.mutation(internal.seed.seedDemoData);
+    await t.mutation(internal.seed.seedDemoData);
+
+    const demoUser = await t.query(components.betterAuth.adapter.findOne, {
+      model: "user",
+      where: [
+        {
+          field: "email",
+          operator: "eq",
+          value: "nurse-demo@meditag.test",
+        },
+      ],
+    });
+
+    expect(demoUser && typeof demoUser._id === "string").toBe(true);
+    expect(demoUser?.name).toBe("Demo Nurse");
+    expect(demoUser?.emailVerified).toBe(true);
+
+    const organization = await t.query(components.betterAuth.adapter.findOne, {
+      model: "organization",
+      where: [
+        {
+          field: "slug",
+          operator: "eq",
+          value: "meditag-demo-nurse-org",
+        },
+      ],
+    });
+
+    expect(organization && typeof organization._id === "string").toBe(true);
+
+    const member = await t.query(components.betterAuth.adapter.findOne, {
+      model: "member",
+      where:
+        demoUser &&
+        typeof demoUser._id === "string" &&
+        organization &&
+        typeof organization._id === "string"
+          ? [
+              {
+                field: "organizationId",
+                operator: "eq",
+                value: organization._id,
+              },
+              {
+                connector: "AND",
+                field: "userId",
+                operator: "eq",
+                value: demoUser._id,
+              },
+            ]
+          : [],
+    });
+
+    expect(member?.role).toBe("nurse");
+
+    const credentialAccount = await t.query(components.betterAuth.adapter.findOne, {
+      model: "account",
+      where:
+        demoUser && typeof demoUser._id === "string"
+          ? [
+              {
+                field: "userId",
+                operator: "eq",
+                value: demoUser._id,
+              },
+              {
+                connector: "AND",
+                field: "providerId",
+                operator: "eq",
+                value: "credential",
+              },
+            ]
+          : [],
+    });
+
+    expect(credentialAccount?.accountId).toBe(demoUser?._id);
+    expect(credentialAccount?.password).toBeTruthy();
+  });
 });
 
 describe("role enforcement", () => {
