@@ -14,6 +14,8 @@ import authSchema from "./betterAuth/schema";
 const defaultNativeAppUrl = "meditag://";
 const expoDevelopmentOrigins = ["exp://", "exp://**", "exp://192.168.*.*:*/**"];
 const localDevelopmentOrigins = [
+  "http://localhost:3001",
+  "http://127.0.0.1:3001",
   "http://localhost:8081",
   "http://127.0.0.1:8081",
   "http://localhost:19006",

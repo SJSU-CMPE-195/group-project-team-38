@@ -38,11 +38,8 @@ function getErrorMessage(error: unknown): string | null {
     return null;
   }
 
-  if (typeof error === "object" && error !== null) {
-    const maybeError = error as { message?: unknown };
-    if (typeof maybeError.message === "string") {
-      return maybeError.message;
-    }
+  if (error instanceof Error && error.message) {
+    return error.message;
   }
 
   return null;
@@ -86,8 +83,13 @@ export function SignUp() {
   });
 
   return (
-    <Surface variant="secondary" className="p-4 rounded-lg">
-      <Text className="text-foreground font-medium mb-4">Create Account</Text>
+    <Surface variant="secondary" className="rounded-2xl p-5">
+      <View className="mb-5 gap-1">
+        <Text className="text-lg font-semibold text-foreground">New account</Text>
+        <Text className="text-sm leading-6 text-muted">
+          This is only used to access the prototype workflow.
+        </Text>
+      </View>
 
       <form.Subscribe
         selector={(state) => ({
@@ -170,11 +172,11 @@ export function SignUp() {
                   )}
                 </form.Field>
 
-                <Button onPress={form.handleSubmit} isDisabled={isSubmitting} className="mt-1">
+                <Button onPress={form.handleSubmit} isDisabled={isSubmitting} className="mt-2">
                   {isSubmitting ? (
                     <Spinner size="sm" color="default" />
                   ) : (
-                    <Button.Label>Create Account</Button.Label>
+                    <Button.Label>Create account</Button.Label>
                   )}
                 </Button>
               </View>

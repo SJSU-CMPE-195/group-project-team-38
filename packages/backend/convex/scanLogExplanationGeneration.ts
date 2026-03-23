@@ -5,8 +5,51 @@ import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
-import { getAiConfig, getAiTextModel } from "./ai";
+import { getAiConfig, getAiDebugSnapshot, getAiTextModel } from "./ai";
 import { buildScanLogExplanationPrompt, normalizeExplanationText } from "./scanLogExplanations";
+
+type StructuredErrorIssue = {
+  path?: string[];
+  message?: string;
+};
+
+function parseStructuredErrorMessage(errorMessage: string) {
+  try {
+    const parsed = JSON.parse(errorMessage) as unknown;
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return null;
+    }
+
+    const [firstIssue] = parsed as StructuredErrorIssue[];
+    if (!firstIssue?.message) {
+      return null;
+    }
+
+    const issuePath =
+      Array.isArray(firstIssue.path) && firstIssue.path.length > 0
+        ? `${firstIssue.path.join(".")}: `
+        : "";
+
+    return `${issuePath}${firstIssue.message}`;
+  } catch {
+    return null;
+  }
+}
+
+function getGenerationFailureMessage(error: unknown) {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return (parseStructuredErrorMessage(error.message.trim()) ?? error.message.trim()).slice(
+      0,
+      500,
+    );
+  }
+
+  if (typeof error === "string" && error.trim().length > 0) {
+    return error.trim().slice(0, 500);
+  }
+
+  return "Explanation generation failed.";
+}
 
 export const generateForScanLog = internalAction({
   args: {
@@ -25,10 +68,17 @@ export const generateForScanLog = internalAction({
     }
 
     let explanationModel: string | undefined;
+    const aiDebugSnapshot = getAiDebugSnapshot();
 
     try {
       const { config, model } = getAiTextModel();
       explanationModel = config.model;
+      console.info("[scanLogExplanationGeneration] Starting AI explanation generation", {
+        scanLogId: args.scanLogId,
+        provider: config.provider,
+        model: config.model,
+        aiDebugSnapshot,
+      });
       const { system, prompt } = buildScanLogExplanationPrompt(context.promptInput);
       const result = await generateText({
         model,
@@ -50,8 +100,14 @@ export const generateForScanLog = internalAction({
         explanationModel,
       });
 
+      console.info("[scanLogExplanationGeneration] AI explanation generated", {
+        scanLogId: args.scanLogId,
+        provider: config.provider,
+        model: explanationModel,
+      });
+
       return { status: "generated" as const };
-    } catch {
+    } catch (error) {
       if (!explanationModel) {
         try {
           explanationModel = getAiConfig().model;
@@ -60,10 +116,17 @@ export const generateForScanLog = internalAction({
         }
       }
 
+      console.error("[scanLogExplanationGeneration] AI explanation generation failed", {
+        scanLogId: args.scanLogId,
+        explanationModel,
+        aiDebugSnapshot,
+        failureMessage: getGenerationFailureMessage(error),
+      });
+
       await ctx.runMutation(internal.scanLogExplanations.patchScanLogExplanation, {
         scanLogId: args.scanLogId,
         explanationStatus: "failed",
-        explanationText: undefined,
+        explanationText: getGenerationFailureMessage(error),
         explanationModel,
       });
 

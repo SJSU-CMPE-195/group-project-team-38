@@ -1,5 +1,4 @@
 import * as Haptics from "expo-haptics";
-import { useIsFocused } from "@react-navigation/native";
 import {
   CameraView,
   type BarcodeScanningResult,
@@ -13,12 +12,6 @@ import { useMemo, useState } from "react";
 import { Platform, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
-
-const scannerChecklist = [
-  "Ask for camera access before activating the scanner.",
-  "Read QR wristband tokens only.",
-  "Stop the preview as soon as a token is captured.",
-] as const;
 
 const simulatorDemoWristbands = [
   {
@@ -34,7 +27,6 @@ const simulatorDemoWristbands = [
 ] as const;
 
 export default function ScanEntryScreen() {
-  const isFocused = useIsFocused();
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedToken, setScannedToken] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -99,38 +91,18 @@ export default function ScanEntryScreen() {
   };
 
   return (
-    <Container
-      className="px-4 pb-4"
-      accessibilityElementsHidden={!isFocused}
-      importantForAccessibility={isFocused ? "auto" : "no-hide-descendants"}
-    >
+    <Container className="px-4 pb-4">
       <View className="py-6 gap-4">
-        <Surface variant="secondary" className="rounded-xl p-5">
+        <Surface variant="secondary" className="rounded-2xl p-5">
           <View className="gap-3">
             <Text testID="scan-screen-title" className="text-xl font-semibold text-foreground">
               Scan patient wristband
             </Text>
             <Text className="text-sm leading-6 text-muted">
-              Scan the patient wristband to continue.
+              Capture the bedside QR code to load the patient context.
             </Text>
           </View>
         </Surface>
-
-        {!isIosSimulator ? (
-          <Surface variant="secondary" className="rounded-xl p-5">
-            <View className="gap-3">
-              <Text className="text-sm font-semibold uppercase tracking-wide text-primary">
-                Scanner rules
-              </Text>
-              {scannerChecklist.map((item) => (
-                <View key={item} className="flex-row gap-3">
-                  <Text className="text-sm font-semibold text-primary">•</Text>
-                  <Text className="flex-1 text-sm leading-6 text-muted">{item}</Text>
-                </View>
-              ))}
-            </View>
-          </Surface>
-        ) : null}
 
         {scanState === "simulator-demo" ? (
           <Surface variant="secondary" className="rounded-xl p-5">
@@ -144,7 +116,7 @@ export default function ScanEntryScreen() {
                 </Text>
               </View>
               <Text className="text-sm leading-6 text-muted">
-                Choose a sample wristband to continue.
+                Choose a safe or conflict case to continue without the camera.
               </Text>
               <View className="gap-3">
                 {simulatorDemoWristbands.map((fixture) => (
@@ -163,7 +135,6 @@ export default function ScanEntryScreen() {
                   <View key={`${fixture.token}-description`} className="gap-1">
                     <Text className="text-sm font-semibold text-foreground">{fixture.label}</Text>
                     <Text className="text-sm leading-6 text-muted">{fixture.description}</Text>
-                    <Text className="text-xs text-muted">Token: {fixture.token}</Text>
                   </View>
                 ))}
               </View>
@@ -229,7 +200,7 @@ export default function ScanEntryScreen() {
         ) : null}
 
         {scanState === "scanning" ? (
-          <Surface variant="secondary" className="rounded-xl p-3">
+          <Surface variant="secondary" className="rounded-2xl p-3">
             <View className="gap-3">
               <View className="overflow-hidden rounded-xl bg-black" style={{ aspectRatio: 3 / 4 }}>
                 <CameraView
@@ -241,20 +212,18 @@ export default function ScanEntryScreen() {
                 />
               </View>
               <Text className="text-sm leading-6 text-muted">
-                Hold the wristband inside the frame.
+                Hold the wristband inside the frame. Scanning stops automatically after capture.
               </Text>
             </View>
           </Surface>
         ) : null}
 
         {scanState === "captured" && scannedToken ? (
-          <Surface variant="secondary" className="rounded-xl p-5">
+          <Surface variant="secondary" className="rounded-2xl p-5">
             <View className="gap-3">
-              <Text className="text-base font-semibold text-foreground">
-                Wristband token captured
-              </Text>
+              <Text className="text-base font-semibold text-foreground">Wristband captured</Text>
               <Text className="text-sm leading-6 text-muted">
-                Continue to review the patient record.
+                Continue to review the patient record and choose a medication.
               </Text>
               <View className="rounded-xl bg-background px-4 py-3">
                 <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
@@ -273,21 +242,22 @@ export default function ScanEntryScreen() {
                   router.push(`./scan-handoff?${handoffParams.toString()}`);
                 }}
               >
-                <Button.Label>Continue with this wristband</Button.Label>
+                <Button.Label>Continue</Button.Label>
               </Button>
-              <Button onPress={handleScanAgain}>
-                <Button.Label>Scan another wristband</Button.Label>
+              <Button variant="secondary" onPress={handleScanAgain}>
+                <Button.Label>Scan again</Button.Label>
               </Button>
             </View>
           </Surface>
         ) : null}
 
         <Button
+          variant="secondary"
           onPress={() => {
             router.back();
           }}
         >
-          <Button.Label>Back to workflow entry</Button.Label>
+          <Button.Label>Back</Button.Label>
         </Button>
       </View>
     </Container>

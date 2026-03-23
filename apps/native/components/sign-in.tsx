@@ -115,8 +115,13 @@ export function SignIn() {
   });
 
   return (
-    <Surface variant="secondary" className="p-4 rounded-lg">
-      <Text className="text-foreground font-medium mb-4">Sign In</Text>
+    <Surface variant="secondary" className="rounded-2xl p-5">
+      <View className="mb-5 gap-1">
+        <Text className="text-lg font-semibold text-foreground">Account</Text>
+        <Text className="text-sm leading-6 text-muted">
+          Use your own credentials or the seeded nurse demo account.
+        </Text>
+      </View>
 
       <form.Subscribe
         selector={(state) => ({
@@ -190,12 +195,12 @@ export function SignIn() {
                   accessibilityLabel="Submit sign in"
                   onPress={form.handleSubmit}
                   isDisabled={isSubmitting}
-                  className="mt-1"
+                  className="mt-2"
                 >
                   {isSubmitting ? (
                     <Spinner size="sm" color="default" />
                   ) : (
-                    <Button.Label>Sign In</Button.Label>
+                    <Button.Label>Sign in</Button.Label>
                   )}
                 </Button>
 
@@ -208,7 +213,7 @@ export function SignIn() {
                   }}
                   isDisabled={isSubmitting}
                 >
-                  <Button.Label>Use Demo Nurse Account</Button.Label>
+                  <Button.Label>Use demo nurse account</Button.Label>
                 </Button>
               </View>
             </>

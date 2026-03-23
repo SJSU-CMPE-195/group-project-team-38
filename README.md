@@ -66,6 +66,7 @@ CONVEX_DEPLOYMENT=
 - Set `AI_PROVIDER` to `anthropic` or `openai`.
 - Set `AI_MODEL` to a model name that matches the provider.
 - Only provide the API key for the provider you are actually using.
+- `bun run dev:server` and `cd packages/backend && bun run dev` preload `packages/backend/.env.local` before starting `convex dev`.
 
 ### Web
 
@@ -114,9 +115,14 @@ bun run dev:web
 bun run dev:native
 ```
 
-5. Use the seeded nurse demo account in the native flow:
+5. Use the seeded demo accounts:
 
 ```text
+Admin dashboard
+Email: admin-demo@meditag.test
+Password: meditag-demo-123
+
+Native nurse flow
 Email: nurse-demo@meditag.test
 Password: meditag-demo-123
 ```
@@ -170,7 +176,7 @@ Default local URLs:
 
 1. Open the web app at `http://localhost:3001`.
 2. Navigate to the dashboard.
-3. Review recent scan events.
+3. Sign in with `admin-demo@meditag.test` / `meditag-demo-123`, or use the demo admin button.
 4. Filter and inspect verification details.
 
 ## Validation

@@ -26,9 +26,11 @@ export default function SignUpScreen() {
 
           <Surface variant="secondary" className="rounded-xl p-5">
             <View className="gap-2">
-              <Text className="text-xl font-semibold text-foreground">Create your account</Text>
+              <Text className="text-2xl font-semibold tracking-tight text-foreground">
+                Create your account
+              </Text>
               <Text className="text-sm leading-6 text-muted">
-                Set up your MediTag login to access the nurse workflow.
+                Set up a MediTag login so you can move straight into the nurse verification flow.
               </Text>
             </View>
           </Surface>
@@ -42,7 +44,7 @@ export default function SignUpScreen() {
             router.replace("/sign-in");
           }}
         >
-          <Button.Label>Already have an account? Log in</Button.Label>
+          <Button.Label>Back to sign in</Button.Label>
         </Button>
       </View>
     </Container>
