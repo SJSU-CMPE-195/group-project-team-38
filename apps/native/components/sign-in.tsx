@@ -37,10 +37,10 @@ function getErrorMessage(error: unknown): string | null {
     return null;
   }
 
-  if (typeof error === "object" && error !== null) {
-    const maybeError = error as { message?: unknown };
-    if (typeof maybeError.message === "string") {
-      return maybeError.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = error.message;
+    if (typeof message === "string") {
+      return message;
     }
   }
 
@@ -81,6 +81,7 @@ export function SignIn() {
               });
               return;
             }
+
             formApi.reset();
             toast.show({
               variant: "success",

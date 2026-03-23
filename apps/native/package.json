@@ -11,6 +11,7 @@
     "prebuild": "expo prebuild",
     "web": "expo start --web",
     "e2e": "bun run e2e:prepare && bun run e2e:smoke",
+    "e2e:auth-cycle": "maestro test .maestro/auth-cycle.yaml",
     "e2e:prepare": "bun ./scripts/e2e-prepare-ios.mjs",
     "e2e:smoke": "maestro test .maestro/smoke.yaml",
     "e2e:demo": "bun run e2e:prepare && maestro test .maestro/nurse-demo.yaml",

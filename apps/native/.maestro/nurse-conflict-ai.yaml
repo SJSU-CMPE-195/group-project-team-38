@@ -6,8 +6,6 @@ env:
 - launchApp:
     clearState: true
 - runFlow:
-    when:
-      visible: "Sign in to begin the nurse demo"
     file: subflows/sign-in.yaml
 - tapOn:
     id: start-wristband-scan-button

@@ -5,15 +5,21 @@ env:
 ---
 - runFlow:
     when:
-      visible: "Sign in to begin the nurse demo"
+      visible:
+        id: welcome-login-button
     commands:
       - tapOn:
-          id: sign-in-email-input
-      - inputText: "${MAESTRO_NURSE_EMAIL}"
-      - pressKey: enter
-      - inputText: "${MAESTRO_NURSE_PASSWORD}"
-      - tapOn:
-          id: sign-in-submit-button
+          id: welcome-login-button
+- assertVisible:
+    id: sign-in-submit-button
+- tapOn:
+    id: sign-in-email-input
+- inputText: "${MAESTRO_NURSE_EMAIL}"
+- tapOn:
+    id: sign-in-password-input
+- inputText: "${MAESTRO_NURSE_PASSWORD}"
+- tapOn:
+    id: sign-in-submit-button
 - extendedWaitUntil:
-    visible: "Start patient safety check"
+    visible: "Start patient verification"
     timeout: 20000
