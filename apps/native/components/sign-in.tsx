@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { router } from "expo-router";
 import {
   Button,
   FieldError,
@@ -19,6 +20,10 @@ const signInSchema = z.object({
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),
   password: z.string().min(1, "Password is required").min(8, "Use at least 8 characters"),
 });
+const demoNurseCredentials = {
+  email: "nurse-demo@meditag.test",
+  password: "meditag-demo-123",
+} as const;
 
 function getErrorMessage(error: unknown): string | null {
   if (!error) return null;
@@ -51,6 +56,44 @@ export function SignIn() {
   const passwordInputRef = useRef<TextInput>(null);
   const { toast } = useToast();
 
+  const completeSignIn = async (credentials: { email: string; password: string }) => {
+    let didComplete = false;
+
+    await authClient.signIn.email(
+      {
+        email: credentials.email.trim(),
+        password: credentials.password,
+      },
+      {
+        onError(error) {
+          toast.show({
+            variant: "danger",
+            label: error.error?.message || "Failed to sign in",
+          });
+        },
+        async onSuccess() {
+          const activeOrganizationId = await ensureSingleOrganizationIsActive();
+          if (!activeOrganizationId) {
+            toast.show({
+              variant: "danger",
+              label: "Signed in, but your account could not be loaded.",
+            });
+            return;
+          }
+
+          toast.show({
+            variant: "success",
+            label: "Signed in successfully",
+          });
+          didComplete = true;
+          router.replace("/(drawer)");
+        },
+      },
+    );
+
+    return didComplete;
+  };
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -60,36 +103,14 @@ export function SignIn() {
       onSubmit: signInSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      await authClient.signIn.email(
-        {
-          email: value.email.trim(),
-          password: value.password,
-        },
-        {
-          onError(error) {
-            toast.show({
-              variant: "danger",
-              label: error.error?.message || "Failed to sign in",
-            });
-          },
-          async onSuccess() {
-            const activeOrganizationId = await ensureSingleOrganizationIsActive();
-            if (!activeOrganizationId) {
-              toast.show({
-                variant: "danger",
-                label: "Signed in, but the demo workspace could not be activated.",
-              });
-              return;
-            }
+      const didComplete = await completeSignIn({
+        email: value.email,
+        password: value.password,
+      });
 
-            formApi.reset();
-            toast.show({
-              variant: "success",
-              label: "Signed in successfully",
-            });
-          },
-        },
-      );
+      if (didComplete) {
+        formApi.reset();
+      }
     },
   });
 
@@ -176,6 +197,18 @@ export function SignIn() {
                   ) : (
                     <Button.Label>Sign In</Button.Label>
                   )}
+                </Button>
+
+                <Button
+                  testID="sign-in-demo-button"
+                  accessibilityLabel="Sign in with demo nurse account"
+                  variant="secondary"
+                  onPress={async () => {
+                    await completeSignIn(demoNurseCredentials);
+                  }}
+                  isDisabled={isSubmitting}
+                >
+                  <Button.Label>Use Demo Nurse Account</Button.Label>
                 </Button>
               </View>
             </>

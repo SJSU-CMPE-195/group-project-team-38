@@ -10,16 +10,10 @@ env:
     commands:
       - tapOn:
           id: welcome-login-button
-- assertVisible:
-    id: sign-in-submit-button
-- tapOn:
-    id: sign-in-email-input
-- inputText: "${MAESTRO_NURSE_EMAIL}"
-- tapOn:
-    id: sign-in-password-input
-- inputText: "${MAESTRO_NURSE_PASSWORD}"
-- tapOn:
-    id: sign-in-submit-button
+      - assertVisible:
+          id: sign-in-demo-button
+      - tapOn:
+          id: sign-in-demo-button
 - extendedWaitUntil:
     visible: "Start patient verification"
     timeout: 20000

@@ -17,15 +17,21 @@ env:
 - tapOn:
     id: continue-with-wristband-button
 - extendedWaitUntil:
-    visible: "Patient context ready"
+    visible:
+      id: scan-handoff-screen-title
     timeout: 20000
 - assertVisible: "Patient name: Demo Safe Patient"
 - tapOn:
     id: medication-option-161
+- extendedWaitUntil:
+    visible:
+      id: continue-to-verification-button
+    timeout: 20000
 - tapOn:
     id: continue-to-verification-button
 - extendedWaitUntil:
-    visible: "Deterministic medication verification"
+    visible:
+      id: verify-screen-title
     timeout: 20000
 - tapOn:
     id: run-deterministic-verification-button
