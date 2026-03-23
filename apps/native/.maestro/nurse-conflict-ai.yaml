@@ -1,11 +1,13 @@
 appId: com.meditag.native
 env:
-  MAESTRO_NURSE_EMAIL: ""
-  MAESTRO_NURSE_PASSWORD: ""
+  MAESTRO_NURSE_EMAIL: "nurse-demo@meditag.test"
+  MAESTRO_NURSE_PASSWORD: "meditag-demo-123"
 ---
 - launchApp:
     clearState: true
 - runFlow:
+    when:
+      visible: "Sign in to begin the nurse demo"
     file: subflows/sign-in.yaml
 - tapOn:
     id: start-wristband-scan-button

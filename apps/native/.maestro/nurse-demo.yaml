@@ -1,7 +1,7 @@
 appId: com.meditag.native
 env:
-  MAESTRO_NURSE_EMAIL: ""
-  MAESTRO_NURSE_PASSWORD: ""
+  MAESTRO_NURSE_EMAIL: "nurse-demo@meditag.test"
+  MAESTRO_NURSE_PASSWORD: "meditag-demo-123"
 ---
 - runFlow:
     file: nurse-safe-path.yaml

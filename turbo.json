@@ -25,6 +25,10 @@
       "cache": false,
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["playwright-report/**", "test-results/**"]
+    },
+    "e2e:demo": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
     }
   }
 }
