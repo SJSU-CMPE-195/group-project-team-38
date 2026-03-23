@@ -1,46 +1,56 @@
 # MediTag
 
-MediTag is an AI-assisted patient safety verification system built around QR/NFC scanning, clinician workflows, and a shared Convex backend for web and native clients.
+MediTag is an AI-assisted patient safety verification system for medication workflows. The prototype combines a native nurse-facing app, a web admin review dashboard, and a shared Convex backend that handles authentication, patient context, verification logic, scan logging, and optional AI-generated explanation text.
 
 ## Team
 
-- Gurshan Warya (gursheyss)
-- Binh Nguyen (ntnbinh)
-- Jonathan Nguyen (jonathanguven)
+- Gurshan Warya (`gursheyss`)
+- Binh Nguyen (`ntnbinh`)
+- Jonathan Nguyen (`jonathanguven`)
 
 ## Prerequisites
 
-- Bun `1.3.7` or later
+- Bun `1.3.7`
 - Node.js `20+`
-- A Convex account and the Convex CLI flow used by `bun run dev:setup`
-- Expo Go or an iOS Simulator / Android Emulator for the native app
-- An OpenAI or Anthropic API key if you want to enable backend AI explanations
+- Convex CLI and a Convex account
+- Web browser for the Next.js app
+- For native development:
+  - Expo SDK `54` toolchain
+  - Xcode + iOS Simulator, or Android Studio + Android Emulator
+  - Maestro CLI for native E2E flows
+- Optional for live AI explanation generation:
+  - Anthropic API key, or
+  - OpenAI API key
 
 ## Installation
 
-1. Clone the repository and move into the project directory.
-2. Install dependencies:
+1. Clone the repository and move into the project root.
+2. Install workspace dependencies:
 
 ```bash
 bun install
 ```
 
-3. Configure the Convex backend for local development:
+3. Configure Convex for local development:
 
 ```bash
 bun run dev:setup
 ```
 
-4. Review the environment files in `packages/backend/.env.local`, `apps/web/.env`, and `apps/native/.env` before starting the apps.
+4. Create or review the environment files:
+
+- `packages/backend/.env.local`
+- `apps/web/.env`
+- `apps/native/.env`
 
 ## Configuration
 
-The project uses separate environment files for the backend, web app, and native app.
+### Backend
 
-Backend: `packages/backend/.env.local`
+File: `packages/backend/.env.local`
 
 ```dotenv
-BETTER_AUTH_SECRET=meditag-local-dev-auth-secret-32-chars
+BETTER_AUTH_SECRET=your-local-better-auth-secret
 SITE_URL=http://localhost:3001
 NATIVE_APP_URL=meditag://
 AI_PROVIDER=
@@ -50,27 +60,75 @@ ANTHROPIC_API_KEY=
 CONVEX_DEPLOYMENT=
 ```
 
-Web: `apps/web/.env`
+- `BETTER_AUTH_SECRET` should be a long local development secret.
+- `SITE_URL` should match the local web app URL.
+- `NATIVE_APP_URL` must match the Expo scheme used by the native app.
+- Set `AI_PROVIDER` to `anthropic` or `openai`.
+- Set `AI_MODEL` to a model name that matches the provider.
+- Only provide the API key for the provider you are actually using.
+
+### Web
+
+File: `apps/web/.env`
 
 ```dotenv
 NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:3210
 NEXT_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211
 ```
 
-Native: `apps/native/.env`
+### Native
+
+File: `apps/native/.env`
 
 ```dotenv
 EXPO_PUBLIC_CONVEX_URL=http://127.0.0.1:3210
 EXPO_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211
 ```
 
-Notes:
+- Keep the Convex URLs aligned across backend, web, and native.
+- For local Convex auth, the app URL stays on `http://127.0.0.1:3210` and the site URL stays on `http://127.0.0.1:3211`.
 
-- Set `AI_PROVIDER` to `openai` or `anthropic`.
-- Set `AI_MODEL` to the model name that matches your chosen provider.
-- Provide only the API key required for the provider you selected.
-- Keep the Convex URLs aligned across backend, web, and native when using a non-default deployment.
-- Keep `NATIVE_APP_URL` aligned with the Expo scheme in `apps/native/app.json` so native Better Auth sign-in is accepted.
+## Quick Demo Setup
+
+1. Start the backend:
+
+```bash
+bun run dev:server
+```
+
+2. In another terminal, seed the canonical demo data:
+
+```bash
+bun run seed:demo
+```
+
+3. Start the web app:
+
+```bash
+bun run dev:web
+```
+
+4. Start the native app:
+
+```bash
+bun run dev:native
+```
+
+5. Use the seeded nurse demo account in the native flow:
+
+```text
+Email: nurse-demo@meditag.test
+Password: meditag-demo-123
+```
+
+Demo order:
+
+1. Welcome screen
+2. Sign in
+3. Native safe nurse workflow
+4. Deterministic pass result
+5. Web admin review dashboard
+6. Optional AI explanation discussion or validated conflict flow
 
 ## Running the Application
 
@@ -80,33 +138,98 @@ Start the full monorepo:
 bun run dev
 ```
 
-Run individual targets:
+Run surfaces individually:
 
 ```bash
+bun run dev:server
 bun run dev:web
 bun run dev:native
-bun run dev:server
 ```
 
-The web app runs on `http://localhost:3001`.
+Default local URLs:
+
+- Web app: `http://localhost:3001`
+- Convex app URL: `http://127.0.0.1:3210`
+- Convex site URL: `http://127.0.0.1:3211`
 
 ## Usage
 
-- Open the web app in a browser to access the Next.js client.
-- Run the native app through Expo for the nurse-facing mobile workflow.
-- Use the scan and verification flows to test patient checks, medication checks, and AI-generated safety explanations.
-- Seed demo data when needed:
+### Native nurse workflow
+
+1. Open the native app.
+2. Tap `Log In`.
+3. Sign in with the seeded nurse credentials or your own local account.
+4. Start the wristband scan flow.
+5. On the iOS Simulator, use the built-in demo wristband buttons.
+6. Review patient context.
+7. Select the medication to verify.
+8. Run deterministic verification.
+9. If the scenario fails, request AI explanation text.
+
+### Web admin workflow
+
+1. Open the web app at `http://localhost:3001`.
+2. Navigate to the dashboard.
+3. Review recent scan events.
+4. Filter and inspect verification details.
+
+## Validation
+
+Validation commands:
+
+```bash
+bun run check
+bun run check-types
+cd packages/backend && bun run test
+bun run test:e2e:web
+bun run test:e2e:native
+bun run test:e2e:native:demo
+```
+
+## Project Structure
+
+- `apps/native` - Expo / React Native nurse-facing application
+- `apps/web` - Next.js admin review dashboard
+- `packages/backend` - Convex backend functions, auth, schema, seed data, and tests
+- `packages/env` - Shared environment validation
+- `packages/config` - Shared TypeScript and workspace config
+- `docs` - Architecture, scope, and testing documentation
+- `scripts` - Repository setup and utility scripts
+
+## Troubleshooting
+
+### Convex auth works in one app but not the other
+
+- Check that `*_CONVEX_URL` is `http://127.0.0.1:3210`.
+- Check that `*_CONVEX_SITE_URL` is `http://127.0.0.1:3211`.
+- Check that `NATIVE_APP_URL=meditag://` is set in `packages/backend/.env.local`.
+
+### Native sign-in succeeds but the nurse flow does not load
+
+- Re-run the canonical seed:
 
 ```bash
 bun run seed:demo
 ```
 
-## Project Structure
+- Confirm the seeded nurse account is being used.
+- Confirm Convex is still running locally.
 
-- `apps/web`: Next.js web application
-- `apps/native`: Expo / React Native mobile application
-- `packages/backend`: Convex backend functions, auth setup, schema, and tests
-- `packages/env`: Shared environment validation for web and native apps
-- `packages/config`: Shared TypeScript configuration
-- `docs`: Project documentation, architecture notes, and testing guides
-- `scripts`: Repository scripts such as docs listing and setup helpers
+### Native Maestro flows fail before the app launches
+
+- Make sure Maestro CLI is installed and on `PATH`.
+- Make sure Xcode and an iPhone simulator are available.
+- Run:
+
+```bash
+cd apps/native
+bun run e2e:prepare
+bun run e2e:doctor
+```
+
+- Dismiss any iOS system alerts on the simulator and rerun.
+
+### AI explanation flow does not generate text
+
+- Verify `AI_PROVIDER`, `AI_MODEL`, and the matching API key are set in `packages/backend/.env.local`.
+- Do not put backend AI keys in `apps/web/.env` or `apps/native/.env`.
