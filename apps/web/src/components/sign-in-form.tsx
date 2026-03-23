@@ -3,11 +3,16 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient, ensureSingleOrganizationIsActive } from "@/lib/auth-client";
 
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+
+const demoAdminCredentials = {
+  email: "admin-demo@meditag.test",
+  password: "meditag-demo-123",
+} as const;
 
 export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   const router = useRouter();
@@ -24,7 +29,8 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
           password: value.password,
         },
         {
-          onSuccess: () => {
+          onSuccess: async () => {
+            await ensureSingleOrganizationIsActive();
             router.push("/dashboard");
             toast.success("Sign in successful");
           },
@@ -102,13 +108,35 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
 
         <form.Subscribe>
           {(state) => (
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!state.canSubmit || state.isSubmitting}
-            >
-              {state.isSubmitting ? "Submitting..." : "Sign In"}
-            </Button>
+            <div className="space-y-3">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!state.canSubmit || state.isSubmitting}
+              >
+                {state.isSubmitting ? "Submitting..." : "Sign In"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={state.isSubmitting}
+                onClick={async () => {
+                  await authClient.signIn.email(demoAdminCredentials, {
+                    onSuccess: async () => {
+                      await ensureSingleOrganizationIsActive();
+                      router.push("/dashboard");
+                      toast.success("Signed in as demo admin");
+                    },
+                    onError: (error) => {
+                      toast.error(error.error.message || error.error.statusText);
+                    },
+                  });
+                }}
+              >
+                Use Demo Admin Account
+              </Button>
+            </div>
           )}
         </form.Subscribe>
       </form>

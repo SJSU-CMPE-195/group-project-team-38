@@ -196,9 +196,11 @@ export const requestScanLogExplanation = mutation({
       });
     }
 
-    if (scanLog.explanationStatus === "none") {
+    if (scanLog.explanationStatus === "none" || scanLog.explanationStatus === "failed") {
       await ctx.db.patch(args.scanLogId, {
         explanationStatus: "requested",
+        explanationText: undefined,
+        explanationModel: undefined,
       });
       await ctx.scheduler.runAfter(0, internal.scanLogExplanationGeneration.generateForScanLog, {
         scanLogId: args.scanLogId,

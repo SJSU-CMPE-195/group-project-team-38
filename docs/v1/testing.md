@@ -25,6 +25,8 @@ bun run seed:demo
 
 If you are working on backend AI explanations, set `AI_PROVIDER`, `AI_MODEL`, and the matching provider API key in `packages/backend/.env.local` only. Do not mirror those variables into `apps/native` or `apps/web`.
 
+The backend dev entrypoints (`bun run dev:server` from the repo root or `bun run dev` inside `packages/backend`) preload `packages/backend/.env.local` before launching `convex dev`.
+
 The backend test suite also includes a guarded live-provider integration test in `packages/backend/tests/ai.integration.test.ts`. It auto-skips unless `packages/backend/.env.local` contains a runnable Anthropic configuration. When enabled, it exercises the real explanation-generation backend path against the configured model instead of mocking the provider call.
 
 Run only that live AI integration spec with:
@@ -179,14 +181,16 @@ bun run dev:server
 bun run seed:demo
 ```
 
-2. `bun run seed:demo` now provisions a reusable Better Auth nurse account for the native demo:
+2. `bun run seed:demo` now provisions reusable Better Auth demo accounts:
 
 ```sh
+export MAESTRO_ADMIN_EMAIL="admin-demo@meditag.test"
+export MAESTRO_ADMIN_PASSWORD="meditag-demo-123"
 export MAESTRO_NURSE_EMAIL="nurse-demo@meditag.test"
 export MAESTRO_NURSE_PASSWORD="meditag-demo-123"
 ```
 
-You no longer need to create that nurse account manually before running the Maestro journey.
+You no longer need to create the admin or nurse demo accounts manually before local testing.
 
 3. The scan screen exposes **Simulator demo wristbands** only on iOS Simulator. Those buttons inject the seeded tokens below without bypassing any downstream patient lookup or verification logic:
    - `WRISTBAND-SAFE-QR-001` → `Acetaminophen 500mg` → deterministic pass

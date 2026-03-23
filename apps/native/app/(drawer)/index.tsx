@@ -11,16 +11,16 @@ import { authClient, ensureSingleOrganizationIsActive } from "@/lib/auth-client"
 
 const workflowSteps = [
   {
-    title: "1. Scan patient wristband",
-    description: "Scan the patient wristband to load their chart.",
+    title: "Scan",
+    description: "Capture the wristband QR code.",
   },
   {
-    title: "2. Confirm medication",
-    description: "Choose the medication you want to verify.",
+    title: "Select",
+    description: "Pick the medication from the patient chart.",
   },
   {
-    title: "3. Review verification",
-    description: "Review the result before giving the medication.",
+    title: "Review",
+    description: "Use the result before administration.",
   },
 ] as const;
 
@@ -72,28 +72,10 @@ export default function Home() {
   return (
     <Container className="px-4 pb-4">
       <View className="flex-1 justify-between py-6">
-        <View className="gap-4">
+        <View className="gap-5">
           <View className="items-center pt-2">
             <MediTagLogo size="sm" />
           </View>
-
-          <Surface variant="secondary" className="rounded-xl p-4">
-            <View className="gap-2">
-              <Text className="font-medium text-foreground">API status</Text>
-              <View className="flex-row items-center gap-2">
-                <View
-                  className={`h-2 w-2 rounded-full ${healthCheck === "OK" ? "bg-success" : "bg-danger"}`}
-                />
-                <Text className="text-xs text-muted">
-                  {healthCheck === undefined
-                    ? "Checking connection..."
-                    : healthCheck === "OK"
-                      ? "Connected to backend"
-                      : "Backend unavailable"}
-                </Text>
-              </View>
-            </View>
-          </Surface>
 
           {isLoadingProfile ? (
             <Surface variant="secondary" className="rounded-xl p-4">
@@ -104,24 +86,35 @@ export default function Home() {
             </Surface>
           ) : hasWorkspaceAccess ? (
             <>
-              <Surface variant="secondary" className="rounded-xl p-5">
-                <View className="gap-2">
-                  <Text className="text-xl font-semibold text-foreground">
-                    Welcome, {userLabel}
-                  </Text>
-                  {user?.email ? <Text className="text-sm text-muted">{user.email}</Text> : null}
-                  <Text className="text-xs font-medium uppercase tracking-wide text-primary">
-                    {roleLabel}
-                  </Text>
-                </View>
-              </Surface>
+              <Surface variant="secondary" className="rounded-2xl p-5">
+                <View className="gap-4">
+                  <View className="gap-2">
+                    <Text className="text-3xl font-semibold tracking-tight text-foreground">
+                      Ready to verify
+                    </Text>
+                    <Text className="text-base leading-7 text-muted">
+                      {userLabel}
+                      {user?.email ? ` • ${user.email}` : ""}
+                    </Text>
+                  </View>
 
-              <Surface variant="secondary" className="rounded-xl p-5">
-                <View className="gap-3">
-                  <Text className="text-xl font-semibold text-foreground">
-                    Start patient verification
-                  </Text>
-                  <Text className="text-sm leading-6 text-muted">Open the scanner to begin.</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    <View className="rounded-full bg-primary/10 px-3 py-2">
+                      <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
+                        {roleLabel}
+                      </Text>
+                    </View>
+                    <View className="rounded-full bg-background px-3 py-2">
+                      <Text className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                        {healthCheck === undefined
+                          ? "Checking backend"
+                          : healthCheck === "OK"
+                            ? "Backend connected"
+                            : "Backend unavailable"}
+                      </Text>
+                    </View>
+                  </View>
+
                   <Button
                     testID="start-wristband-scan-button"
                     accessibilityLabel="Start wristband scan"
@@ -134,14 +127,31 @@ export default function Home() {
                 </View>
               </Surface>
 
-              <View className="gap-3">
-                {workflowSteps.map((step) => (
-                  <Surface key={step.title} variant="secondary" className="rounded-xl p-4">
-                    <Text className="mb-1 text-sm font-semibold text-foreground">{step.title}</Text>
-                    <Text className="text-sm leading-6 text-muted">{step.description}</Text>
-                  </Surface>
-                ))}
-              </View>
+              <Surface variant="secondary" className="rounded-2xl p-5">
+                <View className="gap-3">
+                  <Text className="text-sm font-semibold uppercase tracking-wide text-primary">
+                    Workflow
+                  </Text>
+                  <View className="gap-3">
+                    {workflowSteps.map((step, index) => (
+                      <View
+                        key={step.title}
+                        className="flex-row items-start gap-3 rounded-xl bg-background px-4 py-4"
+                      >
+                        <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                          <Text className="text-sm font-semibold text-primary">{index + 1}</Text>
+                        </View>
+                        <View className="flex-1 gap-1">
+                          <Text className="text-base font-semibold text-foreground">
+                            {step.title}
+                          </Text>
+                          <Text className="text-sm leading-6 text-muted">{step.description}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </Surface>
             </>
           ) : hasWorkspaceUser ? (
             <Surface variant="secondary" className="rounded-xl p-4">
@@ -198,7 +208,7 @@ export default function Home() {
           {isSigningOut ? (
             <Spinner size="sm" color="default" />
           ) : (
-            <Button.Label>Sign Out</Button.Label>
+            <Button.Label>Sign out</Button.Label>
           )}
         </Button>
       </View>

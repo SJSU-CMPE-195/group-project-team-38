@@ -1,6 +1,5 @@
 import { api } from "@meditag/backend/convex/_generated/api";
 import type { Id } from "@meditag/backend/convex/_generated/dataModel";
-import { useIsFocused } from "@react-navigation/native";
 import { useConvexAuth, useQuery } from "convex/react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
@@ -14,6 +13,15 @@ type MedicationSelection = {
   displayName: string;
 };
 
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="gap-1">
+      <Text className="text-xs font-semibold uppercase tracking-wide text-primary">{label}</Text>
+      <Text className="text-sm leading-6 text-foreground">{value}</Text>
+    </View>
+  );
+}
+
 function getRouteParam(value: string | string[] | undefined) {
   if (typeof value === "string") {
     return value;
@@ -23,7 +31,6 @@ function getRouteParam(value: string | string[] | undefined) {
 }
 
 export default function ScanHandoffScreen() {
-  const isFocused = useIsFocused();
   const params = useLocalSearchParams<{ wristbandToken?: string | string[] }>();
   const { isAuthenticated } = useConvexAuth();
   const scannedToken = getRouteParam(params.wristbandToken);
@@ -61,17 +68,16 @@ export default function ScanHandoffScreen() {
   };
 
   const handleContinueToVerification = () => {
-    if (!selectedMedication || scanContext?.status !== "resolved") {
+    if (!scannedToken || !selectedMedication || scanContext?.status !== "resolved") {
       return;
     }
 
-    const verifyParams = new URLSearchParams({
-      wristbandToken: scannedToken,
-      patientId: scanContext.patient._id,
-      patientName: scanContext.patient.displayName,
-      selectedMedicationId: selectedMedication._id,
-      selectedMedicationName: selectedMedication.displayName,
-    });
+    const verifyParams = new URLSearchParams();
+    verifyParams.set("wristbandToken", scannedToken);
+    verifyParams.set("patientId", scanContext.patient._id);
+    verifyParams.set("patientName", scanContext.patient.displayName);
+    verifyParams.set("selectedMedicationId", selectedMedication._id);
+    verifyParams.set("selectedMedicationName", selectedMedication.displayName);
 
     router.push(`./verify?${verifyParams.toString()}`);
   };
@@ -92,7 +98,7 @@ export default function ScanHandoffScreen() {
           </Surface>
 
           <Button onPress={handleBackToScanner}>
-            <Button.Label>Back to scanner</Button.Label>
+            <Button.Label>Return to scanner</Button.Label>
           </Button>
         </View>
       </Container>
@@ -150,7 +156,7 @@ export default function ScanHandoffScreen() {
     return (
       <Container className="px-4 pb-4">
         <View className="py-6 gap-4">
-          <Surface variant="secondary" className="rounded-xl p-5">
+          <Surface variant="secondary" className="rounded-2xl p-5">
             <View className="gap-3">
               <Text className="text-xl font-semibold text-foreground">Unknown wristband</Text>
               <Text className="text-sm leading-6 text-muted">
@@ -171,9 +177,6 @@ export default function ScanHandoffScreen() {
           <Button onPress={handleBackToScanner}>
             <Button.Label>Scan another wristband</Button.Label>
           </Button>
-          <Button onPress={handleBackToScanner}>
-            <Button.Label>Back to scanner</Button.Label>
-          </Button>
         </View>
       </Container>
     );
@@ -183,7 +186,7 @@ export default function ScanHandoffScreen() {
     return (
       <Container className="px-4 pb-4">
         <View className="py-6 gap-4">
-          <Surface variant="secondary" className="rounded-xl p-5">
+          <Surface variant="secondary" className="rounded-2xl p-5">
             <View className="gap-3">
               <Text className="text-xl font-semibold text-foreground">Inactive wristband</Text>
               <Text className="text-sm leading-6 text-muted">
@@ -206,20 +209,13 @@ export default function ScanHandoffScreen() {
           <Button onPress={handleBackToScanner}>
             <Button.Label>Scan another wristband</Button.Label>
           </Button>
-          <Button onPress={handleBackToScanner}>
-            <Button.Label>Back to scanner</Button.Label>
-          </Button>
         </View>
       </Container>
     );
   }
 
   return (
-    <Container
-      isScrollable={false}
-      accessibilityElementsHidden={!isFocused}
-      importantForAccessibility={isFocused ? "auto" : "no-hide-descendants"}
-    >
+    <Container isScrollable={false}>
       <View className="flex-1">
         <ScrollView
           className="flex-1 px-4"
@@ -228,52 +224,40 @@ export default function ScanHandoffScreen() {
           contentInsetAdjustmentBehavior="automatic"
         >
           <View className="gap-4">
-            <Surface variant="secondary" className="rounded-xl p-5">
+            <Surface variant="secondary" className="rounded-2xl p-5">
               <View className="gap-3">
                 <Text
                   testID="scan-handoff-screen-title"
                   className="text-xl font-semibold text-foreground"
                 >
-                  Patient context ready
+                  Select medication
                 </Text>
                 <Text className="text-sm leading-6 text-muted">
-                  Review the patient details and choose a medication.
+                  Confirm the patient and choose the medication to verify next.
                 </Text>
               </View>
             </Surface>
 
-            <Surface variant="secondary" className="rounded-xl p-5">
-              <View className="gap-2">
-                <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  Scanned wristband token
-                </Text>
-                <Text className="text-sm leading-6 text-foreground">{scannedToken}</Text>
-              </View>
-            </Surface>
-
-            <Surface variant="secondary" className="rounded-xl p-5">
-              <View className="gap-3">
+            <Surface variant="secondary" className="rounded-2xl p-5">
+              <View className="gap-4">
                 <Text className="text-base font-semibold text-foreground">Patient summary</Text>
-                <View className="gap-2">
-                  <Text className="text-sm text-foreground">
-                    Patient name: {scanContext.patient.displayName}
-                  </Text>
-                  <Text className="text-sm text-foreground">MRN: {scanContext.patient.mrn}</Text>
-                  <Text className="text-sm text-foreground">
-                    Date of birth: {scanContext.patient.dob}
-                  </Text>
-                  <Text className="text-sm text-foreground">
-                    Allergies:{" "}
-                    {scanContext.patient.allergyLabels.length > 0
+                <DetailRow label="Patient" value={scanContext.patient.displayName} />
+                <DetailRow label="MRN" value={scanContext.patient.mrn} />
+                <DetailRow label="Date of birth" value={scanContext.patient.dob} />
+                <DetailRow
+                  label="Allergies"
+                  value={
+                    scanContext.patient.allergyLabels.length > 0
                       ? scanContext.patient.allergyLabels.join(", ")
-                      : "No documented allergies"}
-                  </Text>
-                </View>
+                      : "No documented allergies"
+                  }
+                />
+                <DetailRow label="Wristband token" value={scannedToken} />
               </View>
             </Surface>
 
             {scanContext.medications.length === 0 ? (
-              <Surface variant="secondary" className="rounded-xl p-5">
+              <Surface variant="secondary" className="rounded-2xl p-5">
                 <View className="gap-3">
                   <Text className="text-base font-semibold text-foreground">
                     No active medications
@@ -287,13 +271,13 @@ export default function ScanHandoffScreen() {
                 </View>
               </Surface>
             ) : (
-              <Surface variant="secondary" className="rounded-xl p-5">
+              <Surface variant="secondary" className="rounded-2xl p-5">
                 <View className="gap-3">
                   <Text className="text-base font-semibold text-foreground">
                     Active medications
                   </Text>
                   <Text className="text-sm leading-6 text-muted">
-                    Select a medication for {scanContext.patient.displayName}.
+                    Choose the medication for {scanContext.patient.displayName}.
                   </Text>
 
                   <View className="gap-3">
@@ -339,16 +323,9 @@ export default function ScanHandoffScreen() {
                               </Text>
                             ) : null}
                             {isSelected ? (
-                              <View className="mt-3 gap-3 rounded-xl bg-background px-4 py-4">
-                                <View className="gap-1">
-                                  <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                                    Ready to verify
-                                  </Text>
-                                  <Text className="text-sm leading-6 text-muted">
-                                    Ready to continue.
-                                  </Text>
-                                </View>
-                              </View>
+                              <Text className="mt-2 text-sm font-medium text-primary">
+                                Ready to continue
+                              </Text>
                             ) : null}
                           </View>
                         </Pressable>
@@ -364,6 +341,18 @@ export default function ScanHandoffScreen() {
         <View className="absolute inset-x-0 bottom-0 border-t border-default-200 bg-background px-4 pb-4 pt-3">
           <View className="gap-3">
             {selectedMedication ? (
+              <Surface variant="secondary" className="rounded-xl p-4">
+                <View className="gap-1">
+                  <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
+                    Selected medication
+                  </Text>
+                  <Text className="text-sm font-semibold text-foreground">
+                    {selectedMedication.displayName}
+                  </Text>
+                </View>
+              </Surface>
+            ) : null}
+            {selectedMedication ? (
               <Button
                 testID="continue-to-verification-button"
                 accessibilityLabel="Continue to verification"
@@ -372,11 +361,8 @@ export default function ScanHandoffScreen() {
                 <Button.Label>Continue to verification</Button.Label>
               </Button>
             ) : null}
-            <Button onPress={handleBackToScanner}>
+            <Button variant="secondary" onPress={handleBackToScanner}>
               <Button.Label>Scan another wristband</Button.Label>
-            </Button>
-            <Button onPress={handleBackToScanner}>
-              <Button.Label>Back to scanner</Button.Label>
             </Button>
           </View>
         </View>

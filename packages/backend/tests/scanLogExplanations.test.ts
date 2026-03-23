@@ -351,7 +351,7 @@ describe("scan log explanation requests", () => {
     process.env = { ...originalEnv };
   });
 
-  test("reuses the existing failed scan log when requesting an explanation", async () => {
+  test("requests an explanation for an existing failed scan log", async () => {
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
 
@@ -384,7 +384,7 @@ describe("scan log explanation requests", () => {
     expect(logs[0]?.explanationStatus).toBe("requested");
   });
 
-  test("treats repeated explanation requests for the same scan log as idempotent", async () => {
+  test("treats repeated explanation requests for the same pending scan log as idempotent", async () => {
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
 
@@ -494,7 +494,7 @@ describe("scan log explanation generation", () => {
     const logs = await nurse.query(api.verification.getRecentScanLogs, { limit: 10 });
     expect(logs).toHaveLength(1);
     expect(logs[0]?.explanationStatus).toBe("failed");
-    expect(logs[0]?.explanationText).toBeUndefined();
+    expect(logs[0]?.explanationText).toBe("provider unavailable");
     expect(logs[0]?.explanationModel).toBe("gpt-4o-mini");
     expect(generateTextMock).toHaveBeenCalledTimes(1);
   });
@@ -524,8 +524,54 @@ describe("scan log explanation generation", () => {
     const logs = await nurse.query(api.verification.getRecentScanLogs, { limit: 10 });
     expect(logs).toHaveLength(1);
     expect(logs[0]?.explanationStatus).toBe("failed");
-    expect(logs[0]?.explanationText).toBeUndefined();
+    expect(logs[0]?.explanationText).toBe(
+      'AI_PROVIDER: Invalid option: expected one of "openai"|"anthropic"',
+    );
     expect(logs[0]?.explanationModel).toBeUndefined();
     expect(generateTextMock).not.toHaveBeenCalled();
+  });
+
+  test("retries explanation generation after a previous failure", async () => {
+    process.env.AI_PROVIDER = "openai";
+    process.env.AI_MODEL = "gpt-4o-mini";
+    process.env.OPENAI_API_KEY = "test-openai-key";
+    delete process.env.ANTHROPIC_API_KEY;
+
+    generateTextMock
+      .mockRejectedValueOnce(new Error("provider unavailable"))
+      .mockResolvedValueOnce({
+        text: "The medication conflicts with a recorded allergy.",
+      } as Awaited<ReturnType<typeof generateText>>);
+
+    const nurse = await setupIdentity(t, "nurse");
+    const seed = await t.mutation(internal.seed.seedDemoData);
+
+    const result = await nurse.mutation(api.verification.verifyMedicationScan, {
+      scannedToken: "WRISTBAND-CONFLICT-QR-001",
+      selectedMedicationId: seed.conflictMedicationId,
+      scanType: "qr",
+      requestExplanation: true,
+      deviceId: "device-conflict-ai-retry",
+    });
+
+    expect(result.result).toBe("fail");
+    await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+
+    const retryRequest = await nurse.mutation(api.scanLogExplanations.requestScanLogExplanation, {
+      scanLogId: result.scanLogId,
+    });
+
+    expect(retryRequest).toEqual({
+      scanLogId: result.scanLogId,
+      explanationStatus: "requested",
+    });
+
+    await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+
+    const logs = await nurse.query(api.verification.getRecentScanLogs, { limit: 10 });
+    expect(logs).toHaveLength(1);
+    expect(logs[0]?.explanationStatus).toBe("generated");
+    expect(logs[0]?.explanationText).toBe("The medication conflicts with a recorded allergy.");
+    expect(generateTextMock).toHaveBeenCalledTimes(2);
   });
 });

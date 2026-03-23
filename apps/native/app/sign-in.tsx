@@ -1,7 +1,7 @@
 import { Redirect, Stack, router } from "expo-router";
-import { Button } from "heroui-native";
+import { Button, Surface } from "heroui-native";
 import { useConvexAuth } from "convex/react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 import { MediTagLogo } from "@/components/meditag-logo";
@@ -24,6 +24,18 @@ export default function SignInScreen() {
             <MediTagLogo size="sm" />
           </View>
 
+          <Surface variant="secondary" className="rounded-2xl p-5">
+            <View className="gap-2">
+              <Text className="text-2xl font-semibold tracking-tight text-foreground">
+                Sign in to start a verification
+              </Text>
+              <Text className="text-sm leading-6 text-muted">
+                Keep the flow simple: sign in, scan the wristband, choose the medication, and review
+                the bedside result.
+              </Text>
+            </View>
+          </Surface>
+
           <SignIn />
         </View>
 
@@ -33,7 +45,7 @@ export default function SignInScreen() {
             router.push("/sign-up");
           }}
         >
-          <Button.Label>Don&apos;t have an account? Click here</Button.Label>
+          <Button.Label>Create an account</Button.Label>
         </Button>
       </View>
     </Container>

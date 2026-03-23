@@ -42,6 +42,13 @@ export type AiConfig = {
   model: string;
 };
 
+export type AiDebugSnapshot = {
+  rawProvider: string | null;
+  rawModel: string | null;
+  hasOpenAiKey: boolean;
+  hasAnthropicKey: boolean;
+};
+
 type AiEnvironment = {
   AI_PROVIDER?: string | undefined;
   AI_MODEL?: string | undefined;
@@ -51,6 +58,26 @@ type AiEnvironment = {
 
 function parseAiEnvironment(environment?: AiEnvironment) {
   return aiEnvironmentSchema.parse(environment ?? (process.env as AiEnvironment));
+}
+
+function normalizeOptionalString(value: string | undefined) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+export function getAiDebugSnapshot(environment?: AiEnvironment): AiDebugSnapshot {
+  const source = environment ?? (process.env as AiEnvironment);
+
+  return {
+    rawProvider: normalizeOptionalString(source.AI_PROVIDER),
+    rawModel: normalizeOptionalString(source.AI_MODEL),
+    hasOpenAiKey: normalizeOptionalString(source.OPENAI_API_KEY) !== null,
+    hasAnthropicKey: normalizeOptionalString(source.ANTHROPIC_API_KEY) !== null,
+  };
 }
 
 export function getAiConfig(environment?: AiEnvironment): AiConfig {

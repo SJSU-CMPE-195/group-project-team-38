@@ -46,6 +46,15 @@ const demoNurseSeed: DemoAuthSeedInput = {
   organizationSlug: "meditag-demo-nurse-org",
 };
 
+const demoAdminSeed: DemoAuthSeedInput = {
+  email: "admin-demo@meditag.test",
+  name: "Demo Admin",
+  password: "meditag-demo-123",
+  role: "admin",
+  organizationName: "MediTag Demo Admin Org",
+  organizationSlug: "meditag-demo-admin-org",
+};
+
 async function ensurePatient(ctx: MutationCtx, input: PatientSeedInput): Promise<Id<"patients">> {
   const existingPatient = await ctx.db
     .query("patients")
@@ -354,6 +363,7 @@ export const seedDemoData = internalMutation({
     conflictWristbandId: v.id("wristbands"),
   }),
   handler: async (ctx) => {
+    await ensureDemoAuthUser(ctx, demoAdminSeed);
     await ensureDemoAuthUser(ctx, demoNurseSeed);
 
     const safePatientId = await ensurePatient(ctx, {
