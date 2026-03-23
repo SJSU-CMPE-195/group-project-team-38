@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { useIsFocused } from "@react-navigation/native";
 import {
   CameraView,
   type BarcodeScanningResult,
@@ -33,6 +34,7 @@ const simulatorDemoWristbands = [
 ] as const;
 
 export default function ScanEntryScreen() {
+  const isFocused = useIsFocused();
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedToken, setScannedToken] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -97,15 +99,19 @@ export default function ScanEntryScreen() {
   };
 
   return (
-    <Container className="px-4 pb-4">
+    <Container
+      className="px-4 pb-4"
+      accessibilityElementsHidden={!isFocused}
+      importantForAccessibility={isFocused ? "auto" : "no-hide-descendants"}
+    >
       <View className="py-6 gap-4">
         <Surface variant="secondary" className="rounded-xl p-5">
           <View className="gap-3">
-            <Text className="text-xl font-semibold text-foreground">Scan patient wristband</Text>
+            <Text testID="scan-screen-title" className="text-xl font-semibold text-foreground">
+              Scan patient wristband
+            </Text>
             <Text className="text-sm leading-6 text-muted">
-              This shell only handles camera access and QR token capture. Once a wristband token is
-              read, the live preview unmounts so the next step can take over with a single captured
-              value.
+              Scan the patient wristband to continue.
             </Text>
           </View>
         </Surface>
@@ -138,9 +144,7 @@ export default function ScanEntryScreen() {
                 </Text>
               </View>
               <Text className="text-sm leading-6 text-muted">
-                The iOS Simulator cannot exercise a live bedside camera scan reliably. These seeded
-                QR fixtures inject the same wristband token that a real scan would capture so the
-                downstream nurse workflow stays unchanged.
+                Choose a sample wristband to continue.
               </Text>
               <View className="gap-3">
                 {simulatorDemoWristbands.map((fixture) => (
@@ -237,8 +241,7 @@ export default function ScanEntryScreen() {
                 />
               </View>
               <Text className="text-sm leading-6 text-muted">
-                Align the patient QR wristband inside the frame. The first valid QR token will stop
-                the live preview immediately.
+                Hold the wristband inside the frame.
               </Text>
             </View>
           </Surface>
@@ -251,8 +254,7 @@ export default function ScanEntryScreen() {
                 Wristband token captured
               </Text>
               <Text className="text-sm leading-6 text-muted">
-                The scanner preview is now unmounted. Hand this token to the next nurse-flow step to
-                load the patient context and medication list.
+                Continue to review the patient record.
               </Text>
               <View className="rounded-xl bg-background px-4 py-3">
                 <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
@@ -264,10 +266,11 @@ export default function ScanEntryScreen() {
                 testID="continue-with-wristband-button"
                 accessibilityLabel="Continue with this wristband"
                 onPress={() => {
-                  router.replace({
-                    pathname: "/(drawer)/scan-handoff",
-                    params: { wristbandToken: scannedToken },
+                  const handoffParams = new URLSearchParams({
+                    wristbandToken: scannedToken,
                   });
+
+                  router.push(`./scan-handoff?${handoffParams.toString()}`);
                 }}
               >
                 <Button.Label>Continue with this wristband</Button.Label>

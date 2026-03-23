@@ -1,5 +1,6 @@
 import { api } from "@meditag/backend/convex/_generated/api";
 import type { Id } from "@meditag/backend/convex/_generated/dataModel";
+import { useIsFocused } from "@react-navigation/native";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
@@ -62,6 +63,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function VerifyScreen() {
+  const isFocused = useIsFocused();
   const params = useLocalSearchParams<{
     wristbandToken?: string | string[];
     patientId?: string | string[];
@@ -170,9 +172,7 @@ export default function VerifyScreen() {
           <Surface variant="secondary" className="rounded-xl p-5">
             <View className="gap-3">
               <Text className="text-xl font-semibold text-foreground">Sign in required</Text>
-              <Text className="text-sm leading-6 text-muted">
-                Sign in again before running deterministic medication verification.
-              </Text>
+              <Text className="text-sm leading-6 text-muted">Sign in to continue.</Text>
             </View>
           </Surface>
 
@@ -189,16 +189,19 @@ export default function VerifyScreen() {
   }
 
   return (
-    <Container className="px-4 pb-4">
+    <Container
+      className="px-4 pb-4"
+      accessibilityElementsHidden={!isFocused}
+      importantForAccessibility={isFocused ? "auto" : "no-hide-descendants"}
+    >
       <View className="py-6 gap-4">
         <Surface variant="secondary" className="rounded-xl p-5">
           <View className="gap-3">
-            <Text className="text-xl font-semibold text-foreground">
-              Deterministic medication verification
+            <Text testID="verify-screen-title" className="text-xl font-semibold text-foreground">
+              Medication verification
             </Text>
             <Text className="text-sm leading-6 text-muted">
-              Review the captured scan inputs, run the deterministic check first, and only request
-              AI explanation text after a failed result if supporting context is needed.
+              Review the details before verifying.
             </Text>
           </View>
         </Surface>
@@ -231,8 +234,7 @@ export default function VerifyScreen() {
                 Verification cannot start yet
               </Text>
               <Text className="text-sm leading-6 text-muted">
-                The verify screen is missing either the scanned wristband token or the selected
-                medication ID.
+                Required scan details are missing.
               </Text>
             </View>
           </Surface>
@@ -289,14 +291,12 @@ export default function VerifyScreen() {
 
               {verificationResult.result === "pass" ? (
                 <Text className="text-sm leading-6 text-foreground">
-                  The selected medication matches the scanned patient context and no deterministic
-                  allergy conflict was found.
+                  The medication matches the patient record and no allergy conflict was found.
                 </Text>
               ) : (
                 <View className="gap-3">
                   <Text className="text-sm leading-6 text-foreground">
-                    Deterministic checks found one or more blocking issues. Review each rationale
-                    below before taking any next step.
+                    Review the issues below before moving forward.
                   </Text>
                   <View className="gap-3">
                     {verificationResult.failureReasons.map((reason) => {
@@ -323,15 +323,12 @@ export default function VerifyScreen() {
             <View className="gap-3">
               <View className="gap-1">
                 <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  Secondary AI explanation
+                  AI explanation
                 </Text>
-                <Text className="text-base font-semibold text-foreground">
-                  Optional supporting context only
-                </Text>
+                <Text className="text-base font-semibold text-foreground">More detail</Text>
               </View>
               <Text className="text-sm leading-6 text-muted">
-                The deterministic fail result above remains the final authority. AI text can only
-                explain the structured failure reasons already detected by the backend.
+                You can request additional context for this result.
               </Text>
 
               {effectiveExplanationStatus === "none" ? (
@@ -367,8 +364,7 @@ export default function VerifyScreen() {
                     <View className="flex-row items-center gap-3">
                       <Spinner size="sm" color="default" />
                       <Text className="flex-1 text-sm leading-6 text-muted">
-                        Waiting for the backend to generate optional explanation text for this
-                        failed result.
+                        Generating explanation…
                       </Text>
                     </View>
                   ) : null}
@@ -386,8 +382,7 @@ export default function VerifyScreen() {
 
                   {effectiveExplanationStatus === "failed" ? (
                     <Text className="text-sm leading-6 text-muted">
-                      The optional AI explanation could not be generated. Keep using the
-                      deterministic fail reasons above as the authoritative guidance.
+                      Explanation could not be generated.
                     </Text>
                   ) : null}
                 </View>

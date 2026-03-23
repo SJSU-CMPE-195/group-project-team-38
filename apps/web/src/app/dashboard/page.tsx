@@ -82,10 +82,7 @@ function UnauthenticatedDashboard() {
         <Card className="border-border/70 bg-card/70">
           <CardHeader>
             <CardTitle className="text-2xl">Meditag Admin Review</CardTitle>
-            <CardDescription>
-              Review recent medication scan outcomes, confirm failures, and keep demo audit activity
-              visible for admins.
-            </CardDescription>
+            <CardDescription>Review recent scan activity and flagged results.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 text-sm sm:grid-cols-3">
             <div className="border-l-2 border-emerald-600 pl-3">
@@ -323,10 +320,7 @@ function AdminReviewContent({ fixtureMode = false }: { fixtureMode?: boolean }) 
             <Card>
               <CardHeader>
                 <CardTitle>Scan log list</CardTitle>
-                <CardDescription>
-                  Stable review list with quick drill-in for deterministic outcomes and explanation
-                  state.
-                </CardDescription>
+                <CardDescription>Review recent scan activity.</CardDescription>
               </CardHeader>
               <CardContent className="px-0 sm:px-4">
                 {scanLogs === undefined ? (
@@ -438,10 +432,7 @@ function AdminReviewContent({ fixtureMode = false }: { fixtureMode?: boolean }) 
           <Card data-testid="scan-log-detail" className="xl:sticky xl:top-6">
             <CardHeader>
               <CardTitle>Log detail</CardTitle>
-              <CardDescription>
-                Drill into one scan to review deterministic rationale, explanation status, and event
-                metadata.
-              </CardDescription>
+              <CardDescription>Review the selected scan.</CardDescription>
             </CardHeader>
             <CardContent>
               {selectedScanLogId === null ? (
@@ -691,7 +682,7 @@ function getExplanationEmptyState(status: keyof typeof explanationStatusLabel) {
   }
 
   if (status === "failed") {
-    return "Explanation generation failed. Use the deterministic failure reasons above as the source of truth.";
+    return "Explanation generation failed.";
   }
 
   return "No explanation text stored for this scan event.";

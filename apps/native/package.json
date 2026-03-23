@@ -11,12 +11,12 @@
     "prebuild": "expo prebuild",
     "web": "expo start --web",
     "e2e": "bun run e2e:prepare && bun run e2e:smoke",
-    "e2e:auth-cycle": "maestro test .maestro/auth-cycle.yaml",
+    "e2e:auth-cycle": "MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/auth-cycle.yaml",
     "e2e:prepare": "bun ./scripts/e2e-prepare-ios.mjs",
-    "e2e:smoke": "maestro test .maestro/smoke.yaml",
-    "e2e:demo": "bun run e2e:prepare && maestro test .maestro/nurse-demo.yaml",
-    "e2e:demo:safe": "bun run e2e:prepare && maestro test .maestro/nurse-safe-path.yaml",
-    "e2e:demo:conflict": "bun run e2e:prepare && maestro test .maestro/nurse-conflict-ai.yaml",
+    "e2e:smoke": "MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/smoke.yaml",
+    "e2e:demo": "bun run e2e:prepare && MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/nurse-demo.yaml",
+    "e2e:demo:safe": "bun run e2e:prepare && MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/nurse-safe-path.yaml",
+    "e2e:demo:conflict": "bun run e2e:prepare && MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/nurse-conflict-ai.yaml",
     "e2e:doctor": "sh -c 'for f in .maestro/*.yaml .maestro/subflows/*.yaml; do maestro check-syntax \"$f\"; done'"
   },
   "dependencies": {

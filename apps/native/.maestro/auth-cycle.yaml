@@ -26,6 +26,7 @@ env:
 - tapOn:
     id: sign-in-email-input
 - inputText: "${MAESTRO_NURSE_EMAIL}"
+- pressKey: enter
 - tapOn:
     id: sign-in-password-input
 - inputText: "${MAESTRO_NURSE_PASSWORD}"

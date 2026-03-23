@@ -1,5 +1,6 @@
 import { api } from "@meditag/backend/convex/_generated/api";
 import type { Id } from "@meditag/backend/convex/_generated/dataModel";
+import { useIsFocused } from "@react-navigation/native";
 import { useConvexAuth, useQuery } from "convex/react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
@@ -7,6 +8,11 @@ import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
+
+type MedicationSelection = {
+  _id: Id<"medications">;
+  displayName: string;
+};
 
 function getRouteParam(value: string | string[] | undefined) {
   if (typeof value === "string") {
@@ -17,6 +23,7 @@ function getRouteParam(value: string | string[] | undefined) {
 }
 
 export default function ScanHandoffScreen() {
+  const isFocused = useIsFocused();
   const params = useLocalSearchParams<{ wristbandToken?: string | string[] }>();
   const { isAuthenticated } = useConvexAuth();
   const scannedToken = getRouteParam(params.wristbandToken);
@@ -25,6 +32,11 @@ export default function ScanHandoffScreen() {
     isAuthenticated && scannedToken ? { scannedToken } : "skip",
   );
   const [selectedMedicationId, setSelectedMedicationId] = useState<Id<"medications"> | null>(null);
+  const selectedMedication =
+    scanContext?.status === "resolved"
+      ? (scanContext.medications.find((medication) => medication._id === selectedMedicationId) ??
+        null)
+      : null;
 
   useEffect(() => {
     if (scanContext?.status !== "resolved") {
@@ -48,6 +60,26 @@ export default function ScanHandoffScreen() {
     router.replace("/(drawer)/scan");
   };
 
+  const handleContinueToVerification = () => {
+    if (!selectedMedication || scanContext?.status !== "resolved") {
+      return;
+    }
+
+    const verifyParams = new URLSearchParams({
+      wristbandToken: scannedToken,
+      patientId: scanContext.patient._id,
+      patientName: scanContext.patient.displayName,
+      selectedMedicationId: selectedMedication._id,
+      selectedMedicationName: selectedMedication.displayName,
+    });
+
+    router.push(`./verify?${verifyParams.toString()}`);
+  };
+
+  const handleSelectMedication = (medication: MedicationSelection) => {
+    setSelectedMedicationId(medication._id);
+  };
+
   if (!scannedToken) {
     return (
       <Container className="px-4 pb-4">
@@ -55,10 +87,7 @@ export default function ScanHandoffScreen() {
           <Surface variant="secondary" className="rounded-xl p-5">
             <View className="gap-3">
               <Text className="text-xl font-semibold text-foreground">No wristband token</Text>
-              <Text className="text-sm leading-6 text-muted">
-                The medication selection step needs a captured QR wristband token before it can load
-                patient context.
-              </Text>
+              <Text className="text-sm leading-6 text-muted">Scan a wristband to continue.</Text>
             </View>
           </Surface>
 
@@ -77,9 +106,7 @@ export default function ScanHandoffScreen() {
           <Surface variant="secondary" className="rounded-xl p-5">
             <View className="gap-3">
               <Text className="text-xl font-semibold text-foreground">Sign in required</Text>
-              <Text className="text-sm leading-6 text-muted">
-                Sign in again before loading patient context for a scanned wristband.
-              </Text>
+              <Text className="text-sm leading-6 text-muted">Sign in to continue.</Text>
             </View>
           </Surface>
 
@@ -127,8 +154,7 @@ export default function ScanHandoffScreen() {
             <View className="gap-3">
               <Text className="text-xl font-semibold text-foreground">Unknown wristband</Text>
               <Text className="text-sm leading-6 text-muted">
-                No patient record matches this QR wristband token. Scan again with a registered demo
-                wristband.
+                No patient record matches this wristband.
               </Text>
             </View>
           </Surface>
@@ -189,7 +215,11 @@ export default function ScanHandoffScreen() {
   }
 
   return (
-    <Container isScrollable={false}>
+    <Container
+      isScrollable={false}
+      accessibilityElementsHidden={!isFocused}
+      importantForAccessibility={isFocused ? "auto" : "no-hide-descendants"}
+    >
       <View className="flex-1">
         <ScrollView
           className="flex-1 px-4"
@@ -200,10 +230,14 @@ export default function ScanHandoffScreen() {
           <View className="gap-4">
             <Surface variant="secondary" className="rounded-xl p-5">
               <View className="gap-3">
-                <Text className="text-xl font-semibold text-foreground">Patient context ready</Text>
+                <Text
+                  testID="scan-handoff-screen-title"
+                  className="text-xl font-semibold text-foreground"
+                >
+                  Patient context ready
+                </Text>
                 <Text className="text-sm leading-6 text-muted">
-                  Review the resolved patient and select one active medication from this patient
-                  only.
+                  Review the patient details and choose a medication.
                 </Text>
               </View>
             </Surface>
@@ -245,7 +279,7 @@ export default function ScanHandoffScreen() {
                     No active medications
                   </Text>
                   <Text className="text-sm leading-6 text-muted">
-                    This patient has no active medications available for selection right now.
+                    No active medications are available.
                   </Text>
                   <Button onPress={handleBackToScanner}>
                     <Button.Label>Scan another wristband</Button.Label>
@@ -259,7 +293,7 @@ export default function ScanHandoffScreen() {
                     Active medications
                   </Text>
                   <Text className="text-sm leading-6 text-muted">
-                    Select exactly one active medication for {scanContext.patient.displayName}.
+                    Select a medication for {scanContext.patient.displayName}.
                   </Text>
 
                   <View className="gap-3">
@@ -273,7 +307,7 @@ export default function ScanHandoffScreen() {
                           accessibilityRole="button"
                           accessibilityLabel={`Select medication ${medication.displayName}`}
                           onPress={() => {
-                            setSelectedMedicationId(medication._id);
+                            handleSelectMedication(medication);
                           }}
                           className={`rounded-xl border p-4 ${
                             isSelected
@@ -311,32 +345,9 @@ export default function ScanHandoffScreen() {
                                     Ready to verify
                                   </Text>
                                   <Text className="text-sm leading-6 text-muted">
-                                    Continue with this selected medication for deterministic
-                                    verification.
+                                    Ready to continue.
                                   </Text>
                                 </View>
-                                <Pressable
-                                  testID="continue-to-verification-button"
-                                  accessibilityRole="button"
-                                  accessibilityLabel="Continue to verification"
-                                  onPress={() => {
-                                    router.replace({
-                                      pathname: "/(drawer)/verify",
-                                      params: {
-                                        wristbandToken: scannedToken,
-                                        patientId: scanContext.patient._id,
-                                        patientName: scanContext.patient.displayName,
-                                        selectedMedicationId: medication._id,
-                                        selectedMedicationName: medication.displayName,
-                                      },
-                                    });
-                                  }}
-                                  className="items-center rounded-xl bg-primary px-4 py-4"
-                                >
-                                  <Text className="text-sm font-semibold text-primary-foreground">
-                                    Continue to verification
-                                  </Text>
-                                </Pressable>
                               </View>
                             ) : null}
                           </View>
@@ -352,6 +363,15 @@ export default function ScanHandoffScreen() {
 
         <View className="absolute inset-x-0 bottom-0 border-t border-default-200 bg-background px-4 pb-4 pt-3">
           <View className="gap-3">
+            {selectedMedication ? (
+              <Button
+                testID="continue-to-verification-button"
+                accessibilityLabel="Continue to verification"
+                onPress={handleContinueToVerification}
+              >
+                <Button.Label>Continue to verification</Button.Label>
+              </Button>
+            ) : null}
             <Button onPress={handleBackToScanner}>
               <Button.Label>Scan another wristband</Button.Label>
             </Button>

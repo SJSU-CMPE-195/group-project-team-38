@@ -17,6 +17,7 @@ function NurseWorkflowLayout() {
           color: themeColorForeground,
         },
         contentStyle: { backgroundColor: themeColorBackground },
+        freezeOnBlur: true,
       }}
     >
       <Stack.Screen

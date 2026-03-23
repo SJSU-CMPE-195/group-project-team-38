@@ -12,16 +12,15 @@ import { authClient, ensureSingleOrganizationIsActive } from "@/lib/auth-client"
 const workflowSteps = [
   {
     title: "1. Scan patient wristband",
-    description: "Capture a single QR wristband token to load the right patient context.",
+    description: "Scan the patient wristband to load their chart.",
   },
   {
     title: "2. Confirm medication",
-    description: "Review the patient summary and choose the medication you need to verify.",
+    description: "Choose the medication you want to verify.",
   },
   {
     title: "3. Review verification",
-    description:
-      "Run the deterministic safety check, then request an AI explanation when the scenario needs more context.",
+    description: "Review the result before giving the medication.",
   },
 ] as const;
 
@@ -100,7 +99,7 @@ export default function Home() {
             <Surface variant="secondary" className="rounded-xl p-4">
               <View className="flex-row items-center gap-3">
                 <Spinner size="sm" color="default" />
-                <Text className="text-sm text-muted">Loading your demo workspace…</Text>
+                <Text className="text-sm text-muted">Loading your account…</Text>
               </View>
             </Surface>
           ) : hasWorkspaceAccess ? (
@@ -122,10 +121,7 @@ export default function Home() {
                   <Text className="text-xl font-semibold text-foreground">
                     Start patient verification
                   </Text>
-                  <Text className="text-sm leading-6 text-muted">
-                    Open the scanner, capture the wristband token, and continue through the
-                    medication safety workflow.
-                  </Text>
+                  <Text className="text-sm leading-6 text-muted">Open the scanner to begin.</Text>
                   <Button
                     testID="start-wristband-scan-button"
                     accessibilityLabel="Start wristband scan"
@@ -150,13 +146,8 @@ export default function Home() {
           ) : hasWorkspaceUser ? (
             <Surface variant="secondary" className="rounded-xl p-4">
               <View className="gap-3">
-                <Text className="text-base font-medium text-foreground">
-                  Preparing your workspace
-                </Text>
-                <Text className="text-sm text-muted">
-                  Your account is signed in, but the demo organization still needs to be activated
-                  for this session.
-                </Text>
+                <Text className="text-base font-medium text-foreground">Almost ready</Text>
+                <Text className="text-sm text-muted">Finishing account setup.</Text>
                 <View className="flex-row items-center gap-3">
                   {isActivatingWorkspace ? <Spinner size="sm" color="default" /> : null}
                   <Button
@@ -170,16 +161,14 @@ export default function Home() {
                       });
                     }}
                   >
-                    <Button.Label>Retry workspace activation</Button.Label>
+                    <Button.Label>Try again</Button.Label>
                   </Button>
                 </View>
               </View>
             </Surface>
           ) : (
             <Surface variant="secondary" className="rounded-xl p-4">
-              <Text className="text-sm text-muted">
-                Your session is active, but the demo profile has not loaded yet.
-              </Text>
+              <Text className="text-sm text-muted">Your account is still loading.</Text>
             </Surface>
           )}
         </View>
