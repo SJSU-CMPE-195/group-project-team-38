@@ -3,12 +3,20 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
 
 const aiProviderSchema = z.enum(["openai", "anthropic"]);
+const optionalApiKeySchema = z.preprocess((value) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const normalized = value.trim();
+  return normalized.length === 0 ? undefined : normalized;
+}, z.string().trim().min(1).optional());
 const aiEnvironmentSchema = z
   .object({
     AI_PROVIDER: aiProviderSchema,
     AI_MODEL: z.string().trim().min(1, "AI_MODEL is required."),
-    OPENAI_API_KEY: z.string().trim().min(1).optional(),
-    ANTHROPIC_API_KEY: z.string().trim().min(1).optional(),
+    OPENAI_API_KEY: optionalApiKeySchema,
+    ANTHROPIC_API_KEY: optionalApiKeySchema,
   })
   .superRefine((environment, ctx) => {
     if (environment.AI_PROVIDER === "openai" && !environment.OPENAI_API_KEY) {
