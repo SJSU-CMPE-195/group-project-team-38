@@ -13,7 +13,7 @@ import { useRef } from "react";
 import { Text, TextInput, View } from "react-native";
 import z from "zod";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient, ensureSingleOrganizationIsActive } from "@/lib/auth-client";
 
 const signInSchema = z.object({
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),
@@ -72,7 +72,15 @@ export function SignIn() {
               label: error.error?.message || "Failed to sign in",
             });
           },
-          onSuccess() {
+          async onSuccess() {
+            const activeOrganizationId = await ensureSingleOrganizationIsActive();
+            if (!activeOrganizationId) {
+              toast.show({
+                variant: "danger",
+                label: "Signed in, but the demo workspace could not be activated.",
+              });
+              return;
+            }
             formApi.reset();
             toast.show({
               variant: "success",
@@ -117,8 +125,10 @@ export function SignIn() {
                         placeholder="email@example.com"
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        autoComplete="email"
-                        textContentType="emailAddress"
+                        autoCorrect={false}
+                        spellCheck={false}
+                        autoComplete="off"
+                        textContentType="none"
                         returnKeyType="next"
                         blurOnSubmit={false}
                         onSubmitEditing={() => {
@@ -142,8 +152,10 @@ export function SignIn() {
                         onChangeText={field.handleChange}
                         placeholder="••••••••"
                         secureTextEntry
-                        autoComplete="password"
-                        textContentType="password"
+                        autoCorrect={false}
+                        spellCheck={false}
+                        autoComplete="off"
+                        textContentType="none"
                         returnKeyType="go"
                         onSubmitEditing={form.handleSubmit}
                       />

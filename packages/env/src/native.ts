@@ -2,6 +2,7 @@ import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 const localConvexUrl = "http://127.0.0.1:3210";
+const localConvexSiteUrl = "http://127.0.0.1:3211";
 
 export const env = createEnv({
   clientPrefix: "EXPO_PUBLIC_",
@@ -11,7 +12,7 @@ export const env = createEnv({
   },
   runtimeEnv: {
     EXPO_PUBLIC_CONVEX_URL: process.env.EXPO_PUBLIC_CONVEX_URL ?? localConvexUrl,
-    EXPO_PUBLIC_CONVEX_SITE_URL: process.env.EXPO_PUBLIC_CONVEX_SITE_URL ?? localConvexUrl,
+    EXPO_PUBLIC_CONVEX_SITE_URL: process.env.EXPO_PUBLIC_CONVEX_SITE_URL ?? localConvexSiteUrl,
   },
   emptyStringAsUndefined: true,
 });
