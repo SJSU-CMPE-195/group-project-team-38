@@ -63,28 +63,25 @@ export function SignUp() {
       onSubmit: signUpSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      await authClient.signUp.email(
-        {
-          name: value.name.trim(),
-          email: value.email.trim(),
-          password: value.password,
-        },
-        {
-          onError(error) {
-            toast.show({
-              variant: "danger",
-              label: error.error?.message || "Failed to sign up",
-            });
-          },
-          onSuccess() {
-            formApi.reset();
-            toast.show({
-              variant: "success",
-              label: "Account created successfully",
-            });
-          },
-        },
-      );
+      const result = await authClient.signUp.email({
+        name: value.name.trim(),
+        email: value.email.trim(),
+        password: value.password,
+      });
+
+      if (result.error) {
+        toast.show({
+          variant: "danger",
+          label: result.error.message || "Failed to sign up",
+        });
+        return;
+      }
+
+      formApi.reset();
+      toast.show({
+        variant: "success",
+        label: "Account created successfully",
+      });
     },
   });
 

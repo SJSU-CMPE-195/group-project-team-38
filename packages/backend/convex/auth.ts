@@ -13,6 +13,12 @@ import authSchema from "./betterAuth/schema";
 
 const defaultNativeAppUrl = "meditag://";
 const expoDevelopmentOrigins = ["exp://", "exp://**", "exp://192.168.*.*:*/**"];
+const localDevelopmentOrigins = [
+  "http://localhost:8081",
+  "http://127.0.0.1:8081",
+  "http://localhost:19006",
+  "http://127.0.0.1:19006",
+];
 
 type AuthEnvironment = {
   siteUrl: string;
@@ -20,13 +26,30 @@ type AuthEnvironment = {
   isDevelopment: boolean;
 };
 
+const isLocalUrl = (value: string): boolean => {
+  try {
+    const { hostname } = new URL(value);
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.endsWith(".local")
+    );
+  } catch {
+    return false;
+  }
+};
+
 const getAuthEnvironment = (): AuthEnvironment => {
-  const siteUrl = process.env.SITE_URL ?? process.env.CONVEX_SITE_URL ?? "http://localhost:3001";
+  const siteUrl = process.env.CONVEX_SITE_URL ?? process.env.SITE_URL ?? "http://127.0.0.1:3213";
+  const isLocalDeployment = process.env.CONVEX_DEPLOYMENT?.startsWith("local:") ?? false;
 
   return {
     siteUrl,
     nativeAppUrl: process.env.NATIVE_APP_URL ?? defaultNativeAppUrl,
-    isDevelopment: process.env.NODE_ENV === "development",
+    isDevelopment:
+      process.env.NODE_ENV === "development" || isLocalDeployment || isLocalUrl(siteUrl),
   };
 };
 
@@ -34,7 +57,12 @@ const createTrustedOrigins = (environment: AuthEnvironment): string[] => {
   if (!environment.isDevelopment) {
     return [environment.siteUrl, environment.nativeAppUrl];
   }
-  return [environment.siteUrl, environment.nativeAppUrl, ...expoDevelopmentOrigins];
+  return [
+    environment.siteUrl,
+    environment.nativeAppUrl,
+    ...expoDevelopmentOrigins,
+    ...localDevelopmentOrigins,
+  ];
 };
 
 const createBaseAuthOptions = (
