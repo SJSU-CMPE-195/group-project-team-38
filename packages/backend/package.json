@@ -8,6 +8,7 @@
     "dev": "convex dev",
     "dev:setup": "convex dev --configure --until-success",
     "seed:demo": "convex run --push seed:seedDemoData",
+    "check-types": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -27,6 +28,7 @@
     "@types/node": "^24.3.0",
     "convex-test": "^0.0.41",
     "typescript": "catalog:",
+    "vite": "^8.0.8",
     "vitest": "^4.0.18"
   }
 }

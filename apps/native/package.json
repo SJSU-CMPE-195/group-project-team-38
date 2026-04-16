@@ -10,6 +10,7 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild",
     "web": "expo start --web",
+    "check-types": "tsc --noEmit",
     "e2e": "bun run e2e:prepare && bun run e2e:smoke",
     "e2e:auth-cycle": "MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/auth-cycle.yaml",
     "e2e:prepare": "bun ./scripts/e2e-prepare-ios.mjs",
