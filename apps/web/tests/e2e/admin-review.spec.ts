@@ -4,7 +4,7 @@ test.describe("admin review dashboard", () => {
   test("renders fixture-backed review detail for a failed scan", async ({ page }) => {
     await page.goto("/dashboard?fixture=admin-review");
 
-    await expect(page.getByText("Recent scan events")).toBeVisible();
+    await expect(page.getByText("Recent scan events").first()).toBeVisible();
     await expect(page.getByTestId("scan-log-list")).toBeVisible();
     await expect(page.getByTestId("scan-log-detail")).toContainText("Log detail");
     await expect(page.getByTestId("scan-log-detail")).toContainText("Demo Conflict Patient");
