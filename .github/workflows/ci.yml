@@ -62,12 +62,7 @@ jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     needs: validate
-    if: >
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main' &&
-      secrets.VERCEL_TOKEN != '' &&
-      secrets.VERCEL_ORG_ID != '' &&
-      secrets.VERCEL_PROJECT_ID != ''
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: staging
 
