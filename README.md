@@ -9,12 +9,11 @@ MediTag is an AI-assisted patient safety verification system for medication work
 
 ## Evaluation Snapshot
 
+- Live deployment (iOS, TestFlight): https://testflight.apple.com/join/sBsJX5FA
 - CI workflow: [`.github/workflows/ci.yml`](/Users/gursh/code/group-project-team-38/.github/workflows/ci.yml)
-- Coverage report: [docs/evaluation/coverage-report](/Users/gursh/code/group-project-team-38/docs/evaluation/coverage-report/README.md)
+- Coverage report: [docs/evaluation/coverage-report/backend/index.html](/Users/gursh/code/group-project-team-38/docs/evaluation/coverage-report/backend/index.html)
 - Stress test report: [docs/evaluation/stress-test-results.md](/Users/gursh/code/group-project-team-38/docs/evaluation/stress-test-results.md)
-- Deployment notes: [docs/evaluation/deployment.md](/Users/gursh/code/group-project-team-38/docs/evaluation/deployment.md)
 - Current backend line coverage: `79.82%`
-- Staging deployment: configured for Vercel after repository secrets are added
 
 ## Team
 
@@ -228,40 +227,3 @@ Coverage artifacts are written to `docs/evaluation/coverage-report/backend`, inc
 - `docs` - Architecture, scope, and testing documentation
 - `scripts` - Repository setup and utility scripts
 
-## Troubleshooting
-
-### Convex auth works in one app but not the other
-
-- Check that `*_CONVEX_URL` is `http://127.0.0.1:3210`.
-- Check that `*_CONVEX_SITE_URL` is `http://127.0.0.1:3211`.
-- Check that `NATIVE_APP_URL=meditag://` is set in `packages/backend/.env.local`.
-
-### Native sign-in succeeds but the nurse flow does not load
-
-- Re-run the canonical seed:
-
-```bash
-bun run seed:demo
-```
-
-- Confirm the seeded nurse account is being used.
-- Confirm Convex is still running locally.
-
-### Native Maestro flows fail before the app launches
-
-- Make sure Maestro CLI is installed and on `PATH`.
-- Make sure Xcode and an iPhone simulator are available.
-- Run:
-
-```bash
-cd apps/native
-bun run e2e:prepare
-bun run e2e:doctor
-```
-
-- Dismiss any iOS system alerts on the simulator and rerun.
-
-### AI explanation flow does not generate text
-
-- Verify `AI_PROVIDER`, `AI_MODEL`, and the matching API key are set in `packages/backend/.env.local`.
-- Do not put backend AI keys in `apps/web/.env` or `apps/native/.env`.
