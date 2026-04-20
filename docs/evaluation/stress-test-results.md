@@ -1,40 +1,54 @@
----
-summary: "Stress-test methodology and observed results for the MediTag web health endpoint"
-read_when:
-  - Preparing the Implementation 3 evaluation submission
-  - Answering how the deployed web surface behaves under concurrent request load
-  - Updating performance numbers after a new benchmark run
-title: "Implementation 3 Stress Test Results"
----
+## Stress Test Results
 
-# Stress Test Results
+Three endpoints were tested at the same concurrency and duration to separate deployment smoke performance from real production-route rendering
 
-This report captures the reproducible load-test setup used for Implementation 3. The current target is the web health endpoint at `/api/health`, which is appropriate for deployment smoke checks and repeatable response-time measurement.
+1. `/api/health` - deployment smoke probe (baseline ceiling for the Node server)
+2. `/dashboard` - production App Router route rendering the unauthenticated landing with the sign-in card and Convex/Auth providers fully instantiated (~12 KB HTML)
+3. `/dashboard?fixture=admin-review` - production App Router route rendering the full admin scan-review UI (filters, metric cards, scan log list, detail panel) with deterministic fixture data (~29 KB HTML)
 
-## Test Configuration
+### Test Configuration
 
-- Tool: `bun tests/e2e/web-health-stress.mjs`
-- Run date: April 16, 2026
-- Environment: local production `next start` server for `apps/web`
-- Duration: 15 seconds
-- Virtual Users: 25 concurrent workers
-- Timeout per request: 5000 ms
-- Target: `http://127.0.0.1:3001/api/health`
+- Tool: `bun tests/e2e/web-health-stress.mjs` (Bun-based HTTP load runner, parallel `fetch` workers with latency/percentile aggregation)
+- Run date: April 19, 2026
+- Duration: 30 seconds per run
+- Virtual Users: 50 concurrent
+- Timeout per request: 10,000 ms
+- Target: local production `next start` server for `apps/web` (Next.js 16.1.6, Node 22) on port 3001, with `NEXT_PUBLIC_E2E_ADMIN_FIXTURE=1` enabled for the admin fixture path
+- Targets exercised:
+  - `/api/health`
+  - `/dashboard`
+  - `/dashboard?fixture=admin-review`
 
-## Results
+Reproduction:
 
-| Metric            | Value    |
-| ----------------- | -------- |
-| Total Requests    | 116,246  |
-| Avg Response Time | 3.23 ms  |
-| 95th Percentile   | 5.36 ms  |
-| 99th Percentile   | 7.30 ms  |
-| Requests/Second   | 7,749.73 |
-| Error Rate        | 0%       |
+```sh
+cd apps/web && PORT=3001 NEXT_PUBLIC_E2E_ADMIN_FIXTURE=1 bun run start &
 
-## Observations
+bun tests/e2e/web-health-stress.mjs --url=http://127.0.0.1:3001/api/health --concurrency=50 --duration=30 --timeout=10000
+bun tests/e2e/web-health-stress.mjs --url=http://127.0.0.1:3001/dashboard --concurrency=50 --duration=30 --timeout=10000
+bun tests/e2e/web-health-stress.mjs --url="http://127.0.0.1:3001/dashboard?fixture=admin-review" --concurrency=50 --duration=30 --timeout=10000
+```
 
-- The lightweight health endpoint remained stable for the full run and returned `200` for every request.
-- At this load level, the bottleneck was not application logic; the route is effectively a deployment health probe and stayed comfortably below 10 ms even at p99.
-- These numbers should be presented as a smoke-load benchmark, not as a full system concurrency claim for nurse verification or Convex-backed workflows.
-- A stronger next step would be a second benchmark against authenticated dashboard or verification endpoints after staging deployment secrets are configured.
+### Results
+
+| Metric            | `/api/health` | `/dashboard` | `/dashboard?fixture=admin-review` |
+| ----------------- | ------------- | ------------ | --------------------------------- |
+| Avg Response Time | 5.80 ms       | 47.05 ms     | 58.18 ms                          |
+| 95th Percentile   | 7.44 ms       | 54.33 ms     | 68.29 ms                          |
+| 99th Percentile   | 11.47 ms      | 66.09 ms     | 72.52 ms                          |
+| Requests/Second   | 8,624.27      | 1,062.83     | 859.47                            |
+| Total Requests    | 258,728       | 31,885       | 25,784                            |
+| Error Rate        | 0%            | 0%           | 0%                                |
+
+### Observations
+
+- **What we learned:** the stack is stable under sustained 50-concurrent load and every run held a 0% error rate and p99 stayed under 75 ms on the production route which is comfortably below the 10,000 ms request budget. The production `/dashboard` route sustains ~1,062 RPS and the admin review surface ~859 RPS on a single local Node process.
+- **Primary bottleneck — React Server Component rendering.** The ~8–10× gap between the health probe (8,624 RPS) and the App Router routes (859–1,062 RPS) is the cost of React tree construction, provider wiring (Convex, Better Auth, theme), and HTML serialization per request. The health endpoint serves 74-byte JSON; the dashboard routes serialize 12–29 KB of HTML each.
+- **Secondary bottleneck — payload size.** Going from 12 KB (`/dashboard`) to 29 KB (`?fixture=admin-review`) costs ~20% of the RPS ceiling (1,062 to 859), tracking the larger React tree and HTML stream.
+- **What we would optimize:** (1) promote the unauthenticated landing card to a static/ISR segment so repeat hits skip the full render, (2) move the admin review filters and metric cards into client components fed from a cached server query so the SSR render path shrinks, (3) ship the payload as a streamed response to move TTFB earlier in the latency budget, and (4) re-run against Vercel's Fluid Compute runtime where per-instance reuse and regional placement will change the absolute numbers.
+
+### Limits and Follow-ups
+
+- Saturation point was not reached in this range so a follow-up should ramp concurrency (50 → 100 → 250 → 500) until p99 latency grows or error rate goes non-zero.
+- Fixture mode short-circuits Convex queries; a follow-up run against a seeded Convex deployment would capture the cost of live query waterfalls and websocket subscriptions that this local benchmark does not exercise.
+- A production run against the Vercel preview deployment would replace the local `next start` numbers with Fluid Compute numbers from the actual runtime.
