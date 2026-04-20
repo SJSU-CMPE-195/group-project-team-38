@@ -32,10 +32,7 @@ jobs:
         working-directory: packages/backend
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-          CONVEX_SITE_URL: ${{ secrets.CONVEX_SITE_URL }}
-        run: |
-          bunx convex env set CONVEX_SITE_URL "$CONVEX_SITE_URL"
-          bunx convex env set NATIVE_APP_URL "meditag://"
+        run: bunx convex env set NATIVE_APP_URL "meditag://"
 
       - name: Deploy Convex production functions
         working-directory: packages/backend
