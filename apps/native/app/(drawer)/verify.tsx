@@ -64,7 +64,6 @@ function getErrorMessage(error: unknown): string {
 export default function VerifyScreen() {
   const params = useLocalSearchParams<{
     wristbandToken?: string | string[];
-    patientId?: string | string[];
     patientName?: string | string[];
     selectedMedicationId?: string | string[];
     selectedMedicationName?: string | string[];
@@ -74,7 +73,6 @@ export default function VerifyScreen() {
   const requestScanLogExplanation = useMutation(api.scanLogExplanations.requestScanLogExplanation);
 
   const wristbandToken = getRouteParam(params.wristbandToken);
-  const patientId = getRouteParam(params.patientId);
   const patientName = getRouteParam(params.patientName);
   const selectedMedicationIdParam = getRouteParam(params.selectedMedicationId);
   const selectedMedicationName = getRouteParam(params.selectedMedicationName);
@@ -174,92 +172,71 @@ export default function VerifyScreen() {
 
   if (!isAuthenticated) {
     return (
-      <Container className="px-4 pb-4">
-        <View className="py-6 gap-4">
-          <Surface variant="secondary" className="rounded-xl p-5">
-            <View className="gap-3">
-              <Text className="text-xl font-semibold text-foreground">Sign in required</Text>
-              <Text className="text-sm leading-6 text-muted">Sign in to continue.</Text>
-            </View>
-          </Surface>
-
+      <Container className="px-6 pb-6">
+        <View className="py-8 gap-5">
+          <View className="gap-2">
+            <Text className="text-2xl font-semibold tracking-tight text-foreground">
+              Sign in required
+            </Text>
+            <Text className="text-base leading-7 text-muted">Sign in to continue.</Text>
+          </View>
           <Button
             onPress={() => {
               router.replace("/");
             }}
           >
-            <Button.Label>Back to workflow entry</Button.Label>
+            <Button.Label>Go to sign in</Button.Label>
           </Button>
         </View>
       </Container>
     );
   }
 
+  const explanationStatusCopy =
+    effectiveExplanationStatus === "requested"
+      ? "Generating…"
+      : effectiveExplanationStatus === "generated"
+        ? "Ready"
+        : effectiveExplanationStatus === "failed"
+          ? "Failed"
+          : "Pending";
+
   return (
-    <Container className="px-4 pb-4">
-      <View className="py-6 gap-4">
-        <Surface variant="secondary" className="rounded-xl p-5">
-          <View className="gap-3">
-            <Text testID="verify-screen-title" className="text-xl font-semibold text-foreground">
-              Review and verify
-            </Text>
-            <Text className="text-sm leading-6 text-muted">
-              Confirm the selected patient and medication before running the bedside check.
-            </Text>
-          </View>
-        </Surface>
+    <Container className="px-6 pb-6">
+      <View className="py-8 gap-6">
+        <View className="gap-2">
+          <Text
+            testID="verify-screen-title"
+            className="text-3xl font-semibold tracking-tight text-foreground"
+          >
+            Review and verify
+          </Text>
+          <Text className="text-base leading-7 text-muted">
+            Confirm the patient and medication before administration.
+          </Text>
+        </View>
 
         <Surface variant="secondary" className="rounded-2xl p-5">
           <View className="gap-4">
-            <Text className="text-base font-semibold text-foreground">Verification summary</Text>
             <View className="gap-1">
-              <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                Patient
-              </Text>
-              <Text className="text-sm leading-6 text-foreground">
+              <Text className="text-xs text-muted">Patient</Text>
+              <Text className="text-base font-semibold text-foreground">
                 {patientName ?? "Unknown patient"}
               </Text>
             </View>
             <View className="gap-1">
-              <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                Medication
-              </Text>
-              <Text className="text-sm leading-6 text-foreground">
+              <Text className="text-xs text-muted">Medication</Text>
+              <Text className="text-base font-semibold text-foreground">
                 {selectedMedication?.displayName ??
                   selectedMedicationName ??
                   "No medication selected"}
               </Text>
             </View>
-            <View className="gap-1">
-              <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                Wristband token
-              </Text>
-              <Text className="text-sm leading-6 text-foreground">
-                {wristbandToken ?? "Missing wristband token"}
-              </Text>
-            </View>
-            {patientId ? (
-              <View className="gap-1">
-                <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  Patient ID
-                </Text>
-                <Text className="text-sm leading-6 text-foreground">{patientId}</Text>
-              </View>
-            ) : null}
           </View>
         </Surface>
 
         {!canVerify ? (
-          <Surface variant="secondary" className="rounded-xl p-5">
-            <View className="gap-3">
-              <Text className="text-base font-semibold text-foreground">
-                Verification cannot start yet
-              </Text>
-              <Text className="text-sm leading-6 text-muted">
-                Required scan details are missing.
-              </Text>
-            </View>
-          </Surface>
+          <Text className="text-sm text-muted">Required scan details are missing.</Text>
         ) : null}
 
         <Button
@@ -276,11 +253,9 @@ export default function VerifyScreen() {
         </Button>
 
         {actionError ? (
-          <Surface variant="secondary" className="rounded-xl border border-danger/40 p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-danger/40 p-5">
             <View className="gap-2">
-              <Text className="text-base font-semibold text-danger">
-                Verification request failed
-              </Text>
+              <Text className="text-base font-semibold text-danger">Something went wrong</Text>
               <Text className="text-sm leading-6 text-muted">{actionError}</Text>
             </View>
           </Surface>
@@ -295,30 +270,25 @@ export default function VerifyScreen() {
                 : "border-danger/40 bg-danger/10"
             }`}
           >
-            <View className="gap-3">
-              <View className="gap-1">
-                <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  Deterministic verification result
-                </Text>
-                <Text
-                  className={`text-2xl font-semibold ${
-                    verificationResult.result === "pass" ? "text-success" : "text-danger"
-                  }`}
-                >
-                  {verificationResult.result === "pass" ? "PASS" : "FAIL"}
-                </Text>
-              </View>
+            <View className="gap-4">
+              <Text
+                className={`text-3xl font-bold tracking-tight ${
+                  verificationResult.result === "pass" ? "text-success" : "text-danger"
+                }`}
+              >
+                {verificationResult.result === "pass" ? "PASS" : "FAIL"}
+              </Text>
 
               {verificationResult.result === "pass" ? (
-                <Text className="text-sm leading-6 text-foreground">
+                <Text className="text-base leading-7 text-foreground">
                   The medication matches the patient record and no allergy conflict was found.
                 </Text>
               ) : (
                 <View className="gap-3">
-                  <Text className="text-sm leading-6 text-foreground">
+                  <Text className="text-base leading-7 text-foreground">
                     Do not administer until the issues below are resolved.
                   </Text>
-                  <View className="gap-3">
+                  <View className="gap-2">
                     {verificationResult.failureReasons.map((reason) => {
                       const copy = failureReasonCopy[reason];
 
@@ -340,21 +310,19 @@ export default function VerifyScreen() {
 
         {verificationResult?.result === "fail" ? (
           <Surface variant="secondary" className="rounded-2xl p-5">
-            <View className="gap-3">
+            <View className="gap-4">
               <View className="gap-1">
-                <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  AI explanation
-                </Text>
                 <Text className="text-base font-semibold text-foreground">More detail</Text>
+                <Text className="text-sm leading-6 text-muted">
+                  Get an AI-generated explanation for this result.
+                </Text>
               </View>
-              <Text className="text-sm leading-6 text-muted">
-                You can request additional context for this result.
-              </Text>
 
               {effectiveExplanationStatus === "none" || effectiveExplanationStatus === "failed" ? (
                 <Button
                   testID="request-ai-explanation-button"
                   accessibilityLabel="Request AI explanation"
+                  variant="secondary"
                   onPress={() => void requestExplanation()}
                   isDisabled={isSubmittingVerification || isRequestingExplanation}
                 >
@@ -363,24 +331,22 @@ export default function VerifyScreen() {
                   ) : (
                     <Button.Label>
                       {effectiveExplanationStatus === "failed"
-                        ? "Try AI explanation again"
-                        : "Request AI explanation"}
+                        ? "Try again"
+                        : "Explain this result"}
                     </Button.Label>
                   )}
                 </Button>
               ) : null}
 
               {explanationScanLogId && effectiveExplanationStatus !== "none" ? (
-                <View className="gap-3 rounded-xl bg-background px-4 py-4">
+                <View className="gap-2 rounded-xl bg-background px-4 py-4">
                   <Text className="text-sm font-semibold text-foreground">
                     AI explanation requested
                   </Text>
-                  <View className="gap-1">
-                    <Text className="text-xs font-semibold uppercase tracking-wide text-primary">
-                      Explanation request status
-                    </Text>
-                    <Text className="text-sm text-foreground">
-                      {effectiveExplanationStatus ?? "Loading…"}
+                  <View className="flex-row items-baseline gap-2">
+                    <Text className="text-xs text-muted">Explanation request status</Text>
+                    <Text className="text-xs font-medium text-foreground">
+                      {explanationStatusCopy}
                     </Text>
                   </View>
 
@@ -394,14 +360,9 @@ export default function VerifyScreen() {
                   ) : null}
 
                   {effectiveExplanationStatus === "generated" ? (
-                    <View className="gap-2">
-                      <Text className="text-sm font-semibold text-foreground">
-                        AI explanation text
-                      </Text>
-                      <Text className="text-sm leading-6 text-foreground">
-                        {explanationText ?? "Explanation text was not returned."}
-                      </Text>
-                    </View>
+                    <Text className="text-sm leading-6 text-foreground">
+                      {explanationText ?? "Explanation text was not returned."}
+                    </Text>
                   ) : null}
 
                   {effectiveExplanationStatus === "failed" ? (
@@ -420,21 +381,23 @@ export default function VerifyScreen() {
           </Surface>
         ) : null}
 
-        <Button
-          variant="secondary"
-          onPress={() => {
-            router.back();
-          }}
-        >
-          <Button.Label>Back to medication selection</Button.Label>
-        </Button>
-        <Button
-          onPress={() => {
-            router.replace("/(drawer)/scan");
-          }}
-        >
-          <Button.Label>Scan another wristband</Button.Label>
-        </Button>
+        <View className="gap-2">
+          <Button
+            onPress={() => {
+              router.replace("/(drawer)/scan");
+            }}
+          >
+            <Button.Label>Scan another wristband</Button.Label>
+          </Button>
+          <Button
+            variant="tertiary"
+            onPress={() => {
+              router.back();
+            }}
+          >
+            <Button.Label>Back</Button.Label>
+          </Button>
+        </View>
       </View>
     </Container>
   );

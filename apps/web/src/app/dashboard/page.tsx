@@ -52,10 +52,6 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   timeStyle: "short",
 });
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  dateStyle: "medium",
-});
-
 function DashboardShell({ children }: { children: React.ReactNode }) {
   return <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-6">{children}</div>;
 }
@@ -63,10 +59,9 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 function AuthLoadingState() {
   return (
     <DashboardShell>
-      <Card className="max-w-2xl border-dashed">
+      <Card className="max-w-md border-dashed">
         <CardHeader>
-          <CardTitle>Loading MediTag admin review</CardTitle>
-          <CardDescription>Checking your session and available review data.</CardDescription>
+          <CardTitle>Loading…</CardTitle>
         </CardHeader>
       </Card>
     </DashboardShell>
@@ -80,24 +75,24 @@ function UnauthenticatedDashboard() {
     <DashboardShell>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,28rem)] lg:items-start">
         <Card className="border-border/70 bg-card/70">
-          <CardHeader>
-            <CardTitle className="text-2xl">Meditag Admin Review</CardTitle>
-            <CardDescription>Review recent scan activity and flagged results.</CardDescription>
+          <CardHeader className="gap-2">
+            <CardTitle className="text-3xl tracking-tight">Meditag Admin Review</CardTitle>
+            <CardDescription className="text-base">
+              Review recent scan activity and flagged results.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 text-sm sm:grid-cols-3">
-            <div className="border-l-2 border-emerald-600 pl-3">
-              <p className="font-medium">Pass and fail status</p>
-              <p className="text-muted-foreground">See deterministic outcomes at a glance.</p>
+          <CardContent className="grid gap-3 text-sm sm:grid-cols-3">
+            <div className="rounded-md border-l-2 border-emerald-600 pl-3">
+              <p className="font-medium">Outcomes</p>
+              <p className="text-muted-foreground">Pass and fail at a glance.</p>
             </div>
-            <div className="border-l-2 border-amber-500 pl-3">
-              <p className="font-medium">Patient and medication context</p>
-              <p className="text-muted-foreground">Keep each scan tied to the right record.</p>
+            <div className="rounded-md border-l-2 border-amber-500 pl-3">
+              <p className="font-medium">Context</p>
+              <p className="text-muted-foreground">Patient and medication for every scan.</p>
             </div>
-            <div className="border-l-2 border-sky-600 pl-3">
-              <p className="font-medium">Explanation tracking</p>
-              <p className="text-muted-foreground">
-                Know whether a failed scan has follow-up context.
-              </p>
+            <div className="rounded-md border-l-2 border-sky-600 pl-3">
+              <p className="font-medium">Follow-up</p>
+              <p className="text-muted-foreground">Track explanations on failed scans.</p>
             </div>
           </CardContent>
         </Card>
@@ -115,26 +110,22 @@ function UnauthenticatedDashboard() {
 function AccessDeniedState({ role }: { role: "nurse" | null }) {
   return (
     <DashboardShell>
-      <Card className="max-w-3xl">
+      <Card className="max-w-xl">
         <CardHeader>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-2xl">Admin access required</CardTitle>
+              <CardTitle className="text-2xl">Admin access only</CardTitle>
               <CardDescription>
-                MediTag web review is limited to demo admins for V1. Signed-in nurses should use the
-                native scan workflow instead.
+                This view is limited to administrators. Nurses should continue in the mobile app.
               </CardDescription>
             </div>
             <UserMenu />
           </div>
         </CardHeader>
-        <CardContent className="grid gap-3 text-sm">
-          <div className="bg-muted flex items-center justify-between gap-3 border px-4 py-3">
-            <span className="text-muted-foreground">Current role</span>
-            <span className="font-medium capitalize">{role ?? "Unknown"}</span>
-          </div>
-          <div className="text-muted-foreground border px-4 py-3">
-            Ask an admin account to sign in here if you need to review recent scan logs.
+        <CardContent>
+          <div className="bg-muted/60 flex items-center justify-between gap-3 rounded-md px-4 py-3 text-sm">
+            <span className="text-muted-foreground">Signed in as</span>
+            <span className="font-medium capitalize">{role ?? "Unknown role"}</span>
           </div>
         </CardContent>
       </Card>
@@ -145,10 +136,9 @@ function AccessDeniedState({ role }: { role: "nurse" | null }) {
 function RoleLoadingState() {
   return (
     <DashboardShell>
-      <Card className="max-w-2xl border-dashed">
+      <Card className="max-w-md border-dashed">
         <CardHeader>
-          <CardTitle>Checking access</CardTitle>
-          <CardDescription>Loading your MediTag role for admin review.</CardDescription>
+          <CardTitle>Loading…</CardTitle>
         </CardHeader>
       </Card>
     </DashboardShell>
@@ -233,41 +223,32 @@ function AdminReviewContent({ fixtureMode = false }: { fixtureMode?: boolean }) 
   return (
     <DashboardShell>
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="space-y-1">
-                <CardTitle className="text-2xl">Recent scan events</CardTitle>
-                <CardDescription>
-                  Admin-facing review of the latest MediTag verification activity.
-                </CardDescription>
-              </div>
-              <UserMenu />
-            </div>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-3">
-            <MetricCard label="Events shown" value={String(totalCount)} tone="neutral" />
-            <MetricCard label="Pass" value={String(passCount)} tone="pass" />
-            <MetricCard label="Fail" value={String(failCount)} tone="fail" />
-          </CardContent>
-        </Card>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-semibold tracking-tight">Recent scan events</h1>
+            <p className="text-sm text-muted-foreground">
+              Live verifications from the bedside, with outcomes and follow-up.
+            </p>
+          </div>
+          <UserMenu />
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <MetricCard label="Events" value={String(totalCount)} tone="neutral" />
+          <MetricCard label="Pass" value={String(passCount)} tone="pass" />
+          <MetricCard label="Fail" value={String(failCount)} tone="fail" />
+        </div>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.95fr)] xl:items-start">
-          <div className="grid gap-6">
+          <div className="grid gap-4">
             <Card data-testid="scan-log-filters">
-              <CardHeader>
-                <CardTitle>Review filters</CardTitle>
-                <CardDescription>
-                  Narrow repeated demo activity by result, date window, or basic search.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto] md:items-end">
+              <CardContent className="grid gap-3 pt-6 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))_auto] md:items-end">
                 <FilterField label="Search">
                   <Input
                     data-testid="scan-log-search"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder="Patient, medication, token, scanner"
+                    placeholder="Patient, medication, scanner…"
                   />
                 </FilterField>
                 <FilterField label="Result">
@@ -275,7 +256,7 @@ function AdminReviewContent({ fixtureMode = false }: { fixtureMode?: boolean }) 
                     data-testid="scan-log-result-filter"
                     value={resultFilter}
                     onChange={(event) => setResultFilter(event.target.value as ResultFilter)}
-                    className="border-input bg-background h-8 w-full rounded-none border px-2.5 text-xs outline-none"
+                    className="border-input bg-background h-9 w-full rounded-md border px-2.5 text-sm outline-none"
                   >
                     {resultFilterOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -312,113 +293,79 @@ function AdminReviewContent({ fixtureMode = false }: { fixtureMode?: boolean }) 
                     setEndDate("");
                   }}
                 >
-                  Reset filters
+                  Reset
                 </Button>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Scan log list</CardTitle>
-                <CardDescription>Review recent scan activity.</CardDescription>
-              </CardHeader>
-              <CardContent className="px-0 sm:px-4">
+              <CardContent className="px-0 pt-6 sm:px-4">
                 {scanLogs === undefined ? (
-                  <div className="px-4 py-8 text-sm text-muted-foreground">
-                    Loading recent scan events…
-                  </div>
+                  <div className="px-4 py-8 text-sm text-muted-foreground">Loading…</div>
                 ) : scanLogs.length === 0 ? (
                   <div className="px-4 py-8 text-sm text-muted-foreground">
-                    No scan events yet. Complete a medication scan in the native app to populate
-                    this review list.
+                    No scan events yet. Complete a verification in the mobile app to populate this
+                    list.
                   </div>
                 ) : filteredScanLogs.length === 0 ? (
                   <div className="px-4 py-8 text-sm text-muted-foreground">
-                    No scan events match the current filters. Broaden the date range or search term.
+                    No events match the current filters.
                   </div>
                 ) : (
-                  <div data-testid="scan-log-list" className="grid gap-3">
+                  <div data-testid="scan-log-list" className="grid gap-2">
                     {filteredScanLogs.map((scanLog) => {
                       const failureSummary = getFailureSummary(scanLog.failureReasons);
                       const isSelected = scanLog.scanLogId === selectedScanLogId;
+                      const outcomeText = scanLog.result === "pass" ? "Cleared" : failureSummary;
 
                       return (
                         <article
                           key={scanLog.scanLogId}
                           data-testid={`scan-log-row-${scanLog.scanLogId}`}
                           className={cn(
-                            "border-border/80 bg-background grid gap-4 border px-4 py-4",
+                            "border-border/60 bg-background grid gap-3 rounded-md border px-4 py-3 transition-colors",
                             isSelected && "border-sky-600 bg-sky-500/5",
                           )}
                         >
-                          <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <StatusBadge result={scanLog.result} />
-                              <InfoBadge
-                                label={explanationStatusLabel[scanLog.explanationStatus]}
-                              />
-                              <InfoBadge label={scanLog.metadata.scanType.toUpperCase()} />
-                            </div>
-                            <div className="flex items-center gap-2 self-start">
-                              <p className="text-muted-foreground text-sm">
-                                Verified {dateTimeFormatter.format(scanLog.createdAt)}
-                              </p>
-                              <Button
-                                data-testid={`scan-log-view-detail-${scanLog.scanLogId}`}
-                                size="sm"
-                                variant={isSelected ? "default" : "outline"}
-                                onClick={() => setSelectedScanLogId(scanLog.scanLogId)}
-                              >
-                                {isSelected ? "Viewing detail" : "View detail"}
-                              </Button>
-                            </div>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <StatusBadge result={scanLog.result} />
+                            <span className="text-sm font-medium">
+                              {scanLog.patient?.displayName ?? "Unknown patient"}
+                            </span>
+                            <span className="text-muted-foreground text-sm">
+                              {scanLog.medication?.displayName ?? "—"}
+                            </span>
+                            <span className="ml-auto text-muted-foreground text-xs">
+                              {dateTimeFormatter.format(scanLog.createdAt)}
+                            </span>
+                            <Button
+                              data-testid={`scan-log-view-detail-${scanLog.scanLogId}`}
+                              size="sm"
+                              variant={isSelected ? "default" : "ghost"}
+                              onClick={() => setSelectedScanLogId(scanLog.scanLogId)}
+                            >
+                              {isSelected ? "Selected" : "View"}
+                            </Button>
                           </div>
 
-                          <dl className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-5">
-                            <ReviewField
-                              label="Patient"
-                              value={scanLog.patient?.displayName ?? "Patient record missing"}
-                              detail={scanLog.patient?.mrn ?? `Token ${scanLog.scannedToken}`}
-                            />
-                            <ReviewField
-                              label="Medication"
-                              value={scanLog.medication?.displayName ?? "Medication record missing"}
-                              detail={
-                                scanLog.medication?.dose ??
-                                scanLog.medication?.route ??
-                                "No dose captured"
-                              }
-                            />
-                            <ReviewField
-                              label="Scanner"
-                              value={
-                                scanLog.scanner.displayName ??
-                                scanLog.scanner.email ??
-                                "Unknown user"
-                              }
-                              detail={scanLog.scanner.email ?? scanLog.scanner.authUserId}
-                            />
-                            <ReviewField
-                              label="Explanation"
-                              value={explanationStatusLabel[scanLog.explanationStatus]}
-                              detail={scanLog.explanationModel ?? "No model recorded"}
-                            />
-                            <ReviewField
-                              label="Outcome detail"
-                              value={
-                                scanLog.result === "pass" ? "Medication cleared" : failureSummary
-                              }
-                              detail={scanLog.wristband?.token ?? scanLog.scannedToken}
-                            />
-                          </dl>
+                          <div className="grid gap-x-6 gap-y-1 text-xs text-muted-foreground sm:grid-cols-3">
+                            <span>
+                              <span className="text-foreground/70">Outcome:</span> {outcomeText}
+                            </span>
+                            <span>
+                              <span className="text-foreground/70">Scanner:</span>{" "}
+                              {scanLog.scanner.displayName ?? scanLog.scanner.email ?? "—"}
+                            </span>
+                            <span>
+                              <span className="text-foreground/70">Explanation:</span>{" "}
+                              {explanationStatusLabel[scanLog.explanationStatus]}
+                            </span>
+                          </div>
 
                           {scanLog.explanationText ? (
-                            <div className="bg-muted/60 border-l-2 border-sky-600 px-3 py-2 text-sm">
-                              <p className="font-medium">Explanation preview</p>
-                              <p className="text-muted-foreground mt-1 line-clamp-3">
-                                {scanLog.explanationText}
-                              </p>
-                            </div>
+                            <p className="text-muted-foreground border-l-2 border-sky-600/60 pl-3 text-sm line-clamp-2">
+                              {scanLog.explanationText}
+                            </p>
                           ) : null}
                         </article>
                       );
@@ -432,19 +379,14 @@ function AdminReviewContent({ fixtureMode = false }: { fixtureMode?: boolean }) 
           <Card data-testid="scan-log-detail" className="xl:sticky xl:top-6">
             <CardHeader>
               <CardTitle>Log detail</CardTitle>
-              <CardDescription>Review the selected scan.</CardDescription>
             </CardHeader>
             <CardContent>
               {selectedScanLogId === null ? (
-                <p className="text-sm text-muted-foreground">
-                  Select a scan log to inspect the full review detail.
-                </p>
+                <p className="text-sm text-muted-foreground">Select an event to see details.</p>
               ) : selectedScanLogDetail === undefined ? (
-                <p className="text-sm text-muted-foreground">Loading scan log detail…</p>
+                <p className="text-sm text-muted-foreground">Loading…</p>
               ) : selectedScanLogDetail === null ? (
-                <p className="text-sm text-muted-foreground">
-                  This scan log is no longer available.
-                </p>
+                <p className="text-sm text-muted-foreground">This event is no longer available.</p>
               ) : (
                 <ScanLogDetailPanel
                   scanLogId={selectedScanLogId}
@@ -475,8 +417,8 @@ function AuthenticatedDashboard() {
 }
 
 function ScanLogDetailPanel({
-  scanLogId,
-  selectedScanLog,
+  scanLogId: _scanLogId,
+  selectedScanLog: _selectedScanLog,
   detail,
 }: {
   scanLogId: Id<"scanLogs">;
@@ -485,133 +427,92 @@ function ScanLogDetailPanel({
 }) {
   const failureSummary = getFailureSummary(detail.scanLog.failureReasons);
   const explanationText = detail.scanLog.explanationText;
+  const verifiedAt = dateTimeFormatter.format(detail.scanLog.createdAt);
 
   return (
-    <div className="grid gap-5 text-sm">
+    <div className="grid gap-6 text-sm">
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge result={detail.scanLog.result} />
-        <InfoBadge label={explanationStatusLabel[detail.scanLog.explanationStatus]} />
-        <InfoBadge label={detail.scanLog.metadata.scanType.toUpperCase()} />
+        <span className="text-muted-foreground text-xs">{verifiedAt}</span>
       </div>
 
-      <section className="grid gap-3 border p-4">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.18em]">Deterministic review</h3>
+      <DetailSection title="Result">
         <ReviewField
-          label="Result"
-          value={detail.scanLog.result === "pass" ? "Pass" : "Fail"}
-          detail={detail.scanLog.result === "pass" ? "Medication cleared" : failureSummary}
+          label={detail.scanLog.result === "pass" ? "Pass" : "Fail"}
+          value={detail.scanLog.result === "pass" ? "Medication cleared" : failureSummary}
         />
-        <div className="grid gap-2">
-          <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
-            Failure reasons
-          </p>
-          {detail.scanLog.failureReasons.length > 0 ? (
-            <ul className="grid gap-2">
-              {detail.scanLog.failureReasons.map((reason) => (
-                <li key={reason} className="bg-muted border px-3 py-2">
-                  {failureReasonLabel[reason]}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="text-muted-foreground border px-3 py-2">No deterministic failures.</div>
-          )}
-        </div>
-      </section>
+        {detail.scanLog.failureReasons.length > 0 ? (
+          <ul className="grid gap-2">
+            {detail.scanLog.failureReasons.map((reason) => (
+              <li key={reason} className="bg-muted/60 rounded-md border px-3 py-2 text-sm">
+                {failureReasonLabel[reason]}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </DetailSection>
 
-      <section className="grid gap-3 border p-4">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.18em]">Explanation</h3>
+      <DetailSection title="Explanation">
         <ReviewField
-          label="Status"
-          value={explanationStatusLabel[detail.scanLog.explanationStatus]}
-          detail={detail.scanLog.explanationModel ?? "No model recorded"}
+          label={explanationStatusLabel[detail.scanLog.explanationStatus]}
+          value={explanationText ?? getExplanationEmptyState(detail.scanLog.explanationStatus)}
         />
-        <div className="grid gap-2">
-          <p className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
-            Explanation text
-          </p>
-          <div className="bg-muted/60 border px-3 py-3 text-sm">
-            {explanationText ?? getExplanationEmptyState(detail.scanLog.explanationStatus)}
-          </div>
-        </div>
-      </section>
+      </DetailSection>
 
-      <section className="grid gap-3 border p-4">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.18em]">Linked records</h3>
+      <DetailSection title="Patient">
         <ReviewField
-          label="Patient"
-          value={detail.patient?.displayName ?? "Patient record missing"}
-          detail={
-            detail.patient
-              ? `${detail.patient.mrn} • DOB ${detail.patient.dob}`
-              : detail.scanLog.scannedToken
-          }
+          label={detail.patient?.displayName ?? "Patient record missing"}
+          value={detail.patient ? `MRN ${detail.patient.mrn} • DOB ${detail.patient.dob}` : "—"}
         />
+        {detail.patient ? (
+          <ReviewField
+            label="Allergies"
+            value={
+              detail.patient.allergyLabels.length > 0
+                ? detail.patient.allergyLabels.join(", ")
+                : "None recorded"
+            }
+          />
+        ) : null}
+      </DetailSection>
+
+      <DetailSection title="Medication">
         <ReviewField
-          label="Medication"
-          value={detail.medication?.displayName ?? "Medication record missing"}
-          detail={
+          label={detail.medication?.displayName ?? "Medication record missing"}
+          value={
             detail.medication
               ? [detail.medication.dose, detail.medication.route, detail.medication.frequency]
                   .filter(Boolean)
-                  .join(" • ") || detail.medication.rxNormCode
-              : "No linked medication record"
+                  .join(" • ") || "—"
+              : "—"
           }
         />
-        <ReviewField
-          label="Scanner"
-          value={detail.scanner.displayName ?? detail.scanner.email ?? "Unknown user"}
-          detail={detail.scanner.email ?? detail.scanner.authUserId}
-        />
-        <ReviewField
-          label="Wristband"
-          value={detail.wristband?.token ?? detail.scanLog.scannedToken}
-          detail={
-            detail.wristband
-              ? `${detail.wristband.tokenType.toUpperCase()} • ${detail.wristband.isActive ? "Active" : "Inactive"}`
-              : "No linked wristband record"
-          }
-        />
-      </section>
+      </DetailSection>
 
-      <section className="grid gap-3 border p-4">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.18em]">Event metadata</h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <ReviewField label="Log ID" value={scanLogId} detail="Stable review reference" />
-          <ReviewField
-            label="Verified at"
-            value={dateTimeFormatter.format(detail.scanLog.createdAt)}
-            detail={dateFormatter.format(detail.scanLog.createdAt)}
-          />
-          <ReviewField
-            label="Decision version"
-            value={detail.scanLog.deterministicDecisionVersion}
-            detail="Deterministic ruleset authority"
-          />
-          <ReviewField
-            label="Device"
-            value={detail.scanLog.metadata.deviceId ?? "No device recorded"}
-            detail={detail.scanLog.metadata.scanType.toUpperCase()}
-          />
-          <ReviewField
-            label="Scanned token"
-            value={detail.scanLog.scannedToken}
-            detail={selectedScanLog?.patient?.mrn ?? "Stored with every scan event"}
-          />
-          <ReviewField
-            label="Patient allergies"
-            value={detail.patient?.allergyLabels.join(", ") || "No allergies recorded"}
-            detail={detail.patient?.allergyCodes.join(", ") || "No allergy codes recorded"}
-          />
-        </div>
-      </section>
+      <DetailSection title="Scanner">
+        <ReviewField
+          label={detail.scanner.displayName ?? detail.scanner.email ?? "Unknown user"}
+          value={detail.scanner.email ?? ""}
+        />
+      </DetailSection>
     </div>
+  );
+}
+
+function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="grid gap-3">
+      <h3 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+        {title}
+      </h3>
+      <div className="grid gap-3">{children}</div>
+    </section>
   );
 }
 
 function FilterField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+    <label className="grid gap-1.5 text-xs font-medium text-muted-foreground">
       <span>{label}</span>
       {children}
     </label>
@@ -630,12 +531,12 @@ function MetricCard({
   return (
     <div
       className={cn(
-        "grid gap-1 border px-4 py-3",
+        "grid gap-1 rounded-md border px-4 py-3",
         tone === "pass" && "border-emerald-700/40 bg-emerald-500/5",
         tone === "fail" && "border-red-700/40 bg-red-500/5",
       )}
     >
-      <span className="text-muted-foreground text-xs uppercase tracking-[0.18em]">{label}</span>
+      <span className="text-muted-foreground text-xs font-medium">{label}</span>
       <span className="text-2xl font-semibold">{value}</span>
     </div>
   );
@@ -645,27 +546,22 @@ function StatusBadge({ result }: { result: "pass" | "fail" }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center border px-2 py-1 text-xs font-medium uppercase tracking-[0.18em]",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
         result === "pass"
-          ? "border-emerald-700/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-          : "border-red-700/40 bg-red-500/10 text-red-700 dark:text-red-300",
+          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+          : "bg-red-500/10 text-red-700 dark:text-red-300",
       )}
     >
-      {result}
+      {result === "pass" ? "Pass" : "Fail"}
     </span>
   );
 }
 
-function InfoBadge({ label }: { label: string }) {
-  return <span className="bg-muted text-muted-foreground border px-2 py-1 text-xs">{label}</span>;
-}
-
-function ReviewField({ label, value, detail }: { label: string; value: string; detail: string }) {
+function ReviewField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid gap-1">
-      <dt className="text-muted-foreground text-xs uppercase tracking-[0.18em]">{label}</dt>
-      <dd className="font-medium break-words">{value}</dd>
-      <dd className="text-muted-foreground break-words">{detail}</dd>
+    <div className="grid gap-0.5">
+      <dt className="font-medium break-words">{label}</dt>
+      <dd className="text-muted-foreground break-words">{value}</dd>
     </div>
   );
 }

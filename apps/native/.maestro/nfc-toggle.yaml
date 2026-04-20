@@ -1,0 +1,31 @@
+appId: com.meditag.native
+env:
+  MAESTRO_NURSE_EMAIL: "nurse-demo@meditag.test"
+  MAESTRO_NURSE_PASSWORD: "meditag-demo-123"
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: subflows/sign-in.yaml
+- tapOn:
+    id: start-wristband-scan-button
+- assertVisible: "Scan patient wristband"
+- assertVisible:
+    id: scan-mode-qr
+- assertVisible:
+    id: scan-mode-nfc
+- tapOn:
+    id: scan-mode-nfc
+- extendedWaitUntil:
+    visible:
+      id: nfc-unavailable-surface
+    timeout: 10000
+- assertVisible: "NFC unavailable"
+- assertVisible: "Encode new tag"
+- tapOn:
+    id: scan-mode-qr
+- extendedWaitUntil:
+    visible: "Simulator demo wristbands"
+    timeout: 10000
+- assertVisible:
+    id: demo-wristband-WRISTBAND-SAFE-QR-001

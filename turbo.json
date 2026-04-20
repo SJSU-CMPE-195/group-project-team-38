@@ -13,6 +13,13 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
+    "test": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+    },
+    "coverage": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["../../docs/evaluation/coverage-report/backend/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
@@ -27,6 +34,10 @@
       "outputs": ["playwright-report/**", "test-results/**"]
     },
     "e2e:demo": {
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+    },
+    "e2e:nfc-toggle": {
       "cache": false,
       "inputs": ["$TURBO_DEFAULT$", ".env*"]
     }

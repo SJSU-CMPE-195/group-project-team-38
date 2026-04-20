@@ -14,6 +14,7 @@ appId: com.meditag.native
 - tapOn:
     text: "OK"
     optional: true
+- assertVisible: "Nurse workflow"
+- assertVisible: "Ready to verify"
 - assertVisible:
-    id: welcome-login-button
-- assertVisible: "Log In"
+    id: start-wristband-scan-button
