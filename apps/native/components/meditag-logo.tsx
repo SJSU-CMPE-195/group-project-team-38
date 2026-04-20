@@ -10,12 +10,12 @@ export function MediTagLogo({ size = "lg" }: MediTagLogoProps) {
   return (
     <View className="items-center gap-4">
       <View
-        className={`items-center justify-center rounded-[28px] border border-primary/20 bg-primary/10 ${
+        className={`items-center justify-center rounded-[28px] border border-accent bg-accent-soft ${
           isLarge ? "h-28 w-28" : "h-20 w-20"
         }`}
       >
         <Text
-          className={`${isLarge ? "text-4xl" : "text-3xl"} font-bold tracking-tight text-primary`}
+          className={`${isLarge ? "text-4xl" : "text-3xl"} font-bold tracking-tight text-accent`}
         >
           M
         </Text>

@@ -84,13 +84,6 @@ export function SignUp() {
 
   return (
     <Surface variant="secondary" className="rounded-2xl p-5">
-      <View className="mb-5 gap-1">
-        <Text className="text-lg font-semibold text-foreground">New account</Text>
-        <Text className="text-sm leading-6 text-muted">
-          This is only used to access the prototype workflow.
-        </Text>
-      </View>
-
       <form.Subscribe
         selector={(state) => ({
           isSubmitting: state.isSubmitting,

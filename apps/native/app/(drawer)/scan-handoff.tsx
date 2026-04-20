@@ -88,8 +88,8 @@ export default function ScanHandoffScreen() {
 
   if (!scannedToken) {
     return (
-      <Container className="px-6 pb-6">
-        <View className="py-8 gap-5">
+      <Container className="px-6">
+        <View className="py-6 gap-5">
           <View className="gap-2">
             <Text className="text-2xl font-semibold tracking-tight text-foreground">
               No wristband scanned
@@ -106,8 +106,8 @@ export default function ScanHandoffScreen() {
 
   if (!isAuthenticated) {
     return (
-      <Container className="px-6 pb-6">
-        <View className="py-8 gap-5">
+      <Container className="px-6">
+        <View className="py-6 gap-5">
           <View className="gap-2">
             <Text className="text-2xl font-semibold tracking-tight text-foreground">
               Sign in required
@@ -128,7 +128,7 @@ export default function ScanHandoffScreen() {
 
   if (scanContext === undefined) {
     return (
-      <Container className="px-6 pb-6">
+      <Container className="px-6">
         <View className="flex-1 items-center justify-center gap-3 py-12">
           <Spinner size="sm" color="default" />
           <Text className="text-sm text-muted">Loading patient record…</Text>
@@ -139,8 +139,8 @@ export default function ScanHandoffScreen() {
 
   if (scanContext.status === "unknown_wristband") {
     return (
-      <Container className="px-6 pb-6">
-        <View className="py-8 gap-5">
+      <Container className="px-6">
+        <View className="py-6 gap-5">
           <View className="gap-2">
             <Text className="text-2xl font-semibold tracking-tight text-foreground">
               Unknown wristband
@@ -159,8 +159,8 @@ export default function ScanHandoffScreen() {
 
   if (scanContext.status === "inactive_wristband") {
     return (
-      <Container className="px-6 pb-6">
-        <View className="py-8 gap-5">
+      <Container className="px-6">
+        <View className="py-6 gap-5">
           <View className="gap-2">
             <Text className="text-2xl font-semibold tracking-tight text-foreground">
               Inactive wristband
@@ -199,7 +199,7 @@ export default function ScanHandoffScreen() {
               </Text>
             </View>
 
-            <Surface variant="secondary" className="rounded-2xl p-5">
+            <Surface variant="secondary" className="rounded-2xl border border-border p-5">
               <View className="gap-3">
                 <Text className="text-lg font-semibold text-foreground">
                   {scanContext.patient.displayName}
@@ -220,7 +220,7 @@ export default function ScanHandoffScreen() {
             </Surface>
 
             {scanContext.medications.length === 0 ? (
-              <Surface variant="secondary" className="rounded-2xl p-5">
+              <Surface variant="secondary" className="rounded-2xl border border-border p-5">
                 <View className="gap-3">
                   <Text className="text-base font-semibold text-foreground">
                     No active medications
@@ -255,8 +255,8 @@ export default function ScanHandoffScreen() {
                         }}
                         className={`rounded-2xl border p-4 ${
                           isSelected
-                            ? "border-primary bg-primary/10"
-                            : "border-default-200 bg-background"
+                            ? "border-accent bg-accent-soft"
+                            : "border-border bg-background"
                         }`}
                       >
                         <View className="gap-1">
@@ -274,7 +274,7 @@ export default function ScanHandoffScreen() {
           </View>
         </ScrollView>
 
-        <View className="absolute inset-x-0 bottom-0 border-t border-default-200 bg-background px-6 pb-6 pt-4">
+        <View className="absolute inset-x-0 bottom-0 border-t border-border bg-background px-6 pb-6 pt-4">
           <View className="gap-2">
             {selectedMedication ? (
               <View className="pb-1">

@@ -53,8 +53,8 @@ export default function Home() {
   const greetingName = user?.name?.trim().split(" ")[0];
 
   return (
-    <Container className="px-6 pb-6">
-      <View className="flex-1 justify-between py-8">
+    <Container className="px-6">
+      <View className="flex-1 justify-between py-6">
         <View className="gap-8">
           <View className="items-center">
             <MediTagLogo size="sm" />
@@ -88,7 +88,7 @@ export default function Home() {
               </Button>
             </View>
           ) : hasWorkspaceUser ? (
-            <Surface variant="secondary" className="rounded-2xl p-5">
+            <Surface variant="secondary" className="rounded-2xl border border-border p-5">
               <View className="gap-3">
                 <Text className="text-base font-medium text-foreground">
                   Setting up your account

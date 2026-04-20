@@ -16,6 +16,7 @@ function NurseWorkflowLayout() {
           fontWeight: "600",
           color: themeColorForeground,
         },
+        headerShadowVisible: false,
         contentStyle: { backgroundColor: themeColorBackground },
         freezeOnBlur: true,
       }}
@@ -31,7 +32,7 @@ function NurseWorkflowLayout() {
       <Stack.Screen
         name="scan"
         options={{
-          title: "Scan wristband",
+          headerTitle: "",
           animation: "none",
           gestureEnabled: false,
         }}
@@ -39,7 +40,7 @@ function NurseWorkflowLayout() {
       <Stack.Screen
         name="scan-handoff"
         options={{
-          title: "Medication selection",
+          headerTitle: "",
           animation: "none",
           gestureEnabled: false,
         }}
@@ -47,7 +48,7 @@ function NurseWorkflowLayout() {
       <Stack.Screen
         name="verify"
         options={{
-          title: "Verify medication",
+          headerTitle: "",
           animation: "none",
           gestureEnabled: false,
         }}

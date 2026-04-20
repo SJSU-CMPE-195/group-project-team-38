@@ -172,8 +172,8 @@ export default function VerifyScreen() {
 
   if (!isAuthenticated) {
     return (
-      <Container className="px-6 pb-6">
-        <View className="py-8 gap-5">
+      <Container className="px-6">
+        <View className="py-6 gap-5">
           <View className="gap-2">
             <Text className="text-2xl font-semibold tracking-tight text-foreground">
               Sign in required
@@ -202,8 +202,8 @@ export default function VerifyScreen() {
           : "Pending";
 
   return (
-    <Container className="px-6 pb-6">
-      <View className="py-8 gap-6">
+    <Container className="px-6">
+      <View className="py-6 gap-6">
         <View className="gap-2">
           <Text
             testID="verify-screen-title"
@@ -216,7 +216,7 @@ export default function VerifyScreen() {
           </Text>
         </View>
 
-        <Surface variant="secondary" className="rounded-2xl p-5">
+        <Surface variant="secondary" className="rounded-2xl border border-border p-5">
           <View className="gap-4">
             <View className="gap-1">
               <Text className="text-xs text-muted">Patient</Text>
@@ -253,7 +253,7 @@ export default function VerifyScreen() {
         </Button>
 
         {actionError ? (
-          <Surface variant="secondary" className="rounded-2xl border border-danger/40 p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-danger p-5">
             <View className="gap-2">
               <Text className="text-base font-semibold text-danger">Something went wrong</Text>
               <Text className="text-sm leading-6 text-muted">{actionError}</Text>
@@ -266,8 +266,8 @@ export default function VerifyScreen() {
             variant="secondary"
             className={`rounded-2xl border p-5 ${
               verificationResult.result === "pass"
-                ? "border-success/40 bg-success/10"
-                : "border-danger/40 bg-danger/10"
+                ? "border-success bg-success-soft"
+                : "border-danger bg-danger-soft"
             }`}
           >
             <View className="gap-4">
@@ -293,7 +293,10 @@ export default function VerifyScreen() {
                       const copy = failureReasonCopy[reason];
 
                       return (
-                        <View key={reason} className="rounded-xl bg-background/80 p-4 gap-1">
+                        <View
+                          key={reason}
+                          className="rounded-xl border border-border bg-background p-4 gap-1"
+                        >
                           <Text className="text-sm font-semibold text-foreground">
                             {copy.label}
                           </Text>
@@ -309,7 +312,7 @@ export default function VerifyScreen() {
         ) : null}
 
         {verificationResult?.result === "fail" ? (
-          <Surface variant="secondary" className="rounded-2xl p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-border p-5">
             <View className="gap-4">
               <View className="gap-1">
                 <Text className="text-base font-semibold text-foreground">More detail</Text>
@@ -339,7 +342,7 @@ export default function VerifyScreen() {
               ) : null}
 
               {explanationScanLogId && effectiveExplanationStatus !== "none" ? (
-                <View className="gap-2 rounded-xl bg-background px-4 py-4">
+                <View className="gap-2 rounded-xl border border-border bg-background px-4 py-4">
                   <Text className="text-sm font-semibold text-foreground">
                     AI explanation requested
                   </Text>
