@@ -23,7 +23,7 @@ export default function WelcomeScreen() {
         </View>
 
         <View className="gap-3">
-          <Text className="text-center text-sm uppercase tracking-[2px] text-primary">
+          <Text className="text-center text-sm uppercase tracking-[2px] text-accent">
             Nurse demo workflow
           </Text>
           <Button

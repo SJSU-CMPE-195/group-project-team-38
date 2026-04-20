@@ -66,6 +66,8 @@ function StackLayout() {
         name="sign-in"
         options={{
           title: "Log In",
+          headerBackTitle: " ",
+          headerBackButtonDisplayMode: "minimal",
           animation: isAuthenticated && isInGuestFlow ? "none" : "default",
         }}
       />
@@ -73,6 +75,8 @@ function StackLayout() {
         name="sign-up"
         options={{
           title: "Create Account",
+          headerBackTitle: " ",
+          headerBackButtonDisplayMode: "minimal",
           animation: isAuthenticated && isInGuestFlow ? "none" : "default",
         }}
       />

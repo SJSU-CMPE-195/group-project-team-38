@@ -1,7 +1,7 @@
 import { Redirect, Stack, router } from "expo-router";
-import { Button, Surface } from "heroui-native";
+import { Button } from "heroui-native";
 import { useConvexAuth } from "convex/react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 import { Container } from "@/components/container";
 import { MediTagLogo } from "@/components/meditag-logo";
@@ -18,25 +18,12 @@ export default function SignUpScreen() {
     <Container className="px-4 pb-4">
       <Stack.Screen options={{ title: "Create Account" }} />
 
-      <View className="flex-1 justify-between py-6">
-        <View className="gap-6">
-          <View className="items-center pt-4">
-            <MediTagLogo size="sm" />
-          </View>
-
-          <Surface variant="secondary" className="rounded-xl p-5">
-            <View className="gap-2">
-              <Text className="text-2xl font-semibold tracking-tight text-foreground">
-                Create your account
-              </Text>
-              <Text className="text-sm leading-6 text-muted">
-                Set up a MediTag login so you can move straight into the nurse verification flow.
-              </Text>
-            </View>
-          </Surface>
-
-          <SignUp />
+      <View className="gap-6 py-6">
+        <View className="items-center pt-4">
+          <MediTagLogo size="sm" />
         </View>
+
+        <SignUp />
 
         <Button
           variant="secondary"

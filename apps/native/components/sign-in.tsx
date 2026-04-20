@@ -116,13 +116,6 @@ export function SignIn() {
 
   return (
     <Surface variant="secondary" className="rounded-2xl p-5">
-      <View className="mb-5 gap-1">
-        <Text className="text-lg font-semibold text-foreground">Account</Text>
-        <Text className="text-sm leading-6 text-muted">
-          Use your own credentials or the seeded nurse demo account.
-        </Text>
-      </View>
-
       <form.Subscribe
         selector={(state) => ({
           isSubmitting: state.isSubmitting,

@@ -5,7 +5,7 @@ import {
   type CameraMountError,
   useCameraPermissions,
 } from "expo-camera";
-import Constants from "expo-constants";
+import * as Device from "expo-device";
 import { router } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -54,7 +54,7 @@ export default function ScanEntryScreen() {
   const [scannedToken, setScannedToken] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanMode, setScanMode] = useState<ScanMode>("qr");
-  const isIosSimulator = Platform.OS === "ios" && !Constants.isDevice;
+  const isIosSimulator = Platform.OS === "ios" && Device.isDevice === false;
 
   const scanState = useMemo(() => {
     if (scannedToken) {
@@ -125,8 +125,8 @@ export default function ScanEntryScreen() {
   }, []);
 
   return (
-    <Container className="px-6 pb-6">
-      <View className="py-8 gap-6">
+    <Container className="px-6">
+      <View className="py-6 gap-6">
         <View className="gap-2">
           <Text
             testID="scan-screen-title"
@@ -144,7 +144,7 @@ export default function ScanEntryScreen() {
         {!scannedToken ? <ScanModeToggle mode={scanMode} onChange={setScanMode} /> : null}
 
         {scanState === "simulator-demo" ? (
-          <Surface variant="secondary" className="rounded-2xl p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-border p-5">
             <View className="gap-3">
               <Text className="text-base font-semibold text-foreground">
                 Simulator demo wristbands
@@ -177,7 +177,7 @@ export default function ScanEntryScreen() {
         ) : null}
 
         {scanState === "permission-required" ? (
-          <Surface variant="secondary" className="rounded-2xl p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-border p-5">
             <View className="gap-3">
               <Text className="text-base font-semibold text-foreground">Camera access needed</Text>
               <Text className="text-sm leading-6 text-muted">
@@ -191,7 +191,7 @@ export default function ScanEntryScreen() {
         ) : null}
 
         {scanState === "permission-denied" ? (
-          <Surface variant="secondary" className="rounded-2xl p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-border p-5">
             <View className="gap-3">
               <Text className="text-base font-semibold text-foreground">Camera access denied</Text>
               <Text className="text-sm leading-6 text-muted">
@@ -210,7 +210,7 @@ export default function ScanEntryScreen() {
         ) : null}
 
         {scanState === "camera-error" ? (
-          <Surface variant="secondary" className="rounded-2xl p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-border p-5">
             <View className="gap-3">
               <Text className="text-base font-semibold text-foreground">Scanner unavailable</Text>
               <Text className="text-sm leading-6 text-muted">
@@ -233,6 +233,7 @@ export default function ScanEntryScreen() {
                 onBarcodeScanned={handleBarcodeScanned}
                 onMountError={handleCameraError}
               />
+              <ScanReticle />
             </View>
             <Text className="text-center text-sm text-muted">
               Scanning stops automatically after capture.
@@ -245,7 +246,7 @@ export default function ScanEntryScreen() {
         ) : null}
 
         {scanState === "captured" && scannedToken ? (
-          <Surface variant="secondary" className="rounded-2xl p-5">
+          <Surface variant="secondary" className="rounded-2xl border border-border p-5">
             <View className="gap-4">
               <Text className="text-xl font-semibold text-foreground">Wristband captured</Text>
               <Text className="text-sm leading-6 text-muted">
@@ -301,7 +302,7 @@ function ScanModeToggle({
   return (
     <View
       accessibilityRole="tablist"
-      className="flex-row gap-2 rounded-2xl border border-default-200 bg-background p-1"
+      className="flex-row gap-2 rounded-2xl border border-border bg-surface-secondary p-1"
     >
       {options.map((option) => {
         const isSelected = option.id === mode;
@@ -314,7 +315,7 @@ function ScanModeToggle({
             accessibilityLabel={`Switch to ${option.label} scan mode`}
             onPress={() => onChange(option.id)}
             className={`flex-1 items-center rounded-xl px-3 py-2 ${
-              isSelected ? "bg-primary/10" : ""
+              isSelected ? "bg-background" : ""
             }`}
           >
             <Text
@@ -325,6 +326,20 @@ function ScanModeToggle({
           </Pressable>
         );
       })}
+    </View>
+  );
+}
+
+function ScanReticle() {
+  const corner = "absolute h-8 w-8 border-white";
+  return (
+    <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
+      <View className="relative h-3/5 w-4/5">
+        <View className={`${corner} left-0 top-0 rounded-tl-xl border-l-[3px] border-t-[3px]`} />
+        <View className={`${corner} right-0 top-0 rounded-tr-xl border-r-[3px] border-t-[3px]`} />
+        <View className={`${corner} bottom-0 left-0 rounded-bl-xl border-b-[3px] border-l-[3px]`} />
+        <View className={`${corner} bottom-0 right-0 rounded-br-xl border-b-[3px] border-r-[3px]`} />
+      </View>
     </View>
   );
 }
@@ -366,7 +381,11 @@ function NfcPanel({
 
   if (!nfc) {
     return (
-      <Surface testID="nfc-unavailable-surface" variant="secondary" className="rounded-2xl p-5">
+      <Surface
+        testID="nfc-unavailable-surface"
+        variant="secondary"
+        className="rounded-2xl border border-border p-5"
+      >
         <View className="gap-2">
           <Text className="text-base font-semibold text-foreground">NFC unavailable</Text>
           <Text className="text-sm leading-6 text-muted">
@@ -453,7 +472,7 @@ function NfcPanel({
 
   return (
     <View className="gap-3">
-      <Surface variant="secondary" className="rounded-2xl p-5">
+      <Surface variant="secondary" className="rounded-2xl border border-border p-5">
         <View className="gap-3">
           <Text className="text-base font-semibold text-foreground">Tap wristband to scan</Text>
           <Text className="text-sm leading-6 text-muted">
@@ -466,7 +485,7 @@ function NfcPanel({
       </Surface>
 
       {status.kind === "error" ? (
-        <Surface variant="secondary" className="rounded-2xl p-5">
+        <Surface variant="secondary" className="rounded-2xl border border-danger p-5">
           <View className="gap-3">
             <Text className="text-base font-semibold text-foreground">NFC error</Text>
             <Text className="text-sm leading-6 text-muted">{status.message}</Text>
@@ -478,7 +497,7 @@ function NfcPanel({
       ) : null}
 
       {status.kind === "wrote" ? (
-        <Surface variant="secondary" className="rounded-2xl p-5">
+        <Surface variant="secondary" className="rounded-2xl border border-success p-5">
           <View className="gap-2">
             <Text className="text-base font-semibold text-foreground">Tag encoded</Text>
             <Text className="text-sm leading-6 text-muted">Wrote {status.token} to the tag.</Text>
@@ -486,7 +505,7 @@ function NfcPanel({
         </Surface>
       ) : null}
 
-      <Surface variant="secondary" className="rounded-2xl p-5">
+      <Surface variant="secondary" className="rounded-2xl border border-border p-5">
         <View className="gap-3">
           <Pressable
             accessibilityRole="button"
@@ -511,7 +530,7 @@ function NfcPanel({
                 autoCapitalize="characters"
                 autoCorrect={false}
                 editable={!isBusy}
-                className="rounded-xl border border-default-200 bg-background px-4 py-3 text-base text-foreground"
+                className="rounded-xl border border-border bg-background px-4 py-3 text-base text-foreground"
               />
               <Button
                 testID="nfc-write-button"

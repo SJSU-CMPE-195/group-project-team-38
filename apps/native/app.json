@@ -28,7 +28,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.meditag.native",
-      "buildNumber": "5",
+      "buildNumber": "6",
       "appleTeamId": "NYF9WZVVQ9",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow Meditag to scan patient QR wristbands during the nurse verification flow.",
