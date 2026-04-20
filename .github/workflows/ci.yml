@@ -82,7 +82,6 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Pull Vercel environment
-        working-directory: apps/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -90,7 +89,6 @@ jobs:
         run: bunx vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
 
       - name: Build Vercel deployment
-        working-directory: apps/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -100,7 +98,6 @@ jobs:
         run: bunx vercel build --token="$VERCEL_TOKEN"
 
       - name: Deploy to staging
-        working-directory: apps/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
