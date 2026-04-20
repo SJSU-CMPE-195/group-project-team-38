@@ -19,6 +19,8 @@ test.describe("admin review dashboard", () => {
     await page.goto("/dashboard?fixture=admin-review");
 
     const list = page.getByTestId("scan-log-list");
+    await expect(list).toBeVisible();
+    await expect(list).toContainText("Demo Conflict Patient");
 
     await page.getByTestId("scan-log-search").fill("Acetaminophen");
     await expect(list).toContainText("Demo Safe Patient");
@@ -41,6 +43,9 @@ test.describe("admin review dashboard", () => {
     await page.goto("/dashboard?fixture=admin-review");
 
     const list = page.getByTestId("scan-log-list");
+    await expect(list).toBeVisible();
+    await expect(list).toContainText("Demo Safe Patient");
+
     await page.getByTestId("scan-log-from-date").fill("2026-03-19");
     await page.getByTestId("scan-log-to-date").fill("2026-03-19");
 
