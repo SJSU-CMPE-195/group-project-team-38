@@ -11,7 +11,10 @@
     "prebuild": "expo prebuild",
     "web": "expo start --web",
     "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "e2e": "bun run e2e:prepare && bun run e2e:smoke",
+    "e2e:nfc-toggle": "bun run e2e:prepare && MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/nfc-toggle.yaml",
     "e2e:auth-cycle": "MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/auth-cycle.yaml",
     "e2e:prepare": "bun ./scripts/e2e-prepare-ios.mjs",
     "e2e:smoke": "MAESTRO_DRIVER_STARTUP_TIMEOUT=180000 maestro test .maestro/smoke.yaml",
@@ -50,6 +53,7 @@
     "react-native": "0.81.5",
     "react-native-gesture-handler": "^2.28.0",
     "react-native-keyboard-controller": "1.18.5",
+    "react-native-nfc-manager": "^3.17.2",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
@@ -63,9 +67,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@expo/config-plugins": "^55.0.8",
     "@meditag/config": "workspace:*",
     "@types/node": "^24.10.0",
     "@types/react": "~19.1.0",
-    "typescript": "catalog:"
+    "@vitest/coverage-v8": "^4.1.4",
+    "typescript": "catalog:",
+    "vitest": "^4.1.4"
   }
 }

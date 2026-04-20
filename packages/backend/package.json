@@ -10,6 +10,7 @@
     "seed:demo": "convex run --push seed:seedDemoData",
     "check-types": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@meditag/config": "workspace:*",
     "@types/node": "^24.3.0",
+    "@vitest/coverage-v8": "4.0.18",
     "convex-test": "^0.0.41",
     "typescript": "catalog:",
     "vite": "^8.0.8",

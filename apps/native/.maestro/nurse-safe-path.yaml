@@ -13,16 +13,24 @@ env:
 - assertVisible: "Simulator demo wristbands"
 - tapOn:
     id: demo-wristband-WRISTBAND-SAFE-QR-001
-- assertVisible: "Wristband token captured"
+- assertVisible: "Wristband captured"
 - tapOn:
     id: continue-with-wristband-button
 - extendedWaitUntil:
     visible:
       id: scan-handoff-screen-title
     timeout: 20000
-- assertVisible: "Patient name: Demo Safe Patient"
+- assertVisible: "Demo Safe Patient"
+- scrollUntilVisible:
+    element:
+      id: medication-option-161
+    direction: DOWN
+    timeout: 20000
 - tapOn:
     id: medication-option-161
+- extendedWaitUntil:
+    visible: "Selected medication"
+    timeout: 20000
 - extendedWaitUntil:
     visible:
       id: continue-to-verification-button
@@ -36,6 +44,6 @@ env:
 - tapOn:
     id: run-deterministic-verification-button
 - extendedWaitUntil:
-    visible: "PASS — Safe to proceed"
+    visible: "PASS"
     timeout: 20000
-- assertVisible: "The selected medication matches the scanned patient context and no deterministic allergy conflict was found."
+- assertVisible: "The medication matches the patient record and no allergy conflict was found."

@@ -8,6 +8,8 @@
     },
     "name": "meditag",
     "slug": "meditag",
+    "owner": "gursheys",
+    "version": "1.0.0",
     "plugins": [
       "expo-font",
       [
@@ -15,17 +17,40 @@
         {
           "cameraPermission": "Allow Meditag to scan patient QR wristbands during the nurse verification flow."
         }
+      ],
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "Allow Meditag to read patient NFC wristbands during the nurse verification flow.",
+          "includeNdefEntitlement": false
+        }
       ]
     ],
     "ios": {
       "bundleIdentifier": "com.meditag.native",
+      "buildNumber": "5",
+      "appleTeamId": "NYF9WZVVQ9",
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow Meditag to scan patient QR wristbands during the nurse verification flow."
+        "NSCameraUsageDescription": "Allow Meditag to scan patient QR wristbands during the nurse verification flow.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "android": {
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.NFC"
+      ],
+      "package": "com.meditag.xnative"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6367067a-3d02-4540-bd65-9e1487fb0330"
+      }
     }
   }
 }

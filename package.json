@@ -23,6 +23,9 @@
     "dev": "turbo run dev",
     "docs:list": "bun scripts/docs-list.ts",
     "build": "turbo run build",
+    "test:backend": "turbo run test --filter=@meditag/backend",
+    "test:native": "turbo run test --filter=native",
+    "coverage:backend": "turbo run coverage --filter=@meditag/backend",
     "check-types": "turbo run check-types",
     "dev:native": "turbo run dev --filter=native",
     "dev:web": "turbo run dev --filter=web",
@@ -33,6 +36,8 @@
     "test:e2e:web": "turbo run e2e --filter=web",
     "test:e2e:native": "turbo run e2e --filter=native",
     "test:e2e:native:demo": "turbo run e2e:demo --filter=native",
+    "test:e2e:native:nfc-toggle": "turbo run e2e:nfc-toggle --filter=native",
+    "stress:test:web": "bun tests/e2e/web-health-stress.mjs",
     "check": "oxlint && oxfmt --write"
   },
   "dependencies": {

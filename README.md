@@ -1,8 +1,20 @@
 # MediTag
 
-prototype demo video: https://drive.google.com/file/d/1YfGoS5vbexodfIoVxzfteH9brpYm94rh/view?usp=sharing
+[![CI](https://github.com/SJSU-CMPE-195/group-project-team-38/actions/workflows/ci.yml/badge.svg)](https://github.com/SJSU-CMPE-195/group-project-team-38/actions/workflows/ci.yml)
+![Coverage](https://img.shields.io/badge/backend%20coverage-79.8%25-yellowgreen)
+
+Prototype demo video: [Google Drive](https://drive.google.com/file/d/1YfGoS5vbexodfIoVxzfteH9brpYm94rh/view?usp=sharing)
 
 MediTag is an AI-assisted patient safety verification system for medication workflows. The prototype combines a native nurse-facing app, a web admin review dashboard, and a shared Convex backend that handles authentication, patient context, verification logic, scan logging, and optional AI-generated explanation text.
+
+## Evaluation Snapshot
+
+- CI workflow: [`.github/workflows/ci.yml`](/Users/gursh/code/group-project-team-38/.github/workflows/ci.yml)
+- Coverage report: [docs/evaluation/coverage-report](/Users/gursh/code/group-project-team-38/docs/evaluation/coverage-report/README.md)
+- Stress test report: [docs/evaluation/stress-test-results.md](/Users/gursh/code/group-project-team-38/docs/evaluation/stress-test-results.md)
+- Deployment notes: [docs/evaluation/deployment.md](/Users/gursh/code/group-project-team-38/docs/evaluation/deployment.md)
+- Current backend line coverage: `79.82%`
+- Staging deployment: configured for Vercel after repository secrets are added
 
 ## Team
 
@@ -186,13 +198,25 @@ Default local URLs:
 Validation commands:
 
 ```bash
+bun run docs:list
 bun run check
 bun run check-types
-cd packages/backend && bun run test
+bun run test:backend
+bun run coverage:backend
 bun run test:e2e:web
 bun run test:e2e:native
 bun run test:e2e:native:demo
+bun run stress:test:web -- --url=http://127.0.0.1:3001/api/health
 ```
+
+Coverage artifacts are written to `docs/evaluation/coverage-report/backend`, including a browsable HTML report at [docs/evaluation/coverage-report/backend/index.html](/Users/gursh/code/group-project-team-38/docs/evaluation/coverage-report/backend/index.html).
+
+## CI/CD and Deployment
+
+- GitHub Actions runs lint, typecheck, backend coverage, and web Playwright checks on every push and pull request.
+- The workflow uploads the backend HTML coverage report as an artifact.
+- A staging deploy job is included for Vercel and activates on pushes to `main` when the required repository secrets are configured.
+- A lightweight health endpoint is available at `/api/health` for deployment smoke checks and stress testing.
 
 ## Project Structure
 

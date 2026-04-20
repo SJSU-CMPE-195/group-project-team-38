@@ -140,10 +140,11 @@ bun run e2e:smoke
 
 ### Current smoke target
 
-The initial smoke flow only checks that the app launches and the current home screen shows:
+The current smoke flow checks that the app launches to the welcome screen and shows:
 
-- `Meditag`
-- `API Status`
+- `Safer medication checks`
+- `Nurse demo workflow`
+- the primary `Continue` CTA with `testID="welcome-login-button"`
 
 The first run can take a while because Expo may prebuild native files and compile a Release simulator build before Maestro starts. After `e2e:prepare` succeeds, `e2e:smoke` is the faster rerun path.
 
@@ -190,13 +191,35 @@ export MAESTRO_NURSE_EMAIL="nurse-demo@meditag.test"
 export MAESTRO_NURSE_PASSWORD="meditag-demo-123"
 ```
 
-You no longer need to create the admin or nurse demo accounts manually before local testing.
+You no longer need to create the admin or nurse demo accounts manually before local testing. The Maestro sign-in subflow now uses those seeded nurse credentials directly through the sign-in form, which is more stable than depending on a secondary demo CTA being visible above the fold on every simulator size.
 
 3. The scan screen exposes **Simulator demo wristbands** only on iOS Simulator. Those buttons inject the seeded tokens below without bypassing any downstream patient lookup or verification logic:
    - `WRISTBAND-SAFE-QR-001` → `Acetaminophen 500mg` → deterministic pass
    - `WRISTBAND-CONFLICT-QR-001` → `Amoxicillin 500mg` → deterministic fail + AI explanation request path
 
 If backend AI credentials are configured, the conflict flow can continue on to generated explanation text. If they are not configured, the flow still verifies that the explanation request was submitted and surfaced in the UI.
+
+## Native unit tests (Vitest)
+
+Pure helpers in `apps/native/lib/` (currently NFC token + NDEF text decoding) are covered by Vitest:
+
+```sh
+bun run test:native
+# or, from apps/native:
+bun run test
+```
+
+The suite runs in Node and does not require simulator tooling.
+
+## Native NFC toggle flow (Maestro)
+
+The NFC scan tab is exercised on simulator via `apps/native/.maestro/nfc-toggle.yaml`. It signs in, switches the scan screen between QR and NFC modes, and asserts the simulator-only "NFC unavailable" surface renders. Hardware NFC reads/writes still require a physical iPhone.
+
+```sh
+bun run test:e2e:native:nfc-toggle
+# or, from apps/native:
+bun run e2e:nfc-toggle
+```
 
 ## Practical local validation loop
 
@@ -223,6 +246,7 @@ bun run dev:native
 bun run check
 bun run check-types
 cd packages/backend && bun run test
+bun run test:native
 bun run test:e2e:web
 bun run test:e2e:native
 ```
