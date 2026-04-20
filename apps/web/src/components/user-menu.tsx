@@ -15,9 +15,11 @@ import { authClient } from "@/lib/auth-client";
 
 import { Button } from "./ui/button";
 
+const isE2EFixtureEnabled = process.env.NEXT_PUBLIC_E2E_ADMIN_FIXTURE === "1";
+
 export default function UserMenu() {
   const router = useRouter();
-  const user = useQuery(api.auth.getCurrentUser);
+  const user = useQuery(api.auth.getCurrentUser, isE2EFixtureEnabled ? "skip" : {});
 
   return (
     <DropdownMenu>
