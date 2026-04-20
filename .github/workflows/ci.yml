@@ -40,6 +40,9 @@ jobs:
         run: bunx playwright install --with-deps chromium
 
       - name: Run web end-to-end tests
+        env:
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
+          NEXT_PUBLIC_CONVEX_SITE_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_SITE_URL }}
         run: bun run test:e2e:web
 
       - name: Upload backend coverage artifact
