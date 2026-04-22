@@ -5,29 +5,15 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
 import { useMemo, useState } from "react";
 import { Text, View } from "react-native";
+import { EnrichedMarkdownText } from "react-native-enriched-markdown";
 
 import { Container } from "@/components/container";
 
 const failureReasonCopy = {
-  identity_mismatch: {
-    label: "Medication does not belong to this patient",
-    description:
-      "The selected medication is assigned to a different patient record than the scanned wristband.",
-  },
-  allergy_conflict: {
-    label: "Recorded allergy conflict",
-    description:
-      "The selected medication conflicts with at least one allergy already recorded for this patient.",
-  },
-  wristband_not_found: {
-    label: "Wristband token not recognized",
-    description: "The scanned wristband token does not map to an active patient wristband.",
-  },
-  medication_not_found: {
-    label: "Medication could not be resolved",
-    description:
-      "The selected medication is missing or inactive, so verification could not confirm a safe match.",
-  },
+  identity_mismatch: { label: "Medication does not belong to this patient" },
+  allergy_conflict: { label: "Recorded allergy conflict" },
+  wristband_not_found: { label: "Wristband not recognized" },
+  medication_not_found: { label: "Medication unavailable" },
 } as const;
 
 type FailureReason = keyof typeof failureReasonCopy;
@@ -192,15 +178,6 @@ export default function VerifyScreen() {
     );
   }
 
-  const explanationStatusCopy =
-    effectiveExplanationStatus === "requested"
-      ? "Generating…"
-      : effectiveExplanationStatus === "generated"
-        ? "Ready"
-        : effectiveExplanationStatus === "failed"
-          ? "Failed"
-          : "Pending";
-
   return (
     <Container className="px-6">
       <View className="py-6 gap-6">
@@ -210,9 +187,6 @@ export default function VerifyScreen() {
             className="text-3xl font-semibold tracking-tight text-foreground"
           >
             Review and verify
-          </Text>
-          <Text className="text-base leading-7 text-muted">
-            Confirm the patient and medication before administration.
           </Text>
         </View>
 
@@ -280,30 +254,19 @@ export default function VerifyScreen() {
               </Text>
 
               {verificationResult.result === "pass" ? (
-                <Text className="text-base leading-7 text-foreground">
-                  The medication matches the patient record and no allergy conflict was found.
-                </Text>
+                <Text className="text-base leading-7 text-foreground">Safe to administer.</Text>
               ) : (
                 <View className="gap-3">
-                  <Text className="text-base leading-7 text-foreground">
-                    Do not administer until the issues below are resolved.
-                  </Text>
-                  <View className="gap-2">
-                    {verificationResult.failureReasons.map((reason) => {
-                      const copy = failureReasonCopy[reason];
-
-                      return (
-                        <View
-                          key={reason}
-                          className="rounded-xl border border-border bg-background p-4 gap-1"
-                        >
-                          <Text className="text-sm font-semibold text-foreground">
-                            {copy.label}
-                          </Text>
-                          <Text className="text-sm leading-6 text-muted">{copy.description}</Text>
-                        </View>
-                      );
-                    })}
+                  <Text className="text-base leading-7 text-foreground">Do not administer.</Text>
+                  <View className="gap-1">
+                    {verificationResult.failureReasons.map((reason) => (
+                      <Text
+                        key={reason}
+                        className="text-sm font-semibold leading-6 text-foreground"
+                      >
+                        • {failureReasonCopy[reason].label}
+                      </Text>
+                    ))}
                   </View>
                 </View>
               )}
@@ -312,76 +275,44 @@ export default function VerifyScreen() {
         ) : null}
 
         {verificationResult?.result === "fail" ? (
-          <Surface variant="secondary" className="rounded-2xl border border-border p-5">
-            <View className="gap-4">
-              <View className="gap-1">
-                <Text className="text-base font-semibold text-foreground">More detail</Text>
-                <Text className="text-sm leading-6 text-muted">
-                  Get an AI-generated explanation for this result.
-                </Text>
-              </View>
+          <View className="gap-3">
+            {effectiveExplanationStatus === "none" ||
+            effectiveExplanationStatus === "failed" ||
+            effectiveExplanationStatus === null ? (
+              <Button
+                testID="request-ai-explanation-button"
+                accessibilityLabel="Request AI explanation"
+                variant="secondary"
+                onPress={() => void requestExplanation()}
+                isDisabled={isSubmittingVerification || isRequestingExplanation}
+              >
+                {isRequestingExplanation ? (
+                  <Spinner size="sm" color="default" />
+                ) : (
+                  <Button.Label>
+                    {effectiveExplanationStatus === "failed" ? "Try again" : "Explain"}
+                  </Button.Label>
+                )}
+              </Button>
+            ) : null}
 
-              {effectiveExplanationStatus === "none" || effectiveExplanationStatus === "failed" ? (
-                <Button
-                  testID="request-ai-explanation-button"
-                  accessibilityLabel="Request AI explanation"
-                  variant="secondary"
-                  onPress={() => void requestExplanation()}
-                  isDisabled={isSubmittingVerification || isRequestingExplanation}
-                >
-                  {isRequestingExplanation ? (
-                    <Spinner size="sm" color="default" />
-                  ) : (
-                    <Button.Label>
-                      {effectiveExplanationStatus === "failed"
-                        ? "Try again"
-                        : "Explain this result"}
-                    </Button.Label>
-                  )}
-                </Button>
-              ) : null}
-
-              {explanationScanLogId && effectiveExplanationStatus !== "none" ? (
-                <View className="gap-2 rounded-xl border border-border bg-background px-4 py-4">
-                  <Text className="text-sm font-semibold text-foreground">
-                    AI explanation requested
-                  </Text>
-                  <View className="flex-row items-baseline gap-2">
-                    <Text className="text-xs text-muted">Explanation request status</Text>
-                    <Text className="text-xs font-medium text-foreground">
-                      {explanationStatusCopy}
-                    </Text>
-                  </View>
-
-                  {effectiveExplanationStatus === "requested" || !effectiveExplanationStatus ? (
-                    <View className="flex-row items-center gap-3">
+            {effectiveExplanationStatus === "requested" ||
+            effectiveExplanationStatus === "generated" ? (
+              <Surface variant="secondary" className="rounded-2xl border border-border p-5">
+                <View className="gap-3">
+                  {explanationText && explanationText.length > 0 ? (
+                    <EnrichedMarkdownText markdown={explanationText} />
+                  ) : null}
+                  {effectiveExplanationStatus === "requested" ? (
+                    <View className="flex-row items-center gap-2">
                       <Spinner size="sm" color="default" />
-                      <Text className="flex-1 text-sm leading-6 text-muted">
-                        Generating explanation…
-                      </Text>
-                    </View>
-                  ) : null}
-
-                  {effectiveExplanationStatus === "generated" ? (
-                    <Text className="text-sm leading-6 text-foreground">
-                      {explanationText ?? "Explanation text was not returned."}
-                    </Text>
-                  ) : null}
-
-                  {effectiveExplanationStatus === "failed" ? (
-                    <View className="gap-2">
-                      <Text className="text-sm leading-6 text-muted">
-                        Explanation could not be generated.
-                      </Text>
-                      {explanationText ? (
-                        <Text className="text-sm leading-6 text-foreground">{explanationText}</Text>
-                      ) : null}
+                      <Text className="text-xs text-muted">Generating…</Text>
                     </View>
                   ) : null}
                 </View>
-              ) : null}
-            </View>
-          </Surface>
+              </Surface>
+            ) : null}
+          </View>
         ) : null}
 
         <View className="gap-2">

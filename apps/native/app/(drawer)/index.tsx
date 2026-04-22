@@ -9,6 +9,15 @@ import { Container } from "@/components/container";
 import { MediTagLogo } from "@/components/meditag-logo";
 import { authClient, ensureSingleOrganizationIsActive } from "@/lib/auth-client";
 
+function LoadingRow() {
+  return (
+    <View className="flex-row items-center justify-center gap-3 py-12">
+      <Spinner size="sm" color="default" />
+      <Text className="text-sm text-muted">Loading…</Text>
+    </View>
+  );
+}
+
 export default function Home() {
   const { isAuthenticated } = useConvexAuth();
   const { toast } = useToast();
@@ -61,19 +70,12 @@ export default function Home() {
           </View>
 
           {isLoadingProfile ? (
-            <View className="flex-row items-center justify-center gap-3 py-12">
-              <Spinner size="sm" color="default" />
-              <Text className="text-sm text-muted">Loading…</Text>
-            </View>
+            <LoadingRow />
           ) : hasWorkspaceAccess ? (
             <View className="gap-8">
               <View className="gap-2">
                 <Text className="text-4xl font-semibold tracking-tight text-foreground">
-                  Ready to verify
-                </Text>
-                <Text className="text-base leading-7 text-muted">
-                  {greetingName ? `Welcome back, ${greetingName}.` : "Welcome back."} Start patient
-                  verification when you reach the bedside.
+                  {greetingName ? `Welcome back, ${greetingName}.` : "Welcome back."}
                 </Text>
               </View>
 
@@ -112,10 +114,7 @@ export default function Home() {
               </View>
             </Surface>
           ) : (
-            <View className="flex-row items-center justify-center gap-3 py-12">
-              <Spinner size="sm" color="default" />
-              <Text className="text-sm text-muted">Loading…</Text>
-            </View>
+            <LoadingRow />
           )}
         </View>
 

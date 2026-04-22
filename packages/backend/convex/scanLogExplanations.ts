@@ -73,7 +73,7 @@ function buildReasonGuidance(failureReasons: FailureReason[]) {
 
 export function buildScanLogExplanationPrompt(input: ExplanationPromptInput) {
   const system =
-    "You write short, factual medication safety explanations for a prototype nurse workflow. Use only the structured verification facts provided. Do not invent patient details, clinical history, medication effects, treatment advice, or next steps. Keep the explanation to at most 3 sentences and under 90 words.";
+    "You write short, factual medication safety explanations for a prototype nurse workflow. Use only the structured verification facts provided. Do not invent patient details, clinical history, medication effects, treatment advice, or next steps. Keep the explanation to at most 3 sentences and under 90 words. Format the response in simple Markdown: bold the most important clinical term (for example the allergy or the conflicting medication) with **double asterisks**. Do not use headings, links, code, or tables.";
 
   const prompt = [
     "Structured verification facts:",
@@ -91,7 +91,11 @@ export function buildScanLogExplanationPrompt(input: ExplanationPromptInput) {
 }
 
 export function normalizeExplanationText(text: string) {
-  return text.replace(/\s+/g, " ").trim().slice(0, 500);
+  return text
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+    .slice(0, 500);
 }
 
 function toBoundedMedication(medication: Doc<"medications"> | null) {
@@ -216,6 +220,23 @@ export const requestScanLogExplanation = mutation({
       scanLogId: args.scanLogId,
       explanationStatus: scanLog.explanationStatus,
     };
+  },
+});
+
+export const streamScanLogExplanationText = internalMutation({
+  args: {
+    scanLogId: v.id("scanLogs"),
+    explanationText: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const scanLog = await ctx.db.get(args.scanLogId);
+    if (!scanLog || scanLog.explanationStatus !== "requested") {
+      return null;
+    }
+
+    await ctx.db.patch(args.scanLogId, { explanationText: args.explanationText });
+    return null;
   },
 });
 

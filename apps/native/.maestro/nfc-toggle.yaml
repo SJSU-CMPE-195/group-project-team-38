@@ -25,7 +25,7 @@ env:
 - tapOn:
     id: scan-mode-qr
 - extendedWaitUntil:
-    visible: "Simulator demo wristbands"
+    visible: "Sample wristbands"
     timeout: 10000
 - assertVisible:
     id: demo-wristband-WRISTBAND-SAFE-QR-001

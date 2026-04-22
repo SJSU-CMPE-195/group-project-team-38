@@ -226,4 +226,3 @@ Coverage artifacts are written to `docs/evaluation/coverage-report/backend`, inc
 - `packages/config` - Shared TypeScript and workspace config
 - `docs` - Architecture, scope, and testing documentation
 - `scripts` - Repository setup and utility scripts
-

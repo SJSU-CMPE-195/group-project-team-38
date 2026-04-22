@@ -19,16 +19,13 @@ import {
 } from "@/lib/nfc";
 
 const simulatorDemoWristbands = [
-  {
-    label: "Use safe demo wristband",
-    description: "Loads Demo Safe Patient with Acetaminophen 500mg for the pass path.",
-    token: "WRISTBAND-SAFE-QR-001",
-  },
-  {
-    label: "Use conflict demo wristband",
-    description: "Loads Demo Conflict Patient with Amoxicillin 500mg for the fail path.",
-    token: "WRISTBAND-CONFLICT-QR-001",
-  },
+  { label: "Safe patient", token: "WRISTBAND-SAFE-QR-001" },
+  { label: "Conflict patient", token: "WRISTBAND-CONFLICT-QR-001" },
+] as const;
+
+const DEMO_WRISTBAND_PRESETS = [
+  { id: "safe", label: "Safe patient", token: "WRISTBAND-SAFE-QR-001" },
+  { id: "conflict", label: "Conflict patient", token: "WRISTBAND-CONFLICT-QR-001" },
 ] as const;
 
 type ScanMode = "qr" | "nfc";
@@ -146,13 +143,8 @@ export default function ScanEntryScreen() {
         {scanState === "simulator-demo" ? (
           <Surface variant="secondary" className="rounded-2xl border border-border p-5">
             <View className="gap-3">
-              <Text className="text-base font-semibold text-foreground">
-                Simulator demo wristbands
-              </Text>
-              <Text className="text-sm leading-6 text-muted">
-                Pick a sample patient to continue without the camera.
-              </Text>
-              <View className="gap-2 pt-1">
+              <Text className="text-base font-semibold text-foreground">Sample wristbands</Text>
+              <View className="gap-2">
                 {simulatorDemoWristbands.map((fixture) => (
                   <Button
                     key={fixture.token}
@@ -224,20 +216,15 @@ export default function ScanEntryScreen() {
         ) : null}
 
         {scanState === "scanning" ? (
-          <View className="gap-3">
-            <View className="overflow-hidden rounded-2xl bg-black" style={{ aspectRatio: 3 / 4 }}>
-              <CameraView
-                facing="back"
-                style={{ flex: 1 }}
-                barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-                onBarcodeScanned={handleBarcodeScanned}
-                onMountError={handleCameraError}
-              />
-              <ScanReticle />
-            </View>
-            <Text className="text-center text-sm text-muted">
-              Scanning stops automatically after capture.
-            </Text>
+          <View className="overflow-hidden rounded-2xl bg-black" style={{ aspectRatio: 3 / 4 }}>
+            <CameraView
+              facing="back"
+              style={{ flex: 1 }}
+              barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+              onBarcodeScanned={handleBarcodeScanned}
+              onMountError={handleCameraError}
+            />
+            <ScanReticle />
           </View>
         ) : null}
 
@@ -247,29 +234,24 @@ export default function ScanEntryScreen() {
 
         {scanState === "captured" && scannedToken ? (
           <Surface variant="secondary" className="rounded-2xl border border-border p-5">
-            <View className="gap-4">
+            <View className="gap-3">
               <Text className="text-xl font-semibold text-foreground">Wristband captured</Text>
-              <Text className="text-sm leading-6 text-muted">
-                Continue to confirm the patient and select a medication.
-              </Text>
-              <View className="gap-2 pt-1">
-                <Button
-                  testID="continue-with-wristband-button"
-                  accessibilityLabel="Continue with this wristband"
-                  onPress={() => {
-                    const handoffParams = new URLSearchParams({
-                      wristbandToken: scannedToken,
-                    });
+              <Button
+                testID="continue-with-wristband-button"
+                accessibilityLabel="Continue with this wristband"
+                onPress={() => {
+                  const handoffParams = new URLSearchParams({
+                    wristbandToken: scannedToken,
+                  });
 
-                    router.push(`./scan-handoff?${handoffParams.toString()}`);
-                  }}
-                >
-                  <Button.Label>Continue</Button.Label>
-                </Button>
-                <Button variant="tertiary" onPress={handleScanAgain}>
-                  <Button.Label>Scan again</Button.Label>
-                </Button>
-              </View>
+                  router.push(`./scan-handoff?${handoffParams.toString()}`);
+                }}
+              >
+                <Button.Label>Continue</Button.Label>
+              </Button>
+              <Button variant="tertiary" onPress={handleScanAgain}>
+                <Button.Label>Scan again</Button.Label>
+              </Button>
             </View>
           </Surface>
         ) : null}
@@ -338,7 +320,9 @@ function ScanReticle() {
         <View className={`${corner} left-0 top-0 rounded-tl-xl border-l-[3px] border-t-[3px]`} />
         <View className={`${corner} right-0 top-0 rounded-tr-xl border-r-[3px] border-t-[3px]`} />
         <View className={`${corner} bottom-0 left-0 rounded-bl-xl border-b-[3px] border-l-[3px]`} />
-        <View className={`${corner} bottom-0 right-0 rounded-br-xl border-b-[3px] border-r-[3px]`} />
+        <View
+          className={`${corner} bottom-0 right-0 rounded-br-xl border-b-[3px] border-r-[3px]`}
+        />
       </View>
     </View>
   );
@@ -472,17 +456,9 @@ function NfcPanel({
 
   return (
     <View className="gap-3">
-      <Surface variant="secondary" className="rounded-2xl border border-border p-5">
-        <View className="gap-3">
-          <Text className="text-base font-semibold text-foreground">Tap wristband to scan</Text>
-          <Text className="text-sm leading-6 text-muted">
-            iOS will show its NFC reader sheet. Hold the wristband near the top of the device.
-          </Text>
-          <Button testID="nfc-read-button" onPress={handleRead} isDisabled={isBusy}>
-            <Button.Label>{status.kind === "reading" ? "Scanning…" : "Scan NFC tag"}</Button.Label>
-          </Button>
-        </View>
-      </Surface>
+      <Button testID="nfc-read-button" onPress={handleRead} isDisabled={isBusy}>
+        <Button.Label>{status.kind === "reading" ? "Scanning…" : "Scan NFC tag"}</Button.Label>
+      </Button>
 
       {status.kind === "error" ? (
         <Surface variant="secondary" className="rounded-2xl border border-danger p-5">
@@ -518,10 +494,30 @@ function NfcPanel({
 
           {showWriter ? (
             <View className="gap-3">
-              <Text className="text-sm leading-6 text-muted">
-                Writes the token as a single NDEF text record. Pair with admin provisioning to bind
-                the tag to a patient.
-              </Text>
+              <View className="gap-2">
+                <Text className="text-xs font-semibold uppercase tracking-wide text-muted">
+                  Presets
+                </Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {DEMO_WRISTBAND_PRESETS.map((preset) => (
+                    <Pressable
+                      key={preset.token}
+                      testID={`nfc-write-preset-${preset.id}`}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Use preset ${preset.label}`}
+                      disabled={isBusy}
+                      onPress={() => setWriteToken(preset.token)}
+                      className={`rounded-full border px-3 py-2 ${
+                        writeToken === preset.token
+                          ? "border-foreground bg-foreground/10"
+                          : "border-border bg-background"
+                      } ${isBusy ? "opacity-50" : ""}`}
+                    >
+                      <Text className="text-xs font-semibold text-foreground">{preset.label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
               <TextInput
                 testID="nfc-write-token-input"
                 value={writeToken}

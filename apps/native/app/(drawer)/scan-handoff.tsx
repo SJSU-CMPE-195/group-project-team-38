@@ -194,9 +194,6 @@ export default function ScanHandoffScreen() {
               >
                 Select medication
               </Text>
-              <Text className="text-base leading-7 text-muted">
-                Confirm the patient and choose what to verify.
-              </Text>
             </View>
 
             <Surface variant="secondary" className="rounded-2xl border border-border p-5">
@@ -224,9 +221,6 @@ export default function ScanHandoffScreen() {
                 <View className="gap-3">
                   <Text className="text-base font-semibold text-foreground">
                     No active medications
-                  </Text>
-                  <Text className="text-sm leading-6 text-muted">
-                    Nothing to verify for this patient.
                   </Text>
                   <Button variant="secondary" onPress={handleBackToScanner}>
                     <Button.Label>Scan another wristband</Button.Label>
@@ -277,20 +271,12 @@ export default function ScanHandoffScreen() {
         <View className="absolute inset-x-0 bottom-0 border-t border-border bg-background px-6 pb-6 pt-4">
           <View className="gap-2">
             {selectedMedication ? (
-              <View className="pb-1">
-                <Text className="text-xs text-muted">Selected medication</Text>
-                <Text className="text-sm font-semibold text-foreground">
-                  {selectedMedication.displayName}
-                </Text>
-              </View>
-            ) : null}
-            {selectedMedication ? (
               <Button
                 testID="continue-to-verification-button"
                 accessibilityLabel="Continue to verification"
                 onPress={handleContinueToVerification}
               >
-                <Button.Label>Continue</Button.Label>
+                <Button.Label>Continue with {selectedMedication.displayName}</Button.Label>
               </Button>
             ) : null}
             <Button variant="tertiary" onPress={handleBackToScanner}>

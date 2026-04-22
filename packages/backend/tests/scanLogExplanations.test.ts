@@ -4,10 +4,10 @@ import { convexTest } from "convex-test";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("ai", () => ({
-  generateText: vi.fn(),
+  streamText: vi.fn(),
 }));
 
-import { generateText } from "ai";
+import { streamText } from "ai";
 
 import { api, components, internal } from "../convex/_generated/api";
 import authSchema from "../convex/betterAuth/schema";
@@ -16,6 +16,22 @@ import {
   normalizeExplanationText,
 } from "../convex/scanLogExplanations";
 import schema from "../convex/schema";
+
+function streamResult(text: string) {
+  async function* generator() {
+    yield text;
+  }
+  return { textStream: generator() } as unknown as ReturnType<typeof streamText>;
+}
+
+function streamResultError(error: Error) {
+  async function* generator() {
+    throw error;
+    // eslint-disable-next-line no-unreachable
+    yield "";
+  }
+  return { textStream: generator() } as unknown as ReturnType<typeof streamText>;
+}
 
 type ModuleLoader = () => Promise<unknown>;
 type ModuleMap = Record<string, ModuleLoader>;
@@ -30,7 +46,7 @@ for (const [path, loader] of Object.entries(allModules)) {
   }
 }
 const betterAuthModules = import.meta.glob<ModuleLoader>("../convex/betterAuth/**/*.*s");
-const generateTextMock = vi.mocked(generateText);
+const streamTextMock = vi.mocked(streamText);
 const originalEnv = { ...process.env };
 
 async function setupIdentity(
@@ -165,12 +181,12 @@ describe("scan log explanation prompt helpers", () => {
     expect(prompt.prompt).not.toContain("WRISTBAND-CONFLICT-QR-001");
   });
 
-  test("normalizes whitespace and bounds stored explanation text", () => {
+  test("preserves paragraph breaks while collapsing runs of spaces and bounding length", () => {
     const normalized = normalizeExplanationText(
-      `  First line.\n\nSecond    line. ${"x".repeat(600)}  `,
+      `  First line.\n\n\n\nSecond    line. ${"x".repeat(600)}  `,
     );
 
-    expect(normalized.startsWith("First line. Second line.")).toBe(true);
+    expect(normalized.startsWith("First line.\n\nSecond line.")).toBe(true);
     expect(normalized.length).toBe(500);
   });
 });
@@ -180,7 +196,7 @@ describe("scan log explanation context loading", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    generateTextMock.mockReset();
+    streamTextMock.mockReset();
     process.env = { ...originalEnv };
     t = convexTest(schema, modules);
     t.registerComponent("betterAuth", authSchema, betterAuthModules);
@@ -340,7 +356,7 @@ describe("scan log explanation requests", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    generateTextMock.mockReset();
+    streamTextMock.mockReset();
     process.env = { ...originalEnv };
     t = convexTest(schema, modules);
     t.registerComponent("betterAuth", authSchema, betterAuthModules);
@@ -420,7 +436,7 @@ describe("scan log explanation generation", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    generateTextMock.mockReset();
+    streamTextMock.mockReset();
     process.env = { ...originalEnv };
     t = convexTest(schema, modules);
     t.registerComponent("betterAuth", authSchema, betterAuthModules);
@@ -437,9 +453,11 @@ describe("scan log explanation generation", () => {
     process.env.OPENAI_API_KEY = "test-openai-key";
     delete process.env.ANTHROPIC_API_KEY;
 
-    generateTextMock.mockResolvedValue({
-      text: "  The selected medication conflicts with the patient's recorded penicillin allergy. The deterministic verification correctly flagged this risk.  ",
-    } as Awaited<ReturnType<typeof generateText>>);
+    streamTextMock.mockReturnValue(
+      streamResult(
+        "  The selected medication conflicts with the patient's recorded penicillin allergy. The deterministic verification correctly flagged this risk.  ",
+      ),
+    );
 
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
@@ -464,7 +482,7 @@ describe("scan log explanation generation", () => {
     expect(logs[0]?.explanationText).toBe(
       "The selected medication conflicts with the patient's recorded penicillin allergy. The deterministic verification correctly flagged this risk.",
     );
-    expect(generateTextMock).toHaveBeenCalledTimes(1);
+    expect(streamTextMock).toHaveBeenCalledTimes(1);
   });
 
   test("marks explanation generation as failed and preserves the configured model when generation throws", async () => {
@@ -473,7 +491,7 @@ describe("scan log explanation generation", () => {
     process.env.OPENAI_API_KEY = "test-openai-key";
     delete process.env.ANTHROPIC_API_KEY;
 
-    generateTextMock.mockRejectedValue(new Error("provider unavailable"));
+    streamTextMock.mockReturnValue(streamResultError(new Error("provider unavailable")));
 
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
@@ -496,7 +514,7 @@ describe("scan log explanation generation", () => {
     expect(logs[0]?.explanationStatus).toBe("failed");
     expect(logs[0]?.explanationText).toBe("provider unavailable");
     expect(logs[0]?.explanationModel).toBe("gpt-4o-mini");
-    expect(generateTextMock).toHaveBeenCalledTimes(1);
+    expect(streamTextMock).toHaveBeenCalledTimes(1);
   });
 
   test("marks explanation generation as failed when AI config is missing", async () => {
@@ -528,7 +546,7 @@ describe("scan log explanation generation", () => {
       'AI_PROVIDER: Invalid option: expected one of "openai"|"anthropic"',
     );
     expect(logs[0]?.explanationModel).toBeUndefined();
-    expect(generateTextMock).not.toHaveBeenCalled();
+    expect(streamTextMock).not.toHaveBeenCalled();
   });
 
   test("retries explanation generation after a previous failure", async () => {
@@ -537,11 +555,9 @@ describe("scan log explanation generation", () => {
     process.env.OPENAI_API_KEY = "test-openai-key";
     delete process.env.ANTHROPIC_API_KEY;
 
-    generateTextMock
-      .mockRejectedValueOnce(new Error("provider unavailable"))
-      .mockResolvedValueOnce({
-        text: "The medication conflicts with a recorded allergy.",
-      } as Awaited<ReturnType<typeof generateText>>);
+    streamTextMock
+      .mockReturnValueOnce(streamResultError(new Error("provider unavailable")))
+      .mockReturnValueOnce(streamResult("The medication conflicts with a recorded allergy."));
 
     const nurse = await setupIdentity(t, "nurse");
     const seed = await t.mutation(internal.seed.seedDemoData);
@@ -572,6 +588,6 @@ describe("scan log explanation generation", () => {
     expect(logs).toHaveLength(1);
     expect(logs[0]?.explanationStatus).toBe("generated");
     expect(logs[0]?.explanationText).toBe("The medication conflicts with a recorded allergy.");
-    expect(generateTextMock).toHaveBeenCalledTimes(2);
+    expect(streamTextMock).toHaveBeenCalledTimes(2);
   });
 });
