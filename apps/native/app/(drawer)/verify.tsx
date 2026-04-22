@@ -4,7 +4,7 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Spinner, Surface } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { Text, View, useColorScheme } from "react-native";
 import { EnrichedMarkdownText } from "react-native-enriched-markdown";
 
 import { Container } from "@/components/container";
@@ -47,6 +47,20 @@ function getErrorMessage(error: unknown): string {
   return "Something went wrong while contacting the verification service.";
 }
 
+function useMarkdownStyle() {
+  const scheme = useColorScheme();
+  const foreground = scheme === "dark" ? "#f5f5f7" : "#1c1c1e";
+  return useMemo(
+    () => ({
+      paragraph: { color: foreground, fontSize: 14, lineHeight: 22 },
+      strong: { color: foreground },
+      emphasis: { color: foreground },
+      list: { color: foreground, bulletColor: foreground, markerColor: foreground },
+    }),
+    [foreground],
+  );
+}
+
 export default function VerifyScreen() {
   const params = useLocalSearchParams<{
     wristbandToken?: string | string[];
@@ -79,6 +93,7 @@ export default function VerifyScreen() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [isSubmittingVerification, setIsSubmittingVerification] = useState(false);
   const [isRequestingExplanation, setIsRequestingExplanation] = useState(false);
+  const markdownStyle = useMarkdownStyle();
 
   const canVerify = Boolean(wristbandToken && selectedMedicationId);
   const explanationLogs = useQuery(
@@ -301,7 +316,10 @@ export default function VerifyScreen() {
               <Surface variant="secondary" className="rounded-2xl border border-border p-5">
                 <View className="gap-3">
                   {explanationText && explanationText.length > 0 ? (
-                    <EnrichedMarkdownText markdown={explanationText} />
+                    <EnrichedMarkdownText
+                      markdown={explanationText}
+                      markdownStyle={markdownStyle}
+                    />
                   ) : null}
                   {effectiveExplanationStatus === "requested" ? (
                     <View className="flex-row items-center gap-2">
