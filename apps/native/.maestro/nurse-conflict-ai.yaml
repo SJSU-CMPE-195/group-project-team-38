@@ -10,7 +10,7 @@ env:
 - tapOn:
     id: start-wristband-scan-button
 - assertVisible: "Scan patient wristband"
-- assertVisible: "Simulator demo wristbands"
+- assertVisible: "Sample wristbands"
 - tapOn:
     id: demo-wristband-WRISTBAND-CONFLICT-QR-001
 - assertVisible: "Wristband captured"
@@ -28,9 +28,6 @@ env:
     timeout: 20000
 - tapOn:
     id: medication-option-723
-- extendedWaitUntil:
-    visible: "Selected medication"
-    timeout: 20000
 - extendedWaitUntil:
     visible:
       id: continue-to-verification-button
@@ -55,6 +52,5 @@ env:
 - tapOn:
     id: request-ai-explanation-button
 - extendedWaitUntil:
-    visible: "AI explanation requested"
+    visible: "Generating…"
     timeout: 20000
-- assertVisible: "Explanation request status"

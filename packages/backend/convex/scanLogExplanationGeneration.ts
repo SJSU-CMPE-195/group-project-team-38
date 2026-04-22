@@ -1,12 +1,14 @@
 "use node";
 
-import { generateText } from "ai";
+import { streamText } from "ai";
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
 import { getAiConfig, getAiDebugSnapshot, getAiTextModel } from "./ai";
 import { buildScanLogExplanationPrompt, normalizeExplanationText } from "./scanLogExplanations";
+
+const STREAM_PATCH_INTERVAL_MS = 150;
 
 type StructuredErrorIssue = {
   path?: string[];
@@ -80,14 +82,37 @@ export const generateForScanLog = internalAction({
         aiDebugSnapshot,
       });
       const { system, prompt } = buildScanLogExplanationPrompt(context.promptInput);
-      const result = await generateText({
+      const result = streamText({
         model,
         system,
         prompt,
         temperature: 0,
         maxOutputTokens: 160,
       });
-      const explanationText = normalizeExplanationText(result.text);
+
+      let accumulated = "";
+      let lastPatchAt = 0;
+      let lastPatchedText = "";
+
+      for await (const delta of result.textStream) {
+        accumulated += delta;
+        const now = Date.now();
+        if (now - lastPatchAt < STREAM_PATCH_INTERVAL_MS) {
+          continue;
+        }
+        const normalized = normalizeExplanationText(accumulated);
+        if (normalized.length === 0 || normalized === lastPatchedText) {
+          continue;
+        }
+        await ctx.runMutation(internal.scanLogExplanations.streamScanLogExplanationText, {
+          scanLogId: args.scanLogId,
+          explanationText: normalized,
+        });
+        lastPatchAt = now;
+        lastPatchedText = normalized;
+      }
+
+      const explanationText = normalizeExplanationText(accumulated);
 
       if (explanationText.length === 0) {
         throw new Error("AI explanation was empty.");

@@ -10,7 +10,7 @@ env:
 - tapOn:
     id: start-wristband-scan-button
 - assertVisible: "Scan patient wristband"
-- assertVisible: "Simulator demo wristbands"
+- assertVisible: "Sample wristbands"
 - tapOn:
     id: demo-wristband-WRISTBAND-SAFE-QR-001
 - assertVisible: "Wristband captured"
@@ -29,9 +29,6 @@ env:
 - tapOn:
     id: medication-option-161
 - extendedWaitUntil:
-    visible: "Selected medication"
-    timeout: 20000
-- extendedWaitUntil:
     visible:
       id: continue-to-verification-button
     timeout: 20000
@@ -46,4 +43,4 @@ env:
 - extendedWaitUntil:
     visible: "PASS"
     timeout: 20000
-- assertVisible: "The medication matches the patient record and no allergy conflict was found."
+- assertVisible: "Safe to administer."
