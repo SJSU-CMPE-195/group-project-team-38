@@ -9,7 +9,10 @@ import { ModeToggle } from "./mode-toggle";
 
 export default function Header() {
   const pathname = usePathname();
-  const links = [{ to: "/dashboard", label: "Admin review" }] as const;
+  const links = [
+    { to: "/dashboard", label: "Admin review" },
+    { to: "/dashboard/patients", label: "Patients" },
+  ] as const;
 
   return (
     <header className="border-b">
