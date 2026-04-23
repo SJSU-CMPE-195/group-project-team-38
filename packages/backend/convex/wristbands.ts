@@ -27,6 +27,40 @@ export const getByToken = query({
   },
 });
 
+export const listByPatient = query({
+  args: {
+    patientId: v.id("patients"),
+    includeInactive: v.optional(v.boolean()),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("wristbands"),
+      _creationTime: v.number(),
+      patientId: v.id("patients"),
+      token: v.string(),
+      tokenType: v.union(v.literal("qr"), v.literal("nfc")),
+      issuedAt: v.number(),
+      revokedAt: v.optional(v.number()),
+      isActive: v.boolean(),
+    }),
+  ),
+  handler: async (ctx, args) => {
+    await requireRole(ctx, ["admin"]);
+    if (args.includeInactive === true) {
+      return await ctx.db
+        .query("wristbands")
+        .withIndex("by_patient_id", (q) => q.eq("patientId", args.patientId))
+        .collect();
+    }
+    return await ctx.db
+      .query("wristbands")
+      .withIndex("by_patient_id_and_active", (q) =>
+        q.eq("patientId", args.patientId).eq("isActive", true),
+      )
+      .collect();
+  },
+});
+
 export const assign = mutation({
   args: {
     patientId: v.id("patients"),
