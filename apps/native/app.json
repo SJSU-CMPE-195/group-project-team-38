@@ -22,14 +22,14 @@
         "react-native-nfc-manager",
         {
           "nfcPermission": "Allow Meditag to read patient NFC wristbands during the nurse verification flow.",
-          "includeNdefEntitlement": true
+          "includeNdefEntitlement": false
         }
       ],
       "react-native-enriched-markdown"
     ],
     "ios": {
       "bundleIdentifier": "com.meditag.native",
-      "buildNumber": "8",
+      "buildNumber": "10",
       "appleTeamId": "NYF9WZVVQ9",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow Meditag to scan patient QR wristbands during the nurse verification flow.",
