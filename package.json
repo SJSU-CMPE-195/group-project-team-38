@@ -42,7 +42,9 @@
   },
   "dependencies": {
     "@meditag/env": "workspace:*",
+    "convex": "^1.37.0",
     "dotenv": "catalog:",
+    "react-native-enriched-markdown": "^0.5.0",
     "zod": "catalog:"
   },
   "devDependencies": {

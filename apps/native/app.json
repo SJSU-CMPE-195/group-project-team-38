@@ -10,6 +10,7 @@
     "slug": "meditag",
     "owner": "gursheys",
     "version": "1.0.0",
+    "sdkVersion": "55.0.19",
     "plugins": [
       "expo-font",
       [
