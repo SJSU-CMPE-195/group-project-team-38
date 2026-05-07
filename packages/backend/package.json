@@ -20,6 +20,7 @@
     "@ai-sdk/openai": "^3.0.41",
     "@better-auth/expo": "catalog:",
     "@convex-dev/better-auth": "catalog:",
+    "@openrouter/ai-sdk-provider": "^2.8.0",
     "ai": "^6.0.116",
     "better-auth": "catalog:",
     "convex": "catalog:",

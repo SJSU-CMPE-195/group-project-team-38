@@ -8,22 +8,20 @@ This evaluation module is for internal model comparison only. It does not provid
 
 - `cases/`: standardized MediTag scenarios for allergy conflicts, wrong-patient scans, missing data, safe matches, and high-risk medication warnings.
 - `prompts/`: reusable prompt templates with version identifiers.
-- `providers/`: Gemini, OpenAI, and Anthropic model configuration plus HTTP adapters.
+- `providers/`: Gemini, OpenAI, and Anthropic model configuration routed through OpenRouter.
 - `scoring/`: MediTag-specific rubric, weighted score calculation, and safety flagging.
 - `reports/`: JSON, Markdown, and CSV-style report generation.
 - `results/`: generated run artifacts. Raw result files are intentionally ignored by git.
 
 ## API Keys
 
-Create `packages/backend/.env.local` with the keys you want to use:
+Create `packages/backend/.env.local` with your OpenRouter key:
 
 ```sh
-OPEN_API_KEY=...
-ANTHROPIC_API_KEY=...
-GEMINI_API_KEY=...
+OPEN_ROUTER_API_KEY=...
 ```
 
-The OpenAI adapter also accepts `OPENAI_API_KEY` as a fallback, but this repo’s local eval setup uses `OPEN_API_KEY`.
+All eval model calls go through OpenRouter using the Vercel AI SDK `generateText()` API and `@openrouter/ai-sdk-provider`. The runner defaults to `reasoning: { "effort": "none", "exclude": true }` and `includeReasoning: false` so reasoning or thinking output is not requested. Models that require reasoning, currently `gemini-3.1-pro-preview`, can opt into the lowest supported setting with `reasoningEffort: "minimal"` while still excluding reasoning text from outputs.
 
 ## Run Evals
 
@@ -41,7 +39,7 @@ Useful options:
 ```sh
 bun evals/run.ts --providers=openai
 bun evals/run.ts --categories=allergy_conflict,wrong_patient
-bun evals/run.ts --models=gpt-4o-mini,claude-sonnet-4-5
+bun evals/run.ts --models=gpt-5.4-mini,claude-sonnet-4-6,gemini-2.5-flash
 bun evals/run.ts --runName=meditag-final-benchmark
 bun evals/run.ts --config=evals/run-config.example.json
 ```
@@ -60,12 +58,22 @@ Edit `providers/config.ts` or provide a JSON config file. Model entries are data
 ```json
 {
   "provider": "openai",
-  "model": "gpt-4o-mini",
+  "model": "gpt-5.4-mini",
+  "tier": "mid",
   "enabled": true,
+  "reasoningEffort": "none",
   "maxOutputTokens": 180,
   "temperature": 0.1
 }
 ```
+
+The default matrix includes three tiers per provider:
+
+| Provider  | Flagship                 | Mid                 | Tiny                    |
+| --------- | ------------------------ | ------------------- | ----------------------- |
+| OpenAI    | `gpt-5.4`                | `gpt-5.4-mini`      | `gpt-5.4-nano`          |
+| Anthropic | `claude-opus-4-7`        | `claude-sonnet-4-6` | `claude-haiku-4.5`      |
+| Gemini    | `gemini-3.1-pro-preview` | `gemini-3-flash-preview` | `gemini-3.1-flash-lite-preview` |
 
 Do not hard-code API keys in model config.
 
@@ -83,6 +91,13 @@ Add a case to `cases/meditagCases.ts` with:
 - tags
 
 Cases should use synthetic data only. Do not include real PHI.
+
+The default cases are intentionally demo-aligned. They use the same synthetic records as `seedDemoData` and the native Maestro demo flows:
+
+- `WRISTBAND-SAFE-QR-001` -> `Demo Safe Patient` -> `Acetaminophen 500mg`
+- `WRISTBAND-CONFLICT-QR-001` -> `Demo Conflict Patient` -> `Amoxicillin 500mg`
+
+Additional variants reuse those records to test identity mismatch, unknown wristband, missing medication, and the bounded production explanation prompt shape. These variants make model differences easier to see than only testing the two polished demo paths.
 
 ## Scoring
 

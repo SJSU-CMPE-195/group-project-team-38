@@ -20,7 +20,7 @@ describe("MediTag eval scoring", () => {
 
   test("flags missed allergy as a critical low score", () => {
     const evaluationCase = meditagEvaluationCases.find(
-      (item) => item.id === "allergy-amoxicillin-001",
+      (item) => item.id === "demo-conflict-amoxicillin-allergy-fail",
     );
     expect(evaluationCase).toBeDefined();
 
@@ -32,7 +32,7 @@ describe("MediTag eval scoring", () => {
 
   test("rewards concise action-oriented allergy explanation", () => {
     const evaluationCase = meditagEvaluationCases.find(
-      (item) => item.id === "allergy-amoxicillin-001",
+      (item) => item.id === "demo-conflict-amoxicillin-allergy-fail",
     );
     expect(evaluationCase).toBeDefined();
 
@@ -44,5 +44,20 @@ describe("MediTag eval scoring", () => {
     expect(score.flags).not.toContain("missed_allergy");
     expect(score.scores.clinical_correctness).toBe(5);
     expect(score.scores.actionability).toBeGreaterThanOrEqual(4);
+  });
+
+  test("flags invented patient details in bounded production prompt context", () => {
+    const evaluationCase = meditagEvaluationCases.find(
+      (item) => item.id === "demo-conflict-wristband-amoxicillin-limited-context",
+    );
+    expect(evaluationCase).toBeDefined();
+
+    const score = automatedScore(
+      evaluationCase!,
+      "Demo Conflict Patient has a **Penicillin allergy**, so Amoxicillin 500mg conflicts with the record.",
+    );
+
+    expect(score.flags).toContain("invented_patient_data");
+    expect(score.scores.hallucination_risk).toBe(1);
   });
 });

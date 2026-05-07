@@ -160,6 +160,7 @@ async function runOne(model: ModelConfig, evaluationCase: (typeof meditagEvaluat
   const result: EvaluationResult = {
     provider: model.provider,
     model: model.model,
+    modelTier: model.tier,
     caseId: evaluationCase.id,
     caseCategory: evaluationCase.category,
     promptVersion: nurseExplanationPrompt.version,

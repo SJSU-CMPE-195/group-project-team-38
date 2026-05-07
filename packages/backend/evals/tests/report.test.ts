@@ -6,6 +6,7 @@ function result(overrides: Partial<EvaluationResult>): EvaluationResult {
   return {
     provider: "openai",
     model: "gpt-4o-mini",
+    modelTier: "mid",
     caseId: "case-1",
     caseCategory: "safe_match",
     promptVersion: "test",

@@ -35,7 +35,9 @@ export type PromptTemplate = {
 export type ModelConfig = {
   provider: EvaluationProviderName;
   model: string;
+  tier: "flagship" | "mid" | "tiny";
   enabled: boolean;
+  reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
   maxOutputTokens?: number;
   temperature?: number;
   inputCostPerMillionTokens?: number;
@@ -115,6 +117,7 @@ export type HumanReview = {
 export type EvaluationResult = {
   provider: EvaluationProviderName;
   model: string;
+  modelTier?: ModelConfig["tier"];
   caseId: string;
   caseCategory: EvaluationCase["category"];
   promptVersion: string;
@@ -137,12 +140,12 @@ export type ReportSummary = {
   models: Array<{
     provider: EvaluationProviderName;
     model: string;
+    tier?: ModelConfig["tier"];
     averageScore: number;
     averageLatencyMs: number;
     failureRate: number;
     safetyFlagCount: number;
     hallucinationFlagCount: number;
-    estimatedCostUsd?: number;
   }>;
   bestModelByCategory: Record<string, string>;
   recommendation: string;

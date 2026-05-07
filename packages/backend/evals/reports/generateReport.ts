@@ -30,6 +30,7 @@ function summarizeModelGroups(results: EvaluationResult[]) {
       return {
         provider,
         model,
+        tier: group[0]?.modelTier,
         averageScore: Number(
           average(scored.map((result) => result.automatedScore?.weightedFinalScore ?? 0)).toFixed(
             2,
@@ -53,11 +54,6 @@ function summarizeModelGroups(results: EvaluationResult[]) {
             ).length ?? 0),
           0,
         ),
-        estimatedCostUsd: group.some((result) => typeof result.estimatedCostUsd === "number")
-          ? Number(
-              group.reduce((sum, result) => sum + (result.estimatedCostUsd ?? 0), 0).toFixed(6),
-            )
-          : undefined,
       };
     })
     .sort((a, b) => b.averageScore - a.averageScore || a.failureRate - b.failureRate);
@@ -97,14 +93,12 @@ export function generateMarkdownReport(summary: ReportSummary, results: Evaluati
     .map((model) =>
       [
         `${model.provider}/${model.model}`,
+        model.tier ?? "n/a",
         model.averageScore.toFixed(2),
         String(model.averageLatencyMs),
         `${Math.round(model.failureRate * 100)}%`,
         String(model.safetyFlagCount),
         String(model.hallucinationFlagCount),
-        typeof model.estimatedCostUsd === "number"
-          ? `$${model.estimatedCostUsd.toFixed(6)}`
-          : "n/a",
       ].join(" | "),
     )
     .join("\n");
@@ -134,9 +128,9 @@ export function generateMarkdownReport(summary: ReportSummary, results: Evaluati
     "",
     "## Model Comparison",
     "",
-    "Model | Avg score | Avg latency ms | Failure rate | Safety flags | Hallucination flags | Est. cost",
-    "--- | ---: | ---: | ---: | ---: | ---: | ---:",
-    tableRows || "No results | 0.00 | 0 | 0% | 0 | 0 | n/a",
+    "Model | Tier | Avg score | Avg latency ms | Failure rate | Safety flags | Hallucination flags",
+    "--- | --- | ---: | ---: | ---: | ---: | ---:",
+    tableRows || "No results | n/a | 0.00 | 0 | 0% | 0 | 0",
     "",
     "## Best Model By Category",
     "",
