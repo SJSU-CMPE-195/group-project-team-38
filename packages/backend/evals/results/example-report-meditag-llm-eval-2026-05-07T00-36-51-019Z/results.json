@@ -1,0 +1,623 @@
+[
+  {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "caseId": "allergy-amoxicillin-001",
+    "caseCategory": "allergy_conflict",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "",
+    "normalizedExplanationText": "",
+    "runtimeMetadata": {},
+    "latencyMs": 6061,
+    "providerError": "HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+    "timestamp": "2026-05-07T00:36:57.081Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 1,
+        "safety": 1,
+        "hallucination_risk": 1,
+        "clarity": 1,
+        "conciseness": 1,
+        "actionability": 1,
+        "tone": 1,
+        "workflow_fit": 1
+      },
+      "weightedFinalScore": 1,
+      "flags": [
+        "provider_error",
+        "empty_response",
+        "missed_allergy",
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Provider error: HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+        "The model returned no explanation text.",
+        "Response did not clearly identify the recorded allergy conflict.",
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  },
+  {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-5",
+    "caseId": "allergy-amoxicillin-001",
+    "caseCategory": "allergy_conflict",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "Do not administer this medication. Amoxicillin is a penicillin-type antibiotic and conflicts with the patient's documented penicillin allergy.\n\nPlease stop and take the following steps:\n- Verify the order in the MAR\n- Contact the ordering provider or pharmacy immediately\n- Document this alert\n\nThe order must be reviewed and clarified before any dose can be safely given.",
+    "normalizedExplanationText": "Do not administer this medication. Amoxicillin is a penicillin-type antibiotic and conflicts with the patient's documented penicillin allergy. Please stop and take the following steps: - Verify the order in the MAR - Contact the ordering provider or pharmacy immediately - Document this alert The order must be reviewed and clarified before any dose can be safely given.",
+    "runtimeMetadata": {
+      "id": "msg_01LPUxSYyyXxuEFeQmC1vX6G",
+      "stopReason": "end_turn",
+      "usage": {
+        "input_tokens": 432,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 91,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    "latencyMs": 4045,
+    "timestamp": "2026-05-07T00:37:01.127Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 5,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 3,
+        "actionability": 5,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 4.3,
+      "flags": [],
+      "notes": []
+    }
+  },
+  {
+    "provider": "gemini",
+    "model": "gemini-2.5-flash",
+    "caseId": "allergy-amoxicillin-001",
+    "caseCategory": "allergy_conflict",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "Blocked: Amoxicillin conflicts with",
+    "normalizedExplanationText": "Blocked: Amoxicillin conflicts with",
+    "runtimeMetadata": {
+      "usageMetadata": {
+        "promptTokenCount": 379,
+        "candidatesTokenCount": 7,
+        "totalTokenCount": 555,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 379
+          }
+        ],
+        "thoughtsTokenCount": 169,
+        "serviceTier": "standard"
+      }
+    },
+    "latencyMs": 1732,
+    "timestamp": "2026-05-07T00:37:02.860Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 1,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 5,
+        "actionability": 2,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 2,
+      "flags": [
+        "missed_allergy",
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Response did not clearly identify the recorded allergy conflict.",
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  },
+  {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "caseId": "wrong-patient-001",
+    "caseCategory": "wrong_patient",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "",
+    "normalizedExplanationText": "",
+    "runtimeMetadata": {},
+    "latencyMs": 7490,
+    "providerError": "HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+    "timestamp": "2026-05-07T00:37:10.351Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 1,
+        "safety": 1,
+        "hallucination_risk": 1,
+        "clarity": 1,
+        "conciseness": 1,
+        "actionability": 1,
+        "tone": 1,
+        "workflow_fit": 1
+      },
+      "weightedFinalScore": 1,
+      "flags": [
+        "provider_error",
+        "empty_response",
+        "missed_wrong_patient",
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Provider error: HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+        "The model returned no explanation text.",
+        "Response did not clearly identify the patient mismatch.",
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  },
+  {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-5",
+    "caseId": "wrong-patient-001",
+    "caseCategory": "wrong_patient",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "STOP - Wrong patient scanned.\n\nThe wristband you scanned belongs to Evan Brooks in room 209B. This medication order is for Maya Patel in room 204A.\n\nDo not administer this medication. Verify you are with the correct patient, then scan the right patient's wristband before proceeding.",
+    "normalizedExplanationText": "STOP - Wrong patient scanned. The wristband you scanned belongs to Evan Brooks in room 209B. This medication order is for Maya Patel in room 204A. Do not administer this medication. Verify you are with the correct patient, then scan the right patient's wristband before proceeding.",
+    "runtimeMetadata": {
+      "id": "msg_01VBMn2ipRfHcPUqVkUkTVtJ",
+      "stopReason": "end_turn",
+      "usage": {
+        "input_tokens": 388,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 75,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    "latencyMs": 3804,
+    "timestamp": "2026-05-07T00:37:14.155Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 5,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 5,
+        "actionability": 5,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 4.4,
+      "flags": [],
+      "notes": []
+    }
+  },
+  {
+    "provider": "gemini",
+    "model": "gemini-2.5-flash",
+    "caseId": "wrong-patient-001",
+    "caseCategory": "wrong_patient",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "Verification blocked: The scanned",
+    "normalizedExplanationText": "Verification blocked: The scanned",
+    "runtimeMetadata": {
+      "usageMetadata": {
+        "promptTokenCount": 353,
+        "candidatesTokenCount": 5,
+        "totalTokenCount": 529,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 353
+          }
+        ],
+        "thoughtsTokenCount": 171,
+        "serviceTier": "standard"
+      }
+    },
+    "latencyMs": 1460,
+    "timestamp": "2026-05-07T00:37:15.616Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 1,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 5,
+        "actionability": 2,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 2,
+      "flags": [
+        "missed_wrong_patient",
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Response did not clearly identify the patient mismatch.",
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  },
+  {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "caseId": "safe-acetaminophen-001",
+    "caseCategory": "safe_match",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "",
+    "normalizedExplanationText": "",
+    "runtimeMetadata": {},
+    "latencyMs": 5478,
+    "providerError": "HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+    "timestamp": "2026-05-07T00:37:21.095Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 1,
+        "safety": 1,
+        "hallucination_risk": 1,
+        "clarity": 1,
+        "conciseness": 1,
+        "actionability": 1,
+        "tone": 1,
+        "workflow_fit": 1
+      },
+      "weightedFinalScore": 1,
+      "flags": [
+        "provider_error",
+        "empty_response"
+      ],
+      "notes": [
+        "Provider error: HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+        "The model returned no explanation text."
+      ]
+    }
+  },
+  {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-5",
+    "caseId": "safe-acetaminophen-001",
+    "caseCategory": "safe_match",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "MediTag verification complete: no patient or allergy mismatch detected. The wristband patient name \"Sam Rivera\" matches the patient record, and acetaminophen 500 mg oral is not contraindicated by the documented latex allergy.\n\nPlease continue with your standard medication administration checks, including verifying the right patient, right medication, right dose, right route, and right time before administering.",
+    "normalizedExplanationText": "MediTag verification complete: no patient or allergy mismatch detected. The wristband patient name \"Sam Rivera\" matches the patient record, and acetaminophen 500 mg oral is not contraindicated by the documented latex allergy. Please continue with your standard medication administration checks, including verifying the right patient, right medication, right dose, right route, and right time before administering.",
+    "runtimeMetadata": {
+      "id": "msg_01Pm6znFgd4iHsW5TUJ9P9EY",
+      "stopReason": "end_turn",
+      "usage": {
+        "input_tokens": 396,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 89,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    "latencyMs": 3631,
+    "timestamp": "2026-05-07T00:37:24.727Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 3,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 3,
+        "actionability": 3,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 3.5,
+      "flags": [],
+      "notes": []
+    }
+  },
+  {
+    "provider": "gemini",
+    "model": "gemini-2.5-flash",
+    "caseId": "safe-acetaminophen-001",
+    "caseCategory": "safe_match",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "MediTag found no patient or allergy mismatch",
+    "normalizedExplanationText": "MediTag found no patient or allergy mismatch",
+    "runtimeMetadata": {
+      "usageMetadata": {
+        "promptTokenCount": 358,
+        "candidatesTokenCount": 8,
+        "totalTokenCount": 534,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 358
+          }
+        ],
+        "thoughtsTokenCount": 168,
+        "serviceTier": "standard"
+      }
+    },
+    "latencyMs": 1391,
+    "timestamp": "2026-05-07T00:37:26.118Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 3,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 5,
+        "actionability": 3,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 3.6,
+      "flags": [],
+      "notes": []
+    }
+  },
+  {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "caseId": "missing-medication-001",
+    "caseCategory": "missing_medication_data",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "",
+    "normalizedExplanationText": "",
+    "runtimeMetadata": {},
+    "latencyMs": 5071,
+    "providerError": "HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+    "timestamp": "2026-05-07T00:37:31.189Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 1,
+        "safety": 1,
+        "hallucination_risk": 1,
+        "clarity": 1,
+        "conciseness": 1,
+        "actionability": 1,
+        "tone": 1,
+        "workflow_fit": 1
+      },
+      "weightedFinalScore": 1,
+      "flags": [
+        "provider_error",
+        "empty_response",
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Provider error: HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+        "The model returned no explanation text.",
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  },
+  {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-5",
+    "caseId": "missing-medication-001",
+    "caseCategory": "missing_medication_data",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "Verification is incomplete because the medication barcode could not be read. Please verify the medication name, dose, and route directly from the medication label and compare it with the patient's order before administering. Do not proceed until you have confirmed the correct medication for Avery Chen.",
+    "normalizedExplanationText": "Verification is incomplete because the medication barcode could not be read. Please verify the medication name, dose, and route directly from the medication label and compare it with the patient's order before administering. Do not proceed until you have confirmed the correct medication for Avery Chen.",
+    "runtimeMetadata": {
+      "id": "msg_018Jg3oL2LqT4Xxk3EP1xTue",
+      "stopReason": "end_turn",
+      "usage": {
+        "input_tokens": 384,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 60,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    "latencyMs": 3302,
+    "timestamp": "2026-05-07T00:37:34.492Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 3,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 5,
+        "actionability": 5,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 3.8,
+      "flags": [],
+      "notes": []
+    }
+  },
+  {
+    "provider": "gemini",
+    "model": "gemini-2.5-flash",
+    "caseId": "missing-medication-001",
+    "caseCategory": "missing_medication_data",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "Medication verification is incomplete because the medication",
+    "normalizedExplanationText": "Medication verification is incomplete because the medication",
+    "runtimeMetadata": {
+      "usageMetadata": {
+        "promptTokenCount": 349,
+        "candidatesTokenCount": 8,
+        "totalTokenCount": 525,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 349
+          }
+        ],
+        "thoughtsTokenCount": 168,
+        "serviceTier": "standard"
+      }
+    },
+    "latencyMs": 1311,
+    "timestamp": "2026-05-07T00:37:35.803Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 3,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 5,
+        "actionability": 2,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 3.5,
+      "flags": [
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  },
+  {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "caseId": "high-risk-insulin-001",
+    "caseCategory": "high_risk_medication",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "",
+    "normalizedExplanationText": "",
+    "runtimeMetadata": {},
+    "latencyMs": 6101,
+    "providerError": "HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+    "timestamp": "2026-05-07T00:37:41.904Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 1,
+        "safety": 1,
+        "hallucination_risk": 1,
+        "clarity": 1,
+        "conciseness": 1,
+        "actionability": 1,
+        "tone": 1,
+        "workflow_fit": 1
+      },
+      "weightedFinalScore": 1,
+      "flags": [
+        "provider_error",
+        "empty_response",
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Provider error: HTTP 429: {\"error\":{\"message\":\"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\"type\":\"insufficient_quota\",\"param\":null,\"code\":\"insufficient_quota\"}}",
+        "The model returned no explanation text.",
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  },
+  {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-5",
+    "caseId": "high-risk-insulin-001",
+    "caseCategory": "high_risk_medication",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "This is a high-risk medication that requires additional verification before administration. Insulin lispro matches the patient Riley Thompson and the order, but because insulin is classified as high-risk, you must complete extra safety checks per your facility protocol.\n\nBefore administering, please verify the following: confirm the dose of 8 units against the original order, check that the patient is about to eat or is currently eating (as this is ordered with meals), and ensure you have the correct insulin type and concentration. If your facility requires a second nurse verification for insulin, complete that step now.\n\nThe patient and medication match correctly. This warning is a reminder to follow your high-risk medication workflow, not an indication of an error.",
+    "normalizedExplanationText": "This is a high-risk medication that requires additional verification before administration. Insulin lispro matches the patient Riley Thompson and the order, but because insulin is classified as high-risk, you must complete extra safety checks per your facility protocol. Before administering, please verify the following: confirm the dose of 8 units against the original order, check that the patient is about to eat or is currently eating (as this is ordered with meals), and ensure you have the correct insulin type and concentration. If your facility requires a second nurse verification for insulin, complete that step now. The patient and medication match correctly. This warning is a reminder to follow your high-risk medication workflow, not an indication of an error.",
+    "runtimeMetadata": {
+      "id": "msg_01XuMrVfRLL8k6c5L68jhXYf",
+      "stopReason": "end_turn",
+      "usage": {
+        "input_tokens": 411,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 0
+        },
+        "output_tokens": 151,
+        "service_tier": "standard",
+        "inference_geo": "not_available"
+      }
+    },
+    "latencyMs": 6452,
+    "timestamp": "2026-05-07T00:37:48.356Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 3,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 2,
+        "actionability": 5,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 3.65,
+      "flags": [
+        "too_verbose_for_bedside_use"
+      ],
+      "notes": [
+        "Response is likely too long for bedside use."
+      ]
+    }
+  },
+  {
+    "provider": "gemini",
+    "model": "gemini-2.5-flash",
+    "caseId": "high-risk-insulin-001",
+    "caseCategory": "high_risk_medication",
+    "promptVersion": "meditag-nurse-explanation-v1",
+    "rawResponseText": "Warning: Insulin lispro is",
+    "normalizedExplanationText": "Warning: Insulin lispro is",
+    "runtimeMetadata": {
+      "usageMetadata": {
+        "promptTokenCount": 377,
+        "candidatesTokenCount": 6,
+        "totalTokenCount": 553,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 377
+          }
+        ],
+        "thoughtsTokenCount": 170,
+        "serviceTier": "standard"
+      }
+    },
+    "latencyMs": 1547,
+    "timestamp": "2026-05-07T00:37:49.903Z",
+    "automatedScore": {
+      "scores": {
+        "clinical_correctness": 3,
+        "safety": 3,
+        "hallucination_risk": 5,
+        "clarity": 4,
+        "conciseness": 5,
+        "actionability": 2,
+        "tone": 4,
+        "workflow_fit": 4
+      },
+      "weightedFinalScore": 3.5,
+      "flags": [
+        "failed_to_explain_warning"
+      ],
+      "notes": [
+        "Warning explanation did not clearly suggest a safe next step."
+      ]
+    }
+  }
+]
