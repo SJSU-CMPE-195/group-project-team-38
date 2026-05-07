@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "convex dev",
     "dev:setup": "convex dev --configure --until-success",
+    "evals:smoke": "bun evals/run.ts --smoke",
+    "evals:run": "bun evals/run.ts",
     "seed:demo": "convex run --push seed:seedDemoData",
     "check-types": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",

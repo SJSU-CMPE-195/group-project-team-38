@@ -7,6 +7,6 @@
     "noEmit": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["convex/**/*.ts", "tests/**/*.ts"],
+  "include": ["convex/**/*.ts", "evals/**/*.ts", "tests/**/*.ts"],
   "exclude": ["convex/_generated"]
 }

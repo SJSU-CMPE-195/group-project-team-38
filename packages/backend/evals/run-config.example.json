@@ -1,0 +1,34 @@
+{
+  "runName": "meditag-smoke-example",
+  "providers": ["openai", "anthropic", "gemini"],
+  "caseCategories": ["allergy_conflict", "wrong_patient", "safe_match"],
+  "saveRawOutputs": true,
+  "automatedScoring": true,
+  "generateMarkdownReport": true,
+  "includeCostAndLatency": true,
+  "smokeTest": true,
+  "outputDir": "evals/results",
+  "models": [
+    {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "enabled": true,
+      "maxOutputTokens": 180,
+      "temperature": 0.1
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5",
+      "enabled": true,
+      "maxOutputTokens": 180,
+      "temperature": 0.1
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "enabled": true,
+      "maxOutputTokens": 180,
+      "temperature": 0.1
+    }
+  ]
+}
