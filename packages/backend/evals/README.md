@@ -69,10 +69,10 @@ Edit `providers/config.ts` or provide a JSON config file. Model entries are data
 
 The default matrix includes three tiers per provider:
 
-| Provider  | Flagship                 | Mid                 | Tiny                    |
-| --------- | ------------------------ | ------------------- | ----------------------- |
-| OpenAI    | `gpt-5.4`                | `gpt-5.4-mini`      | `gpt-5.4-nano`          |
-| Anthropic | `claude-opus-4-7`        | `claude-sonnet-4-6` | `claude-haiku-4.5`      |
+| Provider  | Flagship                 | Mid                      | Tiny                            |
+| --------- | ------------------------ | ------------------------ | ------------------------------- |
+| OpenAI    | `gpt-5.4`                | `gpt-5.4-mini`           | `gpt-5.4-nano`                  |
+| Anthropic | `claude-opus-4-7`        | `claude-sonnet-4-6`      | `claude-haiku-4.5`              |
 | Gemini    | `gemini-3.1-pro-preview` | `gemini-3-flash-preview` | `gemini-3.1-flash-lite-preview` |
 
 Do not hard-code API keys in model config.

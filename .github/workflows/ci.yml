@@ -23,9 +23,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: List project docs
-        run: bun run docs:list
-
       - name: Run lint and formatter check
         run: bun run check
 

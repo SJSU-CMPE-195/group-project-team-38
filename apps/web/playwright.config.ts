@@ -11,7 +11,8 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "NEXT_PUBLIC_E2E_ADMIN_FIXTURE=1 bun run dev",
+    command:
+      "NEXT_PUBLIC_E2E_ADMIN_FIXTURE=1 NEXT_PUBLIC_CONVEX_URL=${NEXT_PUBLIC_CONVEX_URL:-http://127.0.0.1:3210} NEXT_PUBLIC_CONVEX_SITE_URL=${NEXT_PUBLIC_CONVEX_SITE_URL:-http://127.0.0.1:3211} bun run dev",
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",

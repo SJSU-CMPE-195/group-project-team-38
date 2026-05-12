@@ -11,7 +11,7 @@ import {
   useToast,
 } from "heroui-native";
 import { useRef } from "react";
-import { Text, TextInput, View } from "react-native";
+import { TextInput, View } from "react-native";
 import z from "zod";
 
 import { authClient, ensureSingleOrganizationIsActive } from "@/lib/auth-client";
